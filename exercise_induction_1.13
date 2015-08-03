@@ -59,6 +59,39 @@ because fib(n) = (φ^n - ψ^n)/√5, furthermore, we can then assume that fib(n-
 φ^ (n+1) - ψ^(n+1) /√5 = (φ^(n+1) - ψ^(n+1))/√5
                    ;;equal!
 
-[helpful: www.billthelizard.com/2009/12/sicp-exercise-113-fibonacci-and-golden.html]
+
 Finally we need to prove that φ^n/√5 is the closest _integer_ to fib(n). We proved that
+fib(n) = φ^n-ψ^n/√5. This is a very good question, because if this is true we don't have
+to calculate the expensive double exponentiation and can just round the result of φ^n/√5
+to the closest integer!
+
 fib(n) = φ^n-ψ^n/√5
+
+What we need to know is, how does the -ψ^n/√5 contribute to the overall result, more precisely,
+does it deviate -φ^n/√5 by more than an integer? We can calculate the exact value of psi
+
+ψ:
+(defconstant +psi+ (/ (- 1 (sqrt 5)) 2))
++psi+ ==> --0.618034
+
+ψ/√5:
+(/ +psi+ (sqrt 5)) = -0.2763932
+
+which is less than one, hence is only getting smaller:
+
+(defun psi-lim-test (n)
+  "lim -Ψ^n/√5 → ∞ = 0"
+  (/ (- (expt +psi+ n))
+     (sqrt 5)))
+
+(psi-lim-test #.most-positive-fixnum) ==> -0.0
+
+φ^n-ψ^n/√5
+φ^n- 0 /√5 
+φ^n/√5
+
+and ψ^n/√5 < 0.5, and since φ^n-ψ^n/√5 is equal to an integer by definition (is this proof
+necessary?) the ψ^n/√5 term can never deviate it to a neighboring integer:
+
+φ^n/√5 is the closest integer to fib(n)
+
