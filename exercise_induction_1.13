@@ -31,16 +31,34 @@ A(n) beweisen, gilt A(1)?
 A(n+1)?
 note: fib(n+1) = fib(n) + fib(n-1)
 
-since we already proved fib(0) and fib(1) only "f(n-1) + fib(n-2) otherwise" otherwise,
+since we already proved fib(0) and fib(1) only "f(n-1) + fib(n-2) otherwise" remains,
 hence for induction we prove for fib(n+1)
  fib(n+1) = fib(n+1-1) + fib(n+1-2)
-becomes
 
+which becomes:
 fib(n) + fib (n-1) =  (φ^(n+1) - ψ^(n+1))/√5   
 
 because fib(n) = (φ^n - ψ^n)/√5, furthermore, we can then assume that fib(n-1) = (φ^(n-1) - ψ^(n-1))/√5
 
-(φ^n - ψ^n)/√5+(φ^(n-1) - ψ^(n-1))/√5 = (φ^(n+1) - ψ^(n+1))/√5
+     fib(n)     +         fib(n-1)        = fib(n+1)
+ (φ^n - ψ^n)/√5 + (φ^(n-1) - ψ^(n-1)) /√5 = (φ^(n+1) - ψ^(n+1))/√5
+                                            ^^^^^^^^^^^ ignoring right-hand side for now
 
-(((1 + √5)/2)^n - ((1 - √5)/ 2)^n)/√5+(((1 + √5)/2)^(n-1) - ((1 - √5)/ 2)^(n-1))/√5 = (((1 + √5)/2)^(n+1) - ((1 - √5)/ 2)^(n+1))/√5
+    (φ^n - ψ^n  +  φ^(n-1) - ψ^(n-1)) /√5   ;; getting /√5 in front (factoring out)
 
+ (φ^n + φ^(n-1) -  ψ^n - ψ^(n-1)) /√5
+
+ φ^(n-1)*(φ + 1)- ψ^(n-1)*(ψ - 1) /√5 ;; factoring out ψ,φ on both sides
+
+;; now we use the special property of the golden ratio: φ + 1 = φ²
+;; which holds also true for psi: ψ + 1 = ψ²
+;; hence:
+
+ φ^(n-1)*φ²     - ψ^(n-1)*ψ²      /√5      
+
+φ^ (n+1) - ψ^(n+1) /√5 = (φ^(n+1) - ψ^(n+1))/√5
+                   ;;equal!
+
+[helpful: www.billthelizard.com/2009/12/sicp-exercise-113-fibonacci-and-golden.html]
+Finally we need to prove that φ^n/√5 is the closest _integer_ to fib(n). We proved that
+fib(n) = φ^n-ψ^n/√5
