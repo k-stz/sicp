@@ -1,0 +1,46 @@
+Prove that Fib(n) is the closest integer to φ^n/√5, where
+φ = (1 + √5)/2.
+ψ = (1 - √5)/ 2.
+
+Use induction and the definition of the Fibonacci numbers (see Section 1.2.2)
+to prove that Fib(n) = (φ^n - ψ^n)/√5
+
+Section 1.2.2 Fibonacci numbers definition
+	      0   if n = 0
+fib(n)= {     1	  if n = 1
+	      f(n-1) + fib(n-2) otherwise
+
+A(n) beweisen, gilt A(0)?
+
+
+     fib(0) =  (φ^0 - ψ^0)/√5
+ 	 0  =  (1-1)/√5
+	 0  =  0/√5 
+	 0  =  0      CORRECT
+
+
+A(n) beweisen, gilt A(1)?
+
+ fib(1) =  (((1+√5)/2)^1 - ((1 - √5)/ 2)^1) /√5
+     1  =  (((1+√5)/2) - ((1 - √5)/ 2)) /√5
+     1  =  (1+√5 - 1 + √5)/2/√5
+     1  =  (2*√5)/2/√5
+     1  =  √5/√5
+     1  =  1          CORRECT
+
+A(n+1)?
+note: fib(n+1) = fib(n) + fib(n-1)
+
+since we already proved fib(0) and fib(1) only "f(n-1) + fib(n-2) otherwise" otherwise,
+hence for induction we prove for fib(n+1)
+ fib(n+1) = fib(n+1-1) + fib(n+1-2)
+becomes
+
+fib(n) + fib (n-1) =  (φ^(n+1) - ψ^(n+1))/√5   
+
+because fib(n) = (φ^n - ψ^n)/√5, furthermore, we can then assume that fib(n-1) = (φ^(n-1) - ψ^(n-1))/√5
+
+(φ^n - ψ^n)/√5+(φ^(n-1) - ψ^(n-1))/√5 = (φ^(n+1) - ψ^(n+1))/√5
+
+(((1 + √5)/2)^n - ((1 - √5)/ 2)^n)/√5+(((1 + √5)/2)^(n-1) - ((1 - √5)/ 2)^(n-1))/√5 = (((1 + √5)/2)^(n+1) - ((1 - √5)/ 2)^(n+1))/√5
+

@@ -1,0 +1,38 @@
+Structure and interpretation of Computer Programs
+-- Harold Abelson, Gerald Jay Sussman with Julie Sussman
+
+(!) Load programs via "C-c C-l" <path-to-file.scm> 
+
+(* 2 2)
+ ^^^^^ "Combination"
+
+(define square (lambda (x) (* x x)))
+
+"Syntactic sugar" for the above:
+(define (square x) (* x x)
+
+(- 3 1) -> 2
+(- 3)   -> -3
+(- -3)  -> 3
+
+(define symbol (here-comes-the-definition))
+        ^^^^^^
+________________________________________________________________________________
+
+Since large programs grow from small ones, it is crucial that we develop an
+arsenal of standard program structures of whose correctness we have become sure,
+(!) we call them idioms,
+and learn to combine them into larger structures using organizational techniques
+of proven value.
+
+The critical programming concerns of software engineering and artificial
+intelligence tend to coalesce as the systems under investigation _become_
+larger. 
+
+Indeed, in any very large programming task a useful organizing principle is to
+control and isolate traffic within the task modules via the invention of
+language.
+
+[Preface](...) We also recognize our debt to the mathematicians who scouted out
+this territory decades before computers appeared on the scene. These pioneers
+include Alonzo Church, Barkley Rosser, Stephen Kleene, and Haskell Curry.	
