@@ -56,7 +56,7 @@ because fib(n) = (φ^n - ψ^n)/√5, furthermore, we can then assume that fib(n-
 
  φ^(n-1)*φ²     - ψ^(n-1)*ψ²      /√5      
 
-φ^ (n+1) - ψ^(n+1) /√5 = (φ^(n+1) - ψ^(n+1))/√5
+ φ^(n+1) - ψ^(n+1) /√5 = (φ^(n+1) - ψ^(n+1))/√5
                    ;;equal!
 
 
@@ -80,10 +80,10 @@ does it deviate -φ^n/√5 by more than an integer? We can calculate the exact v
 which is less than one, hence is only getting smaller:
 
 (defun psi-lim-test (n)
-  "lim -Ψ^n/√5 → ∞ = 0"
   (/ (- (expt +psi+ n))
      (sqrt 5)))
 
+"lim -Ψ^n/√5 → ∞ = 0":
 (psi-lim-test #.most-positive-fixnum) ==> -0.0
 
 φ^n-ψ^n/√5
@@ -94,4 +94,48 @@ and ψ^n/√5 < 0.5, and since φ^n-ψ^n/√5 is equal to an integer by definiti
 necessary?) the ψ^n/√5 term can never deviate it to a neighboring integer:
 
 φ^n/√5 is the closest integer to fib(n)
+
+QED ■
+
+
+--------------------------------------------------------------------------------
+
+To show a bit practically that the phi-part of the equation doesn't bare enough weight, and
+also that it can be extracted in the form above ψ^2/√5:
+
+(defconstant +phi+ (/ (+ 1 (sqrt 5)) 2))
+(defconstant +psi+ (/ (- 1 (sqrt 5)) 2))
+
+(defun fib (n)
+  "φ^n-ψ^n/√5"
+  (/ (- (expt +phi+ n) (expt +psi+ n))
+     (sqrt 5)))
+
+(defun phi-part (n)
+  "φ^n/√5, i.e. closest integer to fib(n)."
+  (/ (expt +phi+ n)
+     (sqrt 5)))
+
+(defun psi-part (n)
+  "ψ^n/√5"
+  (/ (expt +psi+ n)
+     (sqrt 5)))
+
+(loop for n upto 10 collect (fib n)) ==> (0.0 1.0 1.0 2.0 3.0 5.0000005 8.0 13.000001 21.000002 34.0 55.000004)
+                                                                                      ;;^ 8th
+let's choose 21
+(fib 8)      ==> 21.000002
+(phi-part 8) ==> 21.009521
+(psi-part 8) ==> 0.009519496
+
+(- (phi-part 8)
+   (psi-part 8)) ==> 21.000002
+
+which shows that we can reason about the psi-part as we did above namely that it is
+initially smaller than 1/2 and as n approaches infinity the expression (psi-part)
+approaches 0. This coupled with the fact that fib(n) returns integers, and the phi- and
+psi-part together are exactly a fibonacci number. If we take away just the psi-part which
+is only substracting the phi-part and it does so by less than 1/2 and approaches 0 as its
+variable approaches infinity we can safely say that the PHI-part alone is indeed:
+"the closest integer" to Fib(n)
 
