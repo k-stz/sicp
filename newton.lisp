@@ -106,6 +106,30 @@
 (defun cube-root  (number)
   "Fixpoint search x = y / x²"
   (fixpoint (average-damp
-	     (lambda (x) (/ number (expt x 2))))))
+	     (lambda (x) (/ number (square x))))))
+
+
+
+;; Now we shall use Newton's general method, which involves derivatives - again, our higher-order
+;; abstraction comes in handy, because calculating a derivative needs a procedure that takes
+;; a function as input and outputs a function such that x->x^3  => x->3x²
+
+;; Computing the derivative of function g(x) where dx is "a small number":
+;; Dg(x) = g(x + dx) - g(x)
+;;        -----------------
+;;                dx
+
+;; The small number dx shall be
+(defparameter *dx* 0.00001)
+
+(defun deriv (g)
+  "Returns the derivate of input function g."
+  (lambda (x) (/ (- (funcall g (+ x *dx*))
+		    (funcall g x))
+		 *dx*)))
+
+
+;; (deriv (lambda (x) (expt x 3))) ==> 3x²
+;; (funcall * 2) ==> 12.016296, indeed 3*2² = 12!
 
 
