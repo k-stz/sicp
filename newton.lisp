@@ -133,3 +133,31 @@
 ;; (funcall * 2) ==> 12.016296, indeed 3*2² = 12!
 
 
+(defun cube (x) (* x x x))
+
+;; (funcall (deriv #'cube) 5) ==> 75.531006
+
+;; Newton's method
+;; if g(x) is a differentiable then a solution to the equation g(x) = 0 is a fixed
+;; point of the function f(x) where
+;; f(x) = x - g(x)/Dg(x)
+
+;; we can formulate this function easily now:
+
+(defun newton-transform (g)
+  (lambda (x) (- x (/ (funcall g x)
+		      (funcall (deriv g) x)))))
+
+;; So if we now find the fixpoint of the above returned function, we get the solution
+;; to g(x)=0. So let's use this to formulate the sqrt. First to make the g(x)=0 solution
+;; equal to the square root:
+;; x² = y     ; -x²
+;; 0 = y - x²  <- this be our g(x), where y = the sqrt radicand
+
+;; (newton-transform (lambda (x) (- number (square x)))) ==> f (x)
+;; hence (fixpoint f(x)) ==> will be our solution to g(x) = 0, ergo: sqrt(y)!!
+
+(defun newton-general-sqrt (number)
+  "Use Newton's method to compute square roots!"
+  (fixpoint (newton-transform
+	     (lambda (x) (- number (square x))))))
