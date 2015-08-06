@@ -75,3 +75,11 @@
 	      ;; suitable for a fixpoint-search
 	      (/ number x))))
     (find-fixpoint (average-damp-function fn))))
+
+
+;; quick excursion on the golden ratio: Φ²= 1 + Φ or by dividing by Φ we get:  Φ = 1/Φ + 1
+;; which is suitable for a fixpoint serach that yields the golden ratio:
+
+(defun fixpoint-golden-ratio ()
+  "Returns the golden ratio Φ."
+  (find-fixpoint (lambda (x) (+ (/ 1 x) 1))))
