@@ -8,7 +8,8 @@
 
 (defun square (x) (* x x))
 
-(defun newton-sqrt (radicand)
+(defun newton-special-sqrt (radicand)
+  "Use a special case of Newton's method to calculate square roots."
   (let ((initial-guess 1.0))
     (flet ((good-enough? (guess)
 	     (< (abs (- (square guess)
@@ -30,9 +31,9 @@
 (defun close-enough? (x y)
   (< (abs (- x y)) 0.001))
 
-(defun fixpoint (fn &optional (input 1.0))
-  (let ((f-of-x (funcall fn input)))
-    (if (close-enough? f-of-x input)
+(defun fixpoint (fn &optional (guess 1.0))
+  (let ((f-of-x (funcall fn guess)))
+    (if (close-enough? f-of-x guess)
 	f-of-x
 	(fixpoint fn f-of-x))))
 
@@ -145,6 +146,8 @@
 ;; we can formulate this function easily now:
 
 (defun newton-transform (g)
+  "Returns a function whose fixpoint is the solution is zero/root of g. Such that:
+(fixpoint (newton-transform g)) satisfies g(x) = 0 "
   (lambda (x) (- x (/ (funcall g x)
 		      (funcall (deriv g) x)))))
 
@@ -161,3 +164,20 @@
   "Use Newton's method to compute square roots!"
   (fixpoint (newton-transform
 	     (lambda (x) (- number (square x))))))
+
+
+;; Now we have two fixpoint searches that compute the sqrt. A general procedure can
+;; abstract them both:
+
+(defun fixpoint-of-transform (g transform &optional (guess 1.0))
+  (fixpoint (funcall transform g) guess))
+
+(defun fixpoint-avg-damp-sqrt (number)
+  (fixpoint-of-transform (lambda (x) (/ number x))
+			 #'average-damp
+			 1.0))
+
+(defun fixpoint-newton-transform-sqrt (number)
+  (fixpoint-of-transform (lambda (x) (- number (square x)))
+			 #'newton-transform
+			 1.0))
