@@ -157,13 +157,17 @@
 ;; x² = y     ; -x²
 ;; 0 = y - x²  <- this be our g(x), where y = the sqrt radicand
 
+(defun newtons-method (g &optional (guess 1.0))
+  "Newton's method"
+  (fixpoint (newton-transform g) guess))
+
 ;; (newton-transform (lambda (x) (- number (square x)))) ==> f (x)
 ;; hence (fixpoint f(x)) ==> will be our solution to g(x) = 0, ergo: sqrt(y)!!
 
 (defun newton-general-sqrt (number)
   "Use Newton's method to compute square roots!"
-  (fixpoint (newton-transform
-	     (lambda (x) (- number (square x))))))
+  (newtons-method (lambda (x) (- number (square x)))
+		  1.0))
 
 
 ;; Now we have two fixpoint searches that compute the sqrt. A general procedure can
