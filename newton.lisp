@@ -274,3 +274,38 @@
 	   (expt x (- radix 1))))) 1.0)))
 
 
+;; Exercise 1.46
+
+(defun interative-improve (good-enough-fn
+			   improve-guess-fn)
+  (lambda (guess)
+    (loop until (funcall good-enough-fn guess)
+	 :do
+	 (setf guess
+	       (funcall improve-guess-fn guess))
+	 :finally (return guess))))
+
+
+(defun interative-improve-sqrt (number)
+  (funcall (interative-improve
+	    ;; good-enough?
+	    (lambda (guess)
+	      (< (abs (- (square guess)
+			 2.0))
+		 0.001))
+	    ;; improve-guess
+	    (lambda (guess)
+	      (avg guess (/ 2.0 guess))))
+	   number))
+
+(defun interative-improve-fixpoint (fn &optional (guess 1.0))
+  (funcall (interative-improve
+	    (lambda (x) (< (abs (- (funcall fn x)
+				   x))
+			   0.001))
+	    (lambda (x)
+	      (funcall fn x)))
+	   guess))
+
+;; (interative-improve-fixpoint (average-damp (lambda (x) (/ 2.0 x)))) ==> 1.4142157
+
