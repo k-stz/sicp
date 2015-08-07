@@ -231,3 +231,46 @@
 ;; (funcall (repeat #'square 2) 5) ==> 625
 
 
+;; Exercise 1.44
+
+(defun smooth (fn)
+  "Returns a function that returns the average of f(x), f(x-dx) and f(x+dx) for any x."
+  (lambda (x)
+    (avg
+     (avg (funcall fn (- x *dx*))
+	  (funcall fn x))
+     (funcall fn (+ x *dx*)))))
+
+(defun n-fold-smooth (fn n)
+  "Returns a function that is with n-times smoothing applied"
+  (funcall (repeat #'smooth n) fn))
+
+
+;; Exercise 1.45
+
+;; 4 needs 2 average-damps..
+;; 8 needs 3
+;; 16 needs 4
+;; 31 works
+;; yep 32 needs 5
+;; so: 2^x= radix where 'x' is the number of average-damping required for the function to
+;; converge: (floor (log radix 2)) ==> number of average-dampins required
+
+
+(defun log-2 (number)
+  (log number 2))
+
+(defun nth-root (number &optional (radix 2))
+  "Computes the nth-root."
+  (let ((repeated-average-damp
+	 (repeat #'average-damp
+		 (floor (log-2 radix)))))
+    (fixpoint
+     (funcall
+      repeated-average-damp
+      (lambda (x)
+	(/ number
+	   ;; y^n-1
+	   (expt x (- radix 1))))) 1.0)))
+
+
