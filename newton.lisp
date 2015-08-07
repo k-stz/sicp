@@ -219,3 +219,15 @@
 ;; (funcall (compose #'square #'1+) 6) ==> 49
 
 
+;; Exercise 1.43
+(defun repeat (fn n)
+  "Returns a function that is the a n-times composition with itself. f( f(...f(nth-nesting)))"
+  (let ((composition-fn #'identity))
+    (loop for i below n do
+	 (setf composition-fn
+	       (compose composition-fn fn)))
+    composition-fn))
+
+;; (funcall (repeat #'square 2) 5) ==> 625
+
+
