@@ -185,3 +185,37 @@
   (fixpoint-of-transform (lambda (x) (- number (square x)))
 			 #'newton-transform
 			 1.0))
+
+;;------------------------------------------------------------------------------
+;; Exercise 1.40
+
+(defun cubic (a b c)
+  "Returns a function of the form: f(x) = x³ + ax² + bx + c"
+  (lambda (x)
+    (+ (expt x 3)
+       (* a (expt x 2))
+       (* b x)
+       c)))
+
+
+;; Exercise 1.41
+(defun double (fn)
+  "Return a function that applies itself twice on its input. f(f(x))"
+  (lambda (x)
+    (funcall fn (funcall fn x))))
+
+;; lisp-1 shows brevity here
+;;(funcall (funcall (funcall #'double (funcall #'double #'double)) #'1+) 5) ==> 21
+
+
+;; Exercise 1.42
+
+(defun compose (f g)
+  "Returns the function commposition f(g(x))."
+  (lambda (x)
+    (funcall f
+	     (funcall g x))))
+
+;; (funcall (compose #'square #'1+) 6) ==> 49
+
+
