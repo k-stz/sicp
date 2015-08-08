@@ -79,7 +79,7 @@
 
 
 ;; quick excursion on the golden ratio: Φ²= 1 + Φ or by dividing by Φ we get:  Φ = 1/Φ + 1
-;; which is suitable for a fixpoint serach that yields the golden ratio:
+;; which is suitable for a fixpoint search that yields the golden ratio:
 
 (defun fixpoint-golden-ratio ()
   "Returns the golden ratio Φ."
@@ -95,13 +95,13 @@
 ;; special case of the newton method (the general case can find roots for any
 ;; equations). We can immediately see a striking difference: before we averaged y with x/y
 ;; successively (1) which is just average-damping and the repeated application is (2) just
-;; the way the fixpoint seach works!
+;; the way the fixpoint search works!
 ;; In other words we abstracted a general procedure of averaging input and output values
 ;; of function (average-damp) and a general procedure for repeated application, with
 ;; the specialized goal of converging to a fixpoint (fixpoint-search)
 ;; (fixpoint (average-damp (lambda (x) (/ 2.0 x)))) ==> 1.4142135
 
-;; finally abstracting these procedures out and exposing them as seperate entities allows
+;; finally abstracting these procedures out and exposing them as separate entities allows
 ;; for simple reuse: we now can easily compute cube-roots:
 
 (defun cube-root  (number)
@@ -124,7 +124,7 @@
 (defparameter *dx* 0.00001)
 
 (defun deriv (g)
-  "Returns the derivate of input function g."
+  "Returns the derivative of the input function g."
   (lambda (x) (/ (- (funcall g (+ x *dx*))
 		    (funcall g x))
 		 *dx*)))
@@ -146,8 +146,8 @@
 ;; we can formulate this function easily now:
 
 (defun newton-transform (g)
-  "Returns a function whose fixpoint is the solution is zero/root of g. Such that:
-(fixpoint (newton-transform g)) satisfies g(x) = 0 "
+  "Returns a function whose fixpoint is the zero/root of g. Such that:
+\(fixpoint (newton-transform g)) is equal to g(x) = 0"
   (lambda (x) (- x (/ (funcall g x)
 		      (funcall (deriv g) x)))))
 
@@ -211,7 +211,7 @@
 ;; Exercise 1.42
 
 (defun compose (f g)
-  "Returns the function commposition f(g(x))."
+  "Returns the function composition f(g(x))."
   (lambda (x)
     (funcall f
 	     (funcall g x))))
@@ -221,7 +221,7 @@
 
 ;; Exercise 1.43
 (defun repeat (fn n)
-  "Returns a function that is the a n-times composition with itself. f( f(...f(nth-nesting)))"
+  "Returns a function that is the n-times composition with itself. f( f(...f(nth-nesting)))"
   (let ((composition-fn #'identity))
     (loop for i below n do
 	 (setf composition-fn
@@ -242,7 +242,7 @@
      (funcall fn (+ x *dx*)))))
 
 (defun n-fold-smooth (fn n)
-  "Returns a function that is with n-times smoothing applied"
+  "Returns a function that applies n-times SMOOTH."
   (funcall (repeat #'smooth n) fn))
 
 
@@ -254,7 +254,7 @@
 ;; 31 works
 ;; yep 32 needs 5
 ;; so: 2^x= radix where 'x' is the number of average-damping required for the function to
-;; converge: (floor (log radix 2)) ==> number of average-dampins required
+;; converge: (floor (log radix 2)) ==> number of average-dampings required
 
 
 (defun log-2 (number)
@@ -276,7 +276,7 @@
 
 ;; Exercise 1.46
 
-(defun interative-improve (good-enough-fn
+(defun iterative-improve (good-enough-fn
 			   improve-guess-fn)
   (lambda (guess)
     (loop until (funcall good-enough-fn guess)
@@ -286,8 +286,8 @@
 	 :finally (return guess))))
 
 
-(defun interative-improve-sqrt (number)
-  (funcall (interative-improve
+(defun iterative-improve-sqrt (number)
+  (funcall (iterative-improve
 	    ;; good-enough?
 	    (lambda (guess)
 	      (< (abs (- (square guess)
@@ -298,8 +298,8 @@
 	      (avg guess (/ 2.0 guess))))
 	   number))
 
-(defun interative-improve-fixpoint (fn &optional (guess 1.0))
-  (funcall (interative-improve
+(defun iterative-improve-fixpoint (fn &optional (guess 1.0))
+  (funcall (iterative-improve
 	    (lambda (x) (< (abs (- (funcall fn x)
 				   x))
 			   0.001))
@@ -307,5 +307,10 @@
 	      (funcall fn x)))
 	   guess))
 
-;; (interative-improve-fixpoint (average-damp (lambda (x) (/ 2.0 x)))) ==> 1.4142157
+;; (iterative-improve-fixpoint (average-damp (lambda (x) (/ 2.0 x)))) ==> 1.4142157
 
+;; (defun Y (f)
+;;   ((lambda (x) (funcall x x))
+;;    (lambda (y)
+;;      (funcall f (lambda (&rest args)
+;; 		  (apply (funcall y y) args)))))) 
