@@ -1,6 +1,9 @@
+(defpackage :sicp
+  (:use :cl))
+
 (defun gcd-m (a b)
   (if (= b 0)
-      a
+      (abs a)
       (gcd-m b (mod a b))))
 
 ;;Normal-order evaluation: applying functions before function arguments
