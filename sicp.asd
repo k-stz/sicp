@@ -9,4 +9,4 @@
   ((:module "1-chapter/"
 	    :components ((:file "newton")))
    (:module "2-chapter/"
-	    :components ((:file "line-segment")))))
+	    :components ((:file "line-segments")))))
