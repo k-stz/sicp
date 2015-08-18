@@ -47,3 +47,35 @@
 (defun 2-4-cdr (2-4-cons)
   (funcall 2-4-cons (lambda (head tail) (declare (ignore head))
 			    tail)))
+
+
+
+;; Exercise 2.5
+;; show that we can represent a pair of non-negative numbers using:
+;; (2^a)*(3^b)
+;; First of how'd we go about retrieving a and b from that term:
+;; 2^a = (3^b)/(2^a), and finally (log 2^a 2) => a
+;; Which means we need to store 2^a, 3^a and the corresponding logairthm bases
+;; 2 and 3 in the functional object
+
+(defun 2-5-cons (x y)
+  (lambda (i)
+    (let* ((divisor (ecase i
+		     (0 (expt 3 y)m)
+		     (1 (expt 2 x))))
+	  (base-a
+	   (/ (* (expt 2 x)
+		 (expt 3 y))
+	      divisor)))
+      (ecase i
+	(0 (log base-a 2))
+	(1 (log base-a 3))))))
+
+(defun 2-5-car (2-5-cons)
+  (funcall 2-5-cons 0))
+
+(defun 2-5-cdr (2-5-cons)
+  (funcall 2-5-cons 1))
+
+;; TODO: check out the fundamental theorem of arithmetic, where x and y can be
+;; retrieved based on the number even divisions of the bases 2 and 3 respectively
