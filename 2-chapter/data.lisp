@@ -6,7 +6,17 @@
 ;; they must fulfill to be a valid representation
 
 ;; a pair, here represented by a closure, a function closing over the input that
-;; will depending on its input retrieve the closed over data. 
+;; will depending on its input retrieve the closed over data. We say the data is
+;; has a /procedural representation/.
+
+;; Message passing,
+;; furthermore the style employed here is called /message passing/ this means we
+;; pass some information to an object or process, here the m-cons returned precedure
+;; (a function object), and the object decides what sub-routine to run.
+;; This is to be contrasted by simply calling the routine directly. Basically whneever
+;; a method on an object is invoked we use /message passing/ as the object decides with
+;; the argument passed "the message" which of its method to invoke.
+
 
 (defun m-cons (x y)
   (lambda (i)
@@ -19,3 +29,21 @@
 
 (defun m-cdr (m-cons)
   (funcall m-cons 1))
+
+
+;; exercise 2.4
+
+(defun 2-4-cons (x y)
+  (lambda (m) (funcall m x y)))
+
+(defun 2-4-car (2-4-cons)
+  (funcall 2-4-cons (lambda (p q) (declare (ignore q))
+			    p)))
+
+;; since 2-4-cons lambda applies "m" to two arguments x and y, then we need to pass it a
+;; lambda that takes two arguments. Those arguments, again, will be x and y in the lambda
+;; body, so we just need to return either of those to emulate a CAR or CDR respectively
+
+(defun 2-4-cdr (2-4-cons)
+  (funcall 2-4-cons (lambda (head tail) (declare (ignore head))
+			    tail)))
