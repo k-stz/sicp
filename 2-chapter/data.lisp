@@ -61,7 +61,7 @@
 (defun 2-5-cons (x y)
   (lambda (i)
     (let* ((divisor (ecase i
-		     (0 (expt 3 y)m)
+		     (0 (expt 3 y))
 		     (1 (expt 2 x))))
 	  (base-a
 	   (/ (* (expt 2 x)
@@ -77,5 +77,37 @@
 (defun 2-5-cdr (2-5-cons)
   (funcall 2-5-cons 1))
 
-;; TODO: check out the fundamental theorem of arithmetic, where x and y can be
-;; retrieved based on the number even divisions of the bases 2 and 3 respectively
+;; The numbers 2 and 3 are both primes, according to the _fundamental theorem of
+;; arithmetic_ every positive integer can be represented as the product of primes.
+;; Also any such product is unique up to the order of factors.
+;; This menas that (* 2^a 3^b) yields a unique numbers. Hence we know that if we
+;; remove either factor (2 or 3) we will yield _integers_ but whenever a factor
+;; is missing and we remove it we will with absolute certainty get a non integer
+;; because we will then divide a prime by _a different_ prime, which is always a
+;; non-integer by definition.
+;; Hence what we need is a procedure that tests how many times a division of
+;; a number still yields an integer - a modulo test:
+
+(defun remainder-zero-n-times (dividend divisor)
+  "Returns the number of times the divisor can be divided by the divident while at
+each division yielding a remainder of zero -- an integer"
+  (labels ((rec (quotient n)
+	     (if (= (mod quotient divisor) 0)
+		 (rec (/ quotient divisor) (1+ n))
+		 n)))
+    (rec dividend 0)))
+
+(defun new-2-5-cons (x y)
+  ;; (* 2^a 2^b)
+  (* (expt 2 x)
+     (expt 3 y)))
+
+(defun new-2-5-car (new-2-5-cons)
+  (remainder-zero-n-times
+   new-2-5-cons
+   2))
+
+(defun new-2-5-cdr (new-2-5-cons)
+  (remainder-zero-n-times
+   new-2-5-cons
+   3))
