@@ -111,3 +111,49 @@ each division yielding a remainder of zero -- an integer"
   (remainder-zero-n-times
    new-2-5-cons
    3))
+
+
+;; exercise 2.6
+
+;; this one is weird, the church numerals are representation of numbers using nothing
+;; but procedures. The numeral zero would be:
+
+(defun zero ()
+   (lambda (f) ;; nothing is done with the input
+    (lambda (x) x)))
+
+;; and this is the operation of adding one
+(defun add-1 (n)
+  (lambda (f)
+    (lambda (x)
+      (funcall f
+	       (funcall (funcall n f)
+			x)))))
+
+;; from this we can infer what "1" would be like:
+;; (add-1 #'zero)
+
+;; innermost (funcall n f) returns the IDENTITY function
+;; (funcall #'identity x) x is returned
+;; (lambda (f) (funcall (x) (funcall f x))) THIS is "1"
+
+(defun one ()
+  (lambda (f)
+    (lambda (x)
+      (funcall f x))))
+
+;; (add-1 #'one) expanded:
+;; (lambda (f)
+;;   (lambda (x)
+;;     (funcall f
+;; 	     (funcall (funcall
+;; 		       (lambda (f)
+;; 			 (lambda (x)
+;; 			   (funcall f x))) f) x))))
+;; this part      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; can be reduced, to the innermost: (funcall f x), hence
+
+(defun two (lambda (f)
+	     (lambda (x)
+	       (funcall f
+			(funcall f x)))))
