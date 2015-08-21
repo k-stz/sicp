@@ -118,12 +118,14 @@ each division yielding a remainder of zero -- an integer"
 ;; this one is weird, the church numerals are representation of numbers using nothing
 ;; but procedures. The numeral zero would be:
 
-(defun zero ()
+(defun cn-zero ()
+  "Church numeral 0."
    (lambda (f) ;; nothing is done with the input
     (lambda (x) x)))
 
 ;; and this is the operation of adding one
-(defun add-1 (n)
+(defun cn-add-1 (n)
+  "Adds one to the Church numeral n."
   (lambda (f)
     (lambda (x)
       (funcall f
@@ -137,7 +139,8 @@ each division yielding a remainder of zero -- an integer"
 ;; (funcall #'identity x) x is returned
 ;; (lambda (f) (funcall (x) (funcall f x))) THIS is "1"
 
-(defun one ()
+(defun cn-one ()
+  "Church numeral 1."
   (lambda (f)
     (lambda (x)
       (funcall f x))))
@@ -153,7 +156,59 @@ each division yielding a remainder of zero -- an integer"
 ;; this part      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;; can be reduced, to the innermost: (funcall f x), hence
 
-(defun two (lambda (f)
-	     (lambda (x)
-	       (funcall f
-			(funcall f x)))))
+(defun cn-two ()
+  "Church numeral 1."
+  (lambda (f)
+    (lambda (x)
+      (funcall f
+	       (funcall f x)))))
+
+
+;; This means numbers are represented as:
+;; zero: (f (λx. x))
+;; one : (f (λx. (f x)))
+;; two : (f (λx. (f (f x))))
+
+
+;; First lets make sure how to add more nested (f x) in there
+;; in add-1 one of the innermost calls is
+
+;; (funcall n f)
+
+;; if we pass our church numeral in there (one):
+;; (funcall (lambda (f)
+;; 	    (lambda (x)
+;; 	      (funcall f x))) f)
+;; ==> (lambda (x)
+;;       (funcall f x))
+
+;; we should be able to see now that whatever the Church numeral is
+;; (funcall n f) will always reduce to (λ (f (λ..x)) nesting passed but what
+;; about the additional (funcall <what-we-discussed> x) around there?
+;; well _that x_ is being passed in the reduced lambda as showed above:
+
+;; (funcall
+;;  (lambda (x)
+;;    (funcall f x))
+;;  x) ;;<- _that x_
+;; ==> (funcall f x) ;; while note (f x) could be an arbitrary nesting indicating a greater
+                  ;; church numeral
+;; In effect The both these funcalls effectively expose the x, (f x), (f (f x)) "numeral"
+;; part of the procedure!
+;; We could imagine the preceding (f (λ ..)) of every church numeral to be the "gatekeeper"
+;; then the above funcalls pass in the give you admission and papers to deal with the
+;; insides of the church numeral representation.
+
+;; Now that we know how to enter the insides of a church numeral we can try to surgically
+;; plant another church numeral in there... addition!
+
+(defun cn-add (n m)
+  "Add Church numerals n and m"
+  (lambda (f)     ;; the "gatekeeper" part of our resulting
+    (lambda (x)   ;; church numeral!
+      (funcall
+       (funcall m f) ;; <- this will return the m's (λx. (f (f .... x), so we can pass in
+       ;; that x, the non-gatekeeper-part of n, like so:
+       ;; opening the n church numeral's belly, this will return the non-gatekeeper-part
+       ;; of n:
+       (funcall (funcall n f) x)))))
