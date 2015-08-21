@@ -118,10 +118,10 @@ each division yielding a remainder of zero -- an integer"
 ;; this one is weird, the church numerals are representation of numbers using nothing
 ;; but procedures. The numeral zero would be:
 
-(defun cn-zero ()
+(defun cn-zero (f)
   "Church numeral 0."
-   (lambda (f) ;; nothing is done with the input
-    (lambda (x) x)))
+  (declare (ignore f))
+   (lambda (x) x))
 
 ;; and this is the operation of adding one
 (defun cn-add-1 (n)
@@ -139,11 +139,10 @@ each division yielding a remainder of zero -- an integer"
 ;; (funcall #'identity x) x is returned
 ;; (lambda (f) (funcall (x) (funcall f x))) THIS is "1"
 
-(defun cn-one ()
+(defun cn-one (f)
   "Church numeral 1."
-  (lambda (f)
-    (lambda (x)
-      (funcall f x))))
+  (lambda (x)
+    (funcall f x)))
 
 ;; (add-1 #'one) expanded:
 ;; (lambda (f)
@@ -156,12 +155,11 @@ each division yielding a remainder of zero -- an integer"
 ;; this part      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;; can be reduced, to the innermost: (funcall f x), hence
 
-(defun cn-two ()
+(defun cn-two (f)
   "Church numeral 1."
-  (lambda (f)
-    (lambda (x)
-      (funcall f
-	       (funcall f x)))))
+  (lambda (x)
+    (funcall f
+	     (funcall f x))))
 
 
 ;; This means numbers are represented as:
@@ -212,3 +210,6 @@ each division yielding a remainder of zero -- an integer"
        ;; opening the n church numeral's belly, this will return the non-gatekeeper-part
        ;; of n:
        (funcall (funcall n f) x)))))
+
+;; WORKS: (funcall (funcall (cn-add #'cn-two #'cn-one) #'1+) 2) ==> 5
+;; 2 + 1 = 3, we apply #'1+ three times: (1+ (1+ (1+ 2))) ==> 5 !!
