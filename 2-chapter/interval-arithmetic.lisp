@@ -44,3 +44,33 @@
 (defun sub-interval (x y)
   (make-interval (- (lower-bound x) (lower-bound y))
 		 (- (upper-bound x) (upper-bound y))))
+
+
+;; Exercise 2.9
+
+(defun interval-width (interval)
+  (/
+   (abs (- (lower-bound interval)
+	   (upper-bound interval)))
+   2))
+
+
+;; Does the width of an interval combination through addition or substraction
+;; yield the same result as using each intervalls width for the same combination?
+;; (width (add-interval interval-x interval-y)) = (+ (width interval-x) (width interval-y)?)
+
+(defun width-test (x y)
+  (print (interval-width (add-interval x y)))
+  (print (+ (interval-width x) (interval-width y))))
+
+;; This relation holds true as long as (<= lower-bound upper-bound)
+;; The combination width is directly derived from the addition, negation of it's
+;; components bounds. Given a width from one interval we get the combination width by
+;; changin the bound of of the interval by exactly the magnitude of the other
+;; bound. Therefore the combination bound changes by the same magnitude.
+
+;; This doesn't work for multiplication: negating the bounds (muliplying a negative and
+;; positive bound), doesn't change the width of one bounds with the same magnitude as
+;; the combination. Just imagine two identical intervals |-2 -1|, with 0.5 width they
+;; combine into |1 4| with width 1.5.
+;; Division is prone to same property when dividing positive and negative numbers.
