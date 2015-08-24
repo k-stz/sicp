@@ -12,6 +12,7 @@
   (cons lower-bound upper-bound))
 
 ;; Exercise 2.7
+
 (defun lower-bound (interval)
   (car interval))
 
@@ -37,3 +38,9 @@
 		(make-interval (/ 1.0 (upper-bound y))
 			       (/ 1.0 (lower-bound x)))))
 
+
+;; Exercise 2.8
+
+(defun sub-interval (x y)
+  (make-interval (- (lower-bound x) (lower-bound y))
+		 (- (upper-bound x) (upper-bound y))))
