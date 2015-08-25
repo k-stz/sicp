@@ -36,7 +36,7 @@
 (defun div-interval (x y)
   (mul-interval x
 		(make-interval (/ 1.0 (upper-bound y))
-			       (/ 1.0 (lower-bound x)))))
+			       (/ 1.0 (lower-bound y)))))
 
 
 ;; Exercise 2.8
@@ -74,3 +74,20 @@
 ;; the combination. Just imagine two identical intervals |-2 -1|, with 0.5 width they
 ;; combine into |1 4| with width 1.5.
 ;; Division is prone to same property when dividing positive and negative numbers.
+
+
+;; Exercise 2.10
+
+(defun div-interval-safely (x y)
+  "Divide intervals x and y. Signals division by zero errors explicitly."
+  (let ((y-lower-bound (lower-bound y))
+	(y-upper-bound (upper-bound y)))
+    ;; if y-lower-bound is negative, or zero, and the upper-bound positive or zero
+    ;; it spans zero. Mutliplying the two yielding a negative number, or zero indicates
+    ;; an interval containing 0!
+    (if (<= (* y-upper-bound y-lower-bound) 0)
+	(error "Division by zero: Interval ~a spans zero." y)
+	;; else
+	(mul-interval x
+		      (make-interval (/ 1.0 y-upper-bound)
+				     (/ 1.0 y-lower-bound)))))))
