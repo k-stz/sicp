@@ -27,8 +27,8 @@
 
 (defun mul-interval (x y)
   (let ((p1 (* (lower-bound x) (lower-bound y)))
-	(p2 (* (lower-bound x) (lower-bound y)))
-	(p3 (* (upper-bound x) (upper-bound y)))
+	(p2 (* (lower-bound x) (upper-bound y)))
+	(p3 (* (upper-bound x) (lower-bound y)))
 	(p4 (* (upper-bound x) (upper-bound y))))
     (make-interval (min p1 p2 p3 p4)
 		   (max p1 p2 p3 p4))))
@@ -90,4 +90,57 @@
 	;; else
 	(mul-interval x
 		      (make-interval (/ 1.0 y-upper-bound)
-				     (/ 1.0 y-lower-bound)))))))
+				     (/ 1.0 y-lower-bound))))))
+
+;; Exercise 2.11
+
+(defun spans-zero? (interval)
+  (<= (* (lower-bound interval)
+	 (upper-bound interval))
+      0))
+
+(defun mul-interval-bitdiddly (x y)
+  (let ((lx (lower-bound x))
+	(ly (lower-bound y))
+	(ux (upper-bound x))
+	(uy (upper-bound y)))
+    (flet ((++? (interval)
+	     (and (>= (lower-bound interval) 0)
+		  (>= (upper-bound interval) 0)))
+	   (--? (interval)
+	     (and (< (lower-bound interval) 0)
+		  (< (upper-bound interval) 0)))
+	   (-+? (interval)
+	     (and (< (lower-bound interval) 0)
+		  (>= (upper-bound interval) 0)))
+	   ;;+-? is not possible due to intervals total
+	   ;; order.
+	   ;;Which means we have 3 states of 2 combinations
+	   ;; 3² = 9
+	   )
+      (cond ((and (++? x) (++? y))
+	     (make-interval (* lx ly) (* ux uy)))
+	    ((and (--? x) (--? y))
+	     (make-interval (* ux uy) (* lx ly)))
+	    ((and (++? x) (--? y))
+	     (make-interval (* ux ly) (* lx uy)))
+	    ((and (--? x) (++? y))
+	     (make-interval (* uy lx) (* ly ux)))
+	    ((and (++? x) (-+? y))
+	     (make-interval (* ux ly) (* ux uy)))
+	    ((and (-+? x) (++? y))
+	     (make-interval (* lx uy) (* ux uy)))
+	    ((and (--? x) (-+? y))
+	     (make-interval (* lx uy) (* lx ly)))
+	    ((and (-+? x) (--? y))
+	     (make-interval (* ux ly) (* lx ly)))
+	    ((and (-+? x) (-+? x))
+	     ;; the special case, since we don't know if
+	     ;; the negative numbers are bigger than the positive
+	     ;; ones, we need to perform all the multiplications
+	     (let ((p1 (* lx ly))
+		   (p2 (* lx uy))
+		   (p3 (* ux ly))
+		   (p4 (* ux uy)))
+	       (make-interval (min p1 p2 p3 p4)
+			      (max p1 p2 p3 p4))))))))
