@@ -144,3 +144,31 @@
 		   (p4 (* ux uy)))
 	       (make-interval (min p1 p2 p3 p4)
 			      (max p1 p2 p3 p4))))))))
+
+;;
+
+(defun make-center-width (interval-center width+-)
+  (make-interval (- interval-center width+-)
+		 (+ interval-center width+-)))
+
+(defun center (interval)
+  (/ (+ (lower-bound interval)
+	(upper-bound interval))
+     2.0))
+
+(defun width (interval)
+  (- (upper-bound interval)
+     (center interval)))
+
+;; Exercise 2.12
+
+(defun make-center-percent (center percent)
+  (let ((width+- (* center (/ percent 100.0))))
+    (make-center-width center width+-)))
+
+;; for style reasons why simply undo the width+- calculation above
+;; mathematically
+(defun percent (interval)
+  (/ (* (width interval)
+	100.0)
+     (center interval)))
