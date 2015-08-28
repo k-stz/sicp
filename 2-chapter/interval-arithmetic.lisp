@@ -172,3 +172,57 @@
   (/ (* (width interval)
 	100.0)
      (center interval)))
+
+
+;; Exercise 2.13
+
+;; (make-center-percent 20 15) ==> (17.0 . 23.0)
+;; (make-center-percent 10 10) ==> (9.0 . 11.0)
+;; (percent (mul-interval * **)) ==> 24.630543
+;;
+;; Assumption: sum of percentages of the factors is target interval's
+;;              approximate percentage
+
+;;
+
+;; ':' means "such that"
+
+;; center-points x and y , or "the factors" in the exercise
+;; x : x >= 0
+;; y : y >= 0
+
+;; numer : numer ∈ {0, 1 ... 100} aka small percentages
+;; p = numer/100
+
+;; z : x or y
+;; z*p >= 0  (simplification provided by the exercise)
+;; upper-bound = z+z*p : upper-bound >= 0
+;; lower-bound = z-z*p : lower-bound >= 0
+
+;; if i and i' are two intervals, and their upper-bound and lower-bound
+;; are positive, as the exercise suggest then their multiplication will
+;; also be positive. From this also follows
+
+;; upper-bound(i) > lower-bound(i)
+;; upper-bound(i')*upper-bound(i) > any other combination involving the
+;; values for upper-bound and lower-bound
+
+;; hence if
+;; t = i*i'
+;; then from the above follows
+;; upper-bound(t) = upper-bound(i)*upper-bound(i'), similiarly for
+;; lower-bound(t).
+
+;; corollary if x,y are centers of i and i' then
+;; (x+x*p) * (y+y*p') ≅ upper-bound(t) ;; similarly for lower-bound(t)
+;;  = (x+x*p) * (y+y*p')
+;;  = x(1+p) * y(1 +p')
+;;  = y*x(1+p)(1+p') 
+;;  = y*x(1+p'+p+p*p')
+;; The exercise gives us the freedom to ignore small percentages, which
+;; is what we get if we take the percentage of a percentage (p*p'), hence:
+;;  upper-bound (t) ≅ y*x(1+p'+p)
+
+;; similarly for lower-bound, which shows that out assumption of adding
+;; the percentage is approximately the percentage of the product intervals
+
