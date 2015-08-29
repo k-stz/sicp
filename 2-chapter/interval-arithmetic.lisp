@@ -239,6 +239,8 @@
 		  (add-interval (div-interval one r1)
 				(div-interval one r2)))))
 
+
+;; Exercise 2.14
 ;; Lem is right, the above return different results for intervals r1:(1 1) r2:(1 2)
 
 ;; lets focus on the use of division, expexcially on the inverse (/ 1 r1)
@@ -270,3 +272,21 @@
 ;; but rather will assign the endpoint to the extremes, namely the smallest value
 ;; from the division 1/2 and the biggest 2/1 yielding interval (0.5 2) instead of
 ;; (1 2)
+
+
+;; Exercise 2.15
+
+;; An informal explanation shall suffice: Since interval operation always represent
+;; the extremes at its endpoints subsequent operations with intervals will only
+;; span out the extremes when new intervals, and their extreme endpoints, undergo
+;; interval arithmetic.
+
+;; We might be thinking that substituting actual values for the resistors "nailing
+;; them in" would prohib increasingly pessimistic values such that:
+
+;; 1/r , where r is really 0.5 yields 1/0.5 => 2. In PAR2 we have to do another division
+;; 1/2 => 0.5. But the point of intervals is that they represent _uncertainties_ where
+;; in the first division it might be 0.5 yielding 2, in the _second_ division the
+;; interval carried over the value 1.5, because it is in the interval (0.5 2.0) yielding
+;; 1/1.5= 2/3. The lesson with interval arithmetic is that two uncertainty beget greater
+;; uncertainty.
