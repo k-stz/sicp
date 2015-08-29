@@ -290,3 +290,31 @@
 ;; interval carried over the value 1.5, because it is in the interval (0.5 2.0) yielding
 ;; 1/1.5= 2/3. The lesson with interval arithmetic is that two uncertainty beget greater
 ;; uncertainty.
+
+
+;; Exercise 2.16
+;; We could assume that if we nailed the values down prior to using intervals, so that
+;; any subsequent operation wouldn't blow up the extremes when operating with the
+;; same interval but rather simply devour it unnotices then it might work.
+;; But since it is hinted to be a very hard problem I suggest not trying to solve it
+;; as this probably implies that many concepts are needed prior to solving it.
+
+;; From wikipedia, on the "Dependency problem" of interval arithmetic
+
+;; "If an interval occurs several times in a calculation using parameters, and each
+;; occurrence is taken independently then this can lead to an unwanted expansion of the
+;; resulting intervals." the "blowing up its endpoints extremes"
+
+;; Which means we would want to reformulate algebraic expressions to contain unique
+;; intervals only once, which is the case of Lu's favored PAR2. But:
+
+;; "In general, it can be shown that the exact range of values can be achieved, if each
+;; variable appears only once" (good) "However, not every function can be rewritten this
+;; way.  The dependency of the problem causing over-estimation of the value range can go
+;; as far as covering a large range, preventing more meaningful conclusions." (bad)
+
+;; This "larger area" can even blow up to ]-∞,∞[ Which means we could devise a system that
+;; would test algebraic formulation for occurence of certain intervals multiple times and
+;; then acertain them being accurate, but this would be a heuristic. The pragmatic
+;; question hence is how many of everyday uses of artithmetic interval operations can't be
+;; reformulated to use the variables involved only once.
