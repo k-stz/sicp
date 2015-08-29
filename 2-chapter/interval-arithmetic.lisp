@@ -240,3 +240,33 @@
 				(div-interval one r2)))))
 
 ;; Lem is right, the above return different results for intervals r1:(1 1) r2:(1 2)
+
+;; lets focus on the use of division, expexcially on the inverse (/ 1 r1)
+;; usually: (1*x)/x = 1
+
+(defvar *one* (make-interval 1 1))
+
+(defun inv-interval (interval)
+  (div-interval *one* interval))
+
+;; (let ((test-interval (make-interval 1 2)))
+;;   (mul-interval
+;;    (inv-interval test-interval)
+;;    test-interval)) ==> (0.5 . 2.0)
+
+;; this proves that the following inverse multiplication identity does _not_ hold
+;; true for intervals
+
+;; (1*r)/r ≠ 1  : r is an interval
+
+;; examining the inverse operations shows that the lower-bound will take the
+;; smallest value of all the inversions on its range and the upper-bound the
+;; biggest. If we now multiply the pre-inversion interval with the inverse one
+;; it will build the endpoints in terms of these extremes in stead of mediating
+;; for identity.
+
+;; the same is true of division identities
+;; (div-interval (make-interval 1 2) (make-interval 1 2)) will not return *one*
+;; but rather will assign the endpoint to the extremes, namely the smallest value
+;; from the division 1/2 and the biggest 2/1 yielding interval (0.5 2) instead of
+;; (1 2)
