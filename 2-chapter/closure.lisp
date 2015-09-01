@@ -37,3 +37,14 @@
   (if (null (cdr list))
       list
       (last-pair (cdr list))))
+
+;;Exercise 2.18
+
+(defun m-reverse (list)
+  "CL:REVERSE"
+  (labels ((rec (reverse-list list)
+	     (if (null list)
+		 reverse-list
+		 (rec (cons (car list) reverse-list)
+		      (cdr list)))))
+    (rec () list)))
