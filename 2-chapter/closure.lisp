@@ -56,6 +56,12 @@
 (defparameter *uk-coins* (list 100 50 20 10 5 2 1 0.5))
 (defparameter *eu-coins* (list 200 100 50 20 10 5 2 1))
 
+(defun first-denomination (coins)
+  (car coins))
+
+(defun except-first-denomination (coins)
+  (cdr coins))
+
 (defun cc (amount coin-list)
   "Counting unique changes of <amount> with coins in <coin-list>."
   (labels ((rec (n coin-list)
@@ -66,10 +72,18 @@
 		    (+
 		     ;; Try all coins in order given.
 		     ;; preconditions eliminate this branch with (< n 0) and (= n 0)
-		     (rec (- n (car coin-list)) coin-list)
+		     (rec (- n (first-denomination coin-list)) coin-list)
 		     ;; try all but the first kind of coin.
 		     ;; the preconditions eliminate this branch with (null coin-list)
-		       (rec n (cdr coin-list)))))))
+		       (rec n (except-first-denomination coin-list)))))))
     (if (<= amount 0)
 	0
 	(rec amount coin-list))))
+
+;; The order of the coins doesn't affect the result. Our setup creates every combination
+;; possible because we either branch of applying a denominiation or we branch of exempting
+;; a denomination. Further branches then either operate on but one less denimination AND
+;; on all denomination available. Or: the order in which we substract the coins doesn't matter
+;; as long as we try all the coins. Example: Given coins 10 and 1 for amount 11 we either try
+;; 10 then exempt 10 and then 1 yielding combiniation (10 1) for 11, or we first try 1 then
+;; exempt 1 and then 10 also yielding combiniation (1 10) for 11. The order doesn't matter.
