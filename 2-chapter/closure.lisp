@@ -38,7 +38,7 @@
       list
       (last-pair (cdr list))))
 
-;;Exercise 2.18
+;; Exercise 2.18
 
 (defun m-reverse (list)
   "CL:REVERSE"
@@ -48,3 +48,28 @@
 		 (rec (cons (car list) reverse-list)
 		      (cdr list)))))
     (rec () list)))
+
+
+;; Exercise 2.19 - cc with list input
+
+(defparameter *us-coins* (list 50 25 10 5 1))
+(defparameter *uk-coins* (list 100 50 20 10 5 2 1 0.5))
+(defparameter *eu-coins* (list 200 100 50 20 10 5 2 1))
+
+(defun cc (amount coin-list)
+  "Counting unique changes of <amount> with coins in <coin-list>."
+  (labels ((rec (n coin-list)
+	     (cond ((null coin-list) 0)
+		   ((< n 0) 0)
+		   ((= n 0) 1)
+		   (t ;; else:
+		    (+
+		     ;; Try all coins in order given.
+		     ;; preconditions eliminate this branch with (< n 0) and (= n 0)
+		     (rec (- n (car coin-list)) coin-list)
+		     ;; try all but the first kind of coin.
+		     ;; the preconditions eliminate this branch with (null coin-list)
+		       (rec n (cdr coin-list)))))))
+    (if (<= amount 0)
+	0
+	(rec amount coin-list))))
