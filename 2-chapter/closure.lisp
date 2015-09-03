@@ -87,3 +87,33 @@
 ;; as long as we try all the coins. Example: Given coins 10 and 1 for amount 11 we either try
 ;; 10 then exempt 10 and then 1 yielding combiniation (10 1) for 11, or we first try 1 then
 ;; exempt 1 and then 10 also yielding combiniation (1 10) for 11. The order doesn't matter.
+
+
+;; Exercise 2.20
+
+;; Scheme: (define (foo x . lst) ...)
+;; CL    : (defun  foo (x &rest lst) ...)
+;;
+;; Same is true for lambda function object definition
+;; Scheme: ((lambda lst lst) 1 2 3) ==> (1 2 3)
+;; CL    : ((lambda (&rest lst) lst) 1 2 3) ==> (1 2 3)
+;;
+;; Scheme: ((lambda (x . lst) (list 77 3 2 1))) ==> (77 (3 2 1))
+;; CL    : ((lambda (x &rest lst) (list x lst)) 77 1 2 3) ==> (77 (1 2 3))
+
+;; "parity" property of intergers to be either even or odd, "the parity of 2 is even" and
+;; "n+1 has always the opposite parity of n if n is an integer"
+
+(defun same-parity (&rest list)
+  "Return a list of numbers that have the same parity as the first argument"
+  (flet ((collect-odds ()
+	   (loop for i in list
+	      :when (oddp i)
+	      :collect i))
+	 (collect-evens ()
+	   (loop for i in list
+	      :when (evenp i)
+	      :collect i)))
+    (if (oddp (first list))
+	(collect-odds)
+	(collect-evens))))
