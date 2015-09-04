@@ -140,3 +140,13 @@
       '()
       (cons (* (car list) factor)
 	    (2-scale-list (cdr list) factor))))
+
+
+(defun m-map (fn list)
+  "(cl:mapcar #'fn list)"
+  (if (null list)
+      '()
+      (cons (funcall fn (car list))
+	    (m-map fn (cdr list)))))
+
+;; (m-map #'abs (list -10 2.5 -11.6 17)) ==> (10 2.5 11.6 17)
