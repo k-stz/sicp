@@ -117,3 +117,26 @@
     (if (oddp (first list))
 	(collect-odds)
 	(collect-evens))))
+
+
+;; no need to build the list from cdr to car and then m-reverse..
+(defun 1-scale-list (list factor)
+  "(cl:mapcar (lambda (x) (* x factor)) list)"
+  (labels ((rec (cdr-list output-list)
+	      (if (null cdr-list)
+		  (m-reverse output-list)
+		  (rec
+		   (cdr cdr-list)
+		   (cons (* factor (car cdr-list))
+			 output-list)))))
+    (let ((init-list '()))
+      (rec list init-list))))
+
+
+;; we can build the list from car to cdr recursively!
+(defun 2-scale-list (list factor)
+  "(cl:mapcar (lambda (x) (* x factor)) list)"
+  (if (null list)
+      '()
+      (cons (* (car list) factor)
+	    (2-scale-list (cdr list) factor))))
