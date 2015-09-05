@@ -170,3 +170,30 @@
 (defun 2-square-list (list)
   (m-map #'square
 	 list))
+
+
+;; Exercise 2.22
+
+;; An expression like
+;;  (cons (square (car things))
+;;        answer)
+;; adds a new head to the list like so
+;; (cons 'first nil) => (cons '2nd (cons 'first nil)) => (2nd first)
+
+;; Interchanging the arguments:
+;; (cons 'answer
+;;       (cons 'square-etc))
+
+;; puts the accumulator <answer> in the head and "replaces" the tail with the current
+;; square.  Thereby violating the list property of a nil-terminator
+
+;; (defun bad-square-list (items)
+;;   (labels ((iter (things answer)
+;; 		  (if (null things)
+;; 		      answer
+;; 		      (iter (cdr things)
+;; 			    (cons answer
+;; 				  (square (car things)))))))
+;;     (iter items nil)))
+   
+;; (bad-square-list (list 1 2 3 4)) ==> ((((NIL . 1) . 4) . 9) . 16)
