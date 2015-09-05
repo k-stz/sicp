@@ -150,3 +150,23 @@
 	    (m-map fn (cdr list)))))
 
 ;; (m-map #'abs (list -10 2.5 -11.6 17)) ==> (10 2.5 11.6 17)
+
+;; using M-MAP for the implementation
+(defun 3-scale-list (list factor)
+  (m-map (lambda (x) (* x factor))
+	 list))
+
+
+;; Exercise 2.21
+
+(defun square (x) (* x x))
+
+(defun 1-square-list (list)
+  (if (null list)
+      nil
+      (cons (square (car list))
+	    (1-square-list (cdr list)))))
+
+(defun 2-square-list (list)
+  (m-map #'square
+	 list))
