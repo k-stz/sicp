@@ -207,3 +207,26 @@
       (progn (funcall fn (car list))
 	     (for-each fn (cdr list)))))
 
+
+;;------------------------------------------------------------------------------
+
+;; Trees and tree-recursiveness
+
+(defun m-length (list)
+  "CL:LENGTH"
+  (labels ((rec (length list)
+	     (if (null list)
+		 length
+		 (rec (1+ length)
+		      (cdr list)))))
+    (rec 0 list)))
+
+
+(defun count-leaves (list)
+  "Returns number of leaves in input list (tree"
+  (cond ((null list)
+	 0)
+	((atom list) 1) ;; ATOM is equivalent to (not (consp x))
+	(t ;; else
+	 (+ (count-leaves (car list))
+	    (count-leaves (cdr list))))))
