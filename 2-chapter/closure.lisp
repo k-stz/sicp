@@ -197,3 +197,13 @@
 ;;     (iter items nil)))
    
 ;; (bad-square-list (list 1 2 3 4)) ==> ((((NIL . 1) . 4) . 9) . 16)
+
+
+;; Exercise 2.23 - FOR-EACH
+
+(defun for-each (fn list)
+  (if (null list)
+      nil
+      (progn (funcall fn (car list))
+	     (for-each fn (cdr list)))))
+
