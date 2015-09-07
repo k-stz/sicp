@@ -286,3 +286,22 @@
 ;; tail is usually bigger, more numerous in components, then the head.
 
 ;; (list *x* *y*) ==> ((1 2 3) (4 5 6))
+
+
+;; Exercise 2.27
+
+(defun deep-reverse (list)
+  "cl:reverse on list and all its sublists"
+  (labels ((rec (reverse-list list)
+	     (cond ((null list) reverse-list)
+		   ;; now we simply just have to test for non-cons occurance (ATOM list)
+		   ;; because we opted for DEEP-REVERSE recursively
+		   ((atom list) list)
+		   (t ;; else
+		    ;; simply applying DEEP-REVERSE on all CARs
+		    (rec (cons (deep-reverse (car list)) reverse-list)
+			 (cdr list))))))
+    (rec () list)))
+
+
+;; (deep-reverse '(9 (8 (7 6)) (5 (4 3 ((2))) 1) 0)) ==> (0 (1 (((2)) 3 4) 5) ((6 7) 8) 9)
