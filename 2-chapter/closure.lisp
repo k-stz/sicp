@@ -239,7 +239,6 @@
 ;; is a list of two elements who's CDR is another list of two elements whose CDR
 ;; in turn is yet another list of two elements
 
-
                              ;; minor deviation for brevity's sake: a number in a box
                              ;; indicates a pointer to that number
 ;;         ^		     .---.---.    .---.---.
@@ -258,3 +257,16 @@
 ;; we can verify the box-and-pointer notation by directly translating it to
 ;; nested CONS:
 ;; (cons 1 (cons (cons 2 (cons (cons 3 (cons 4 nil)) nil)) nil)) ==> (1 (2 (3 4)))
+
+
+;; Exercise 2.25
+
+;; (car (cdr (car (cdr (cdr '(1 3 (5 7) 9)))))) ==> 7
+;; (car (car '((7)))) ==> 7
+;; (car (cdr
+;;       (car (cdr
+;; 	    (car (cdr
+;; 		  (car (cdr
+;; 			(car (cdr
+;; 			      (car (cdr ;; because: ((2 (3 (4 (5 (6 7))))))
+;; 				    '(1 (2 (3 (4 (5 (6 7)))))))))))))))))) ==> 7
