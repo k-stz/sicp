@@ -268,5 +268,21 @@
 ;; 	    (car (cdr
 ;; 		  (car (cdr
 ;; 			(car (cdr
-;; 			      (car (cdr ;; because: ((2 (3 (4 (5 (6 7))))))
+;; 			      (car (cdr ;; because ==> ((2 (3 (4 (5 (6 7))))))
 ;; 				    '(1 (2 (3 (4 (5 (6 7)))))))))))))))))) ==> 7
+
+
+;; Exercise 2.26
+
+;; (defparameter *x* (list 1 2 3))
+;; (defparameter *y* (list 4 5 6))
+
+;; (append *x* *y*) ==> (1 2 3 4 5 6)
+
+;; not  ((1 2 3) . (4 5 6)) because then cdr would be ((4 5 6)) but it has to be
+;; (4 5 6). The solution therefore is:
+;; (cons *x* *y*) ==> ((1 2 3) 4 5 6)
+;; It might be more helpful to think of cdr as "rest" part or "tail" part, and the
+;; tail is usually bigger, more numerous in components, then the head.
+
+;; (list *x* *y*) ==> ((1 2 3) (4 5 6))
