@@ -305,3 +305,21 @@
 
 
 ;; (deep-reverse '(9 (8 (7 6)) (5 (4 3 ((2))) 1) 0)) ==> (0 (1 (((2)) 3 4) 5) ((6 7) 8) 9)
+
+
+;; Exercise 2.28
+
+(defun fringe (list)
+  "Takes a tree represented by a list as input and returns a list of its leaves in
+left to right order."
+  (labels ((rec (leaves-list list)
+	     (print leaves-list)
+	     (cond ((null list) leaves-list)
+		   ;; ATOM is also true for the terminator NIL, but NULL already
+		   ;; catches that case
+		   ((atom list) 
+		    (cons list leaves-list))
+		   ((listp list)
+		    (rec (append (fringe (car list)) leaves-list)
+			 (cdr list))))))
+    (rec () list)))
