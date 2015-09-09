@@ -327,12 +327,27 @@ left to right order."
 
 ;; Exercise 2.29
 
+;;         mobile
+;;     branch  branch
+;; length
+
 (defun make-mobile (left right)
   (list left right))
 
 
 (defun make-branch (length structure)
   (list length structure))
+
+
+;; total-weight: 5
+;; total-length: 7.5
+(defparameter *test-mobile*
+  (let* ((1x (make-branch 1 1))
+	 (2y (make-branch 2 2))
+	 (1x2ym (make-mobile 1x 2y))
+	 (z (make-branch 2.5 1x2ym)))
+    (make-mobile 2y z))
+  "A bit mobile for tests")
 
 ;; a. selectors
 
@@ -342,3 +357,28 @@ left to right order."
 (defun right-branch (mobile)
   (second mobile))
 
+(defun branch-length (branch)
+  (first branch))
+
+(defun branch-structure (branch)
+  (second branch))
+
+;; utils
+(defun weight? (structure)
+  (atom structure))
+
+
+;; b. calculate the total weight
+
+(defun total-weight (mobile)
+  "Return the total weight of the mobile"
+  (let ((left-structure (branch-structure (left-branch mobile)))
+	(right-structure (branch-structure (right-branch mobile))))
+    (+
+     (if (weight? left-structure)
+	 left-structure
+	 ;; else it is a mobile
+	 (total-weight left-structure))
+     (if (weight? right-structure)
+	 right-structure
+	 (total-weight right-structure)))))
