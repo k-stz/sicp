@@ -323,3 +323,22 @@ left to right order."
 		    (rec (append (fringe (car list)) leaves-list)
 			 (cdr list))))))
     (rec () list)))
+
+
+;; Exercise 2.29
+
+(defun make-mobile (left right)
+  (list left right))
+
+
+(defun make-branch (length structure)
+  (list length structure))
+
+;; a. selectors
+
+(defun left-branch (mobile)
+  (first mobile))
+
+(defun right-branch (mobile)
+  (second mobile))
+
