@@ -376,7 +376,7 @@ left to right order."
 ;; b. calculate the total weight
 
 (defun total-weight (mobile)
-  "Return the total weight of the mobile"
+  "Return the total weight of the mobile's rods"
   (with-branches mobile (left-branch right-branch)
     (let ((left-structure (branch-structure left-branch))
 	  (right-structure (branch-structure right-branch)))
@@ -391,7 +391,19 @@ left to right order."
 
 ;; c.
 
-;; (defun mobile-balanced? (mobile)
-;;   (with-branches mobile (left right)
-;;     (* (branch-length left)
-;;        (branch-))))
+(defun total-length (mobile)
+  "Return the total length of the mobile's rods"
+  (with-branches mobile (left right)
+    (let ((left-length (branch-length left))
+	  (right-length (branch-length right))
+	  (left-structure (branch-structure left))
+	  (right-structure (branch-structure right)))
+      (+ left-length right-length
+	 (if (weight? left-structure)
+	     0
+	     ;; else it is a mobile
+	     (total-length left-structure))
+	 (if (weight? right-structure)
+	     0
+	     (total-length right-structure))))))
+
