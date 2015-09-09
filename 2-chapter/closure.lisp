@@ -367,18 +367,31 @@ left to right order."
 (defun weight? (structure)
   (atom structure))
 
+(defmacro with-branches (mobile (left-branch right-branch) &body body)
+  `(let* ((mobile ,mobile) ; only once evaluated
+	  (,left-branch (left-branch mobile))
+	  (,right-branch (right-branch mobile)))
+     ,@body))
 
 ;; b. calculate the total weight
 
 (defun total-weight (mobile)
   "Return the total weight of the mobile"
-  (let ((left-structure (branch-structure (left-branch mobile)))
-	(right-structure (branch-structure (right-branch mobile))))
-    (+
-     (if (weight? left-structure)
-	 left-structure
-	 ;; else it is a mobile
-	 (total-weight left-structure))
-     (if (weight? right-structure)
-	 right-structure
-	 (total-weight right-structure)))))
+  (with-branches mobile (left-branch right-branch)
+    (let ((left-structure (branch-structure left-branch))
+	  (right-structure (branch-structure right-branch)))
+      (+
+       (if (weight? left-structure)
+	   left-structure
+	   ;; else it is a mobile
+	   (total-weight left-structure))
+       (if (weight? right-structure)
+	   right-structure
+	   (total-weight right-structure))))))
+
+;; c.
+
+;; (defun mobile-balanced? (mobile)
+;;   (with-branches mobile (left right)
+;;     (* (branch-length left)
+;;        (branch-))))
