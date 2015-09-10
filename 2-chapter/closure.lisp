@@ -407,3 +407,32 @@ left to right order."
 	     0
 	     (total-length right-structure))))))
 
+(defparameter *balanced-mobile* '((2 3) (1 ((1 1.5) (1 1.5)))))
+
+(defun mobile-balanced? (mobile)
+  "A mobile is balanced if the product of each branch: weight x length, are equal. This
+has to be true for any every submobile that a branch might contain at its structure part."
+  (with-branches mobile (left right)
+    (let ((left-structure (branch-structure left))
+	  (right-structure (branch-structure right))
+	  (left-length (branch-length left))
+	  (right-length (branch-length right)))
+      (and (= (* left-length
+		 (if (weight? left-structure)
+		     left-structure
+		     (* (total-weight left-structure)
+			(total-length left-structure))))
+	      (* right-length
+		 (if (weight? right-structure)
+		     right-structure
+		     (* (total-weight right-structure)
+			(total-length right-structure)))))
+	   ;; test the submobiles, if no submobiles --just weights--
+	   ;; return T for the AND conditional
+	   (if (weight? left-structure)
+	       t
+	       (mobile-balanced? left-structure))
+	   (if (weight? right-structure)
+	       t
+	       (mobile-balanced? right-structure))))))
+
