@@ -436,3 +436,102 @@ has to be true for any every submobile that a branch might contain at its struct
 	       t
 	       (mobile-balanced? right-structure))))))
 
+;; d. changing the mobile representation
+
+(defun cons-make-mobile (left right)
+  (cons left right))
+
+(defun cons-make-branch (length structure)
+  (cons length structure))
+
+(defparameter *cons-test-mobile*
+  (let* ((1x (cons-make-branch 1 1))
+	 (2y (cons-make-branch 2 2))
+	 (1x2ym (cons-make-mobile 1x 2y))
+	 (z (cons-make-branch 2.5 1x2ym)))
+    (cons-make-mobile 2y z)))
+
+;; new selectors
+
+(defun cons-left-branch (mobile)
+  (car mobile))
+
+(defun cons-right-branch (mobile)
+  (cdr mobile))
+
+(defun cons-branch-length (branch)
+  (car branch))
+
+(defun cons-branch-structure (branch)
+  (cdr branch))
+
+;; utils
+
+(defmacro with-cons-branches (mobile (left-branch right-branch) &body body)
+  `(let* ((mobile ,mobile) ; only once evaluated
+	  (,left-branch (cons-left-branch mobile))
+	  (,right-branch (cons-right-branch mobile)))
+     ,@body))
+
+;; d.b. calculate the total weight with CONS-representation mobile
+
+(defun cons-total-weight (mobile)
+  "Return the total weight of the mobile's rods"
+  (with-cons-branches mobile (left-branch right-branch)
+    (let ((left-structure (cons-branch-structure left-branch))
+	  (right-structure (cons-branch-structure right-branch)))
+      (+
+       (if (weight? left-structure)
+	   left-structure
+	   ;; else it is a mobile
+	   (cons-total-weight left-structure))
+       (if (weight? right-structure)
+	   right-structure
+	   (cons-total-weight right-structure))))))
+
+;; d.c.
+
+(defun cons-total-length (mobile)
+  "Return the total length of the mobile's rods"
+  (with-cons-branches mobile (left right)
+    (let ((left-length (cons-branch-length left))
+	  (right-length (cons-branch-length right))
+	  (left-structure (cons-branch-structure left))
+	  (right-structure (cons-branch-structure right)))
+      (+ left-length right-length
+	 (if (weight? left-structure)
+	     0
+	     ;; else it is a mobile
+	     (cons-total-length left-structure))
+	 (if (weight? right-structure)
+	     0
+	     (cons-total-length right-structure))))))
+
+(defparameter *cons-balanced-mobile* '((2 . 3) 1 (1 . 1.5) 1 . 1.5))
+
+(defun cons-mobile-balanced? (mobile)
+  "A mobile is balanced if the product of each branch: weight x length, are equal. This
+has to be true for any every submobile that a branch might contain at its structure part."
+  (with-cons-branches mobile (left right)
+    (let ((left-structure (cons-branch-structure left))
+	  (right-structure (cons-branch-structure right))
+	  (left-length (cons-branch-length left))
+	  (right-length (cons-branch-length right)))
+      (and (= (* left-length
+		 (if (weight? left-structure)
+		     left-structure
+		     (* (cons-total-weight left-structure)
+			(cons-total-length left-structure))))
+	      (* right-length
+		 (if (weight? right-structure)
+		     right-structure
+		     (* (cons-total-weight right-structure)
+			(cons-total-length right-structure)))))
+	   ;; test the submobiles, if no submobiles --just weights--
+	   ;; return T for the AND conditional
+	   (if (weight? left-structure)
+	       t
+	       (cons-mobile-balanced? left-structure))
+	   (if (weight? right-structure)
+	       t
+	       (cons-mobile-balanced? right-structure))))))
