@@ -535,3 +535,40 @@ has to be true for any every submobile that a branch might contain at its struct
 	   (if (weight? right-structure)
 	       t
 	       (cons-mobile-balanced? right-structure))))))
+
+
+;;------------------------------------------------------------------------------
+
+(defun scale-tree (tree factor)
+  (cond ((null tree) nil)
+	((atom tree) (* tree factor))
+	(t ;; else
+	 (cons (scale-tree (car tree) factor)
+	       (scale-tree (cdr tree) factor)))))
+
+
+(defun 1-scale-tree (tree factor)
+  (m-map (lambda (x)
+	   (if (atom x)
+	       (* x factor)
+	       (2-scale-tree x factor)))
+	 tree))
+
+
+;; Exercise 2.30
+
+(defun square-tree-directly (tree)
+  (cond ((null tree) nil)
+	((atom tree) (square tree))
+	(t ;; else
+	 (cons (square-tree-directly (car tree))
+	       (square-tree-directly (cdr tree))))))
+
+;; using higher-order functions
+(defun square-tree (tree)
+  "Square the leaves of the input tree."
+  (m-map (lambda (x)
+	   (if (atom x)
+	       (square x)
+	       (square-tree x)))
+	 tree))
