@@ -572,3 +572,18 @@ has to be true for any every submobile that a branch might contain at its struct
 	       (square x)
 	       (square-tree x)))
 	 tree))
+
+
+;; Exercise 2.31
+
+(defun tree-map (fn tree)
+  "Maps function to tree."
+  (m-map (lambda (x)
+	   (if (atom x)
+	       (funcall fn x)
+	       (tree-map fn x)))
+	 tree))
+
+
+(defun 1-square-tree (tree)
+  (tree-map #'square tree))
