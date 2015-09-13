@@ -587,3 +587,16 @@ has to be true for any every submobile that a branch might contain at its struct
 
 (defun 1-square-tree (tree)
   (tree-map #'square tree))
+
+
+;; Exercise 2.32
+
+(defun subsets (set)
+  "Return all subsets of given set in a list."
+  (if (null set)
+      (list nil)
+      (let ((rest (subsets (cdr set))))
+	(append rest (map 'list
+			  #'(lambda (x)
+			      (cons (car set) x))
+			  rest)))))
