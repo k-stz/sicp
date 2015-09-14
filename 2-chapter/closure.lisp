@@ -600,3 +600,17 @@ has to be true for any every submobile that a branch might contain at its struct
 			  #'(lambda (x)
 			      (cons (car set) x))
 			  rest)))))
+
+
+;; /Conventional Interfaces/----------------------------------------------------
+
+(defun sum-odd-squares (tree)
+  (cond ((null tree) 0)
+	((atom tree)
+	 (if (oddp tree)
+	     (square tree)
+	     0))
+	(t ;;else
+	 (+ (sum-odd-squares (car tree))
+	    (sum-odd-squares (cdr tree))))))
+
