@@ -614,3 +614,12 @@ has to be true for any every submobile that a branch might contain at its struct
 	 (+ (sum-odd-squares (car tree))
 	    (sum-odd-squares (cdr tree))))))
 
+(defun filter (predicate sequence)
+  "Return sequence of elements satisfying the predicate."
+  (let ((head (car sequence))
+	(rest (cdr sequence)))
+    (cond ((null (car sequence)) nil)
+	  ((funcall predicate head)
+	   (cons head (filter predicate rest)))
+	  (t ;; else
+	   (filter predicate rest)))))
