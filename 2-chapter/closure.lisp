@@ -614,6 +614,7 @@ has to be true for any every submobile that a branch might contain at its struct
 	 (+ (sum-odd-squares (car tree))
 	    (sum-odd-squares (cdr tree))))))
 
+;; (filter #'oddp (list 1 2 3 4)) ==> (1 3)
 (defun filter (predicate sequence)
   "Return sequence of elements satisfying the predicate."
   (let ((head (car sequence))
@@ -623,3 +624,11 @@ has to be true for any every submobile that a branch might contain at its struct
 	   (cons head (filter predicate rest)))
 	  (t ;; else
 	   (filter predicate rest)))))
+
+;; (accumulate #'+ 0 (list 1 2 3)) ==> 6
+(defun accumulate (op initial sequence)
+  "Accumulate elements of sequence using a binary operation (op)."
+  (if (null sequence)
+	initial
+	(funcall op (car sequence)
+		 (accumulate op initial (rest sequence)))))
