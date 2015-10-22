@@ -313,7 +313,6 @@
   "Takes a tree represented by a list as input and returns a list of its leaves in
 left to right order."
   (labels ((rec (leaves-list list)
-	     (print leaves-list)
 	     (cond ((null list) leaves-list)
 		   ;; ATOM is also true for the terminator NIL, but NULL already
 		   ;; catches that case
@@ -614,6 +613,9 @@ has to be true for any every submobile that a branch might contain at its struct
 	 (+ (sum-odd-squares (car tree))
 	    (sum-odd-squares (cdr tree))))))
 
+
+;; /Sequence Operations/--------------------------------------------------------
+
 ;; (filter #'oddp (list 1 2 3 4)) ==> (1 3)
 (defun filter (predicate sequence)
   "Return sequence of elements satisfying the predicate."
@@ -632,3 +634,40 @@ has to be true for any every submobile that a branch might contain at its struct
 	initial
 	(funcall op (car sequence)
 		 (accumulate op initial (rest sequence)))))
+
+(defun enumerate-interval (low high)
+  "Return list of integers from <low> to <high>"
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (1+ low)
+				    high))))
+
+(defun enumerate-tree (tree)
+  (fringe tree))
+
+
+;;; sequence operation examples
+
+(defun 2-sum-odd-squares (tree)
+  (accumulate #'+ 0 ;; sum
+	      (map 'list #'square ;; squares
+		   (filter #'oddp ;; oddly
+			   (enumerate-tree tree)))))
+
+;;;for exercise 1.9 quick fib-iter reimplementation:
+(defun fib-iter (a b n)
+  (if (= n 0)
+      a
+      (fib-iter b (+ a b) (1- n))))
+;;state transformations:
+; a <- b
+; b <- a + b
+(defun fib (n)
+  (fib-iter 0 1 n))
+
+(defun even-fibs (n)
+  (accumulate #'+ 0
+	      (filter #'evenp
+		      (map 'list #'fib
+			   (enumerate-interval 0 n)))))
+
