@@ -309,6 +309,7 @@
 
 ;; Exercise 2.28
 
+;; TODO: test if really _left to right order_ holds
 (defun fringe (list)
   "Takes a tree represented by a list as input and returns a list of its leaves in
 left to right order."

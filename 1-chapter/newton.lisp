@@ -1,5 +1,7 @@
-(defpackage :newton-sicp (:use :cl)
-	    (:export :avg))
+(defpackage :newton-sicp
+  (:use :cl)
+  (:export :avg))
+
 (in-package :newton-sicp)
 
 

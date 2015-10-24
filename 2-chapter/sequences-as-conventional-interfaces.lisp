@@ -43,7 +43,11 @@
 				    high))))
 
 (defun enumerate-tree (tree)
-  (fringe tree))
+  (cond ((null tree) nil)
+	((atom tree) (list tree))
+	(t ; else
+	 (append (enumerate-tree (car tree))
+		 (enumerate-tree (cdr tree))))))
 
 
 ;;; sequence operation examples
@@ -74,4 +78,32 @@
 
 
 ;; Exercise 2.33
+
+;; implement map in terms of accumulate
+(defun accu-map (fn sequence)
+  "Imlementation of MAP using ACCUMULATE"
+  (accumulate
+   (lambda (x y)
+     (cons (funcall fn x)
+	   y))
+   nil
+   sequence))
+
+
+(defun accu-append (seq1 seq2)
+  "Implementation of APPEND using ACCUMULATE"
+  (accumulate #'cons seq2 seq1))
+
+(defun accu-length (sequence)
+  "Implementation of LENGTH using ACCUMULATE"
+  (accumulate
+   (lambda (x y)
+     (declare (ignore x))
+     ;; the second argument is building the deferred chain of (+ 1 <here>)
+     ;; which terminates in a "0" - the initial element. Hence we add
+     ;; the branches containing a (+ 1 ..) effectively returning the
+     ;; the length of the list
+     (+ 1 y))
+   0 sequence))
+
 
