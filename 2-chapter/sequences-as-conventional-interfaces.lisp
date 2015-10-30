@@ -131,3 +131,17 @@ muliplications."
 		   (* higher-terms x)))
 	      0
 	      coefficient-sequence ))
+
+
+;; Exercise 2.35
+
+(defun accu-count-leaves (tree)
+  "Implementation of COUNT-LEAVES using ACCUMULATE"
+  ;; add list of 1's
+  (accumulate #'+ 0
+	      (accu-map
+	       ;; map 1 to each leaf
+	       (lambda (x) (declare (ignorable x))
+		       1)
+			;; lay out leaves in a list
+			(enumerate-tree tree))))
