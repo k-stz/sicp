@@ -145,3 +145,18 @@ muliplications."
 		       1)
 			;; lay out leaves in a list
 			(enumerate-tree tree))))
+
+;; Exercise 2.36
+
+(defun accumulate-n (op init seqs)
+  "Accumulates the elements under the operation with the same position in the sequences
+into a new sequence."
+  (if (null (car seqs))
+      nil
+      (cons
+       ;; only operate on the FIRST of the sequences
+       (accumulate op init (accu-map #'first seqs))
+       ;; move down the sequences simultaneously
+       (accumulate-n op init (accu-map #'cdr seqs)))))
+
+;;(accumulate-n #'+ 0 '((1 2 3) (4 5 6) (7 8 9) (10 11 12))) ==> (22 26 30)
