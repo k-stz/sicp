@@ -167,14 +167,17 @@ into a new sequence."
 (defun dot-product (v w)
   (accumulate #'+ 0 (map 'list #'* v w)))
 
+
+;; NOTE: a much succincter implementation is to use DOT-PRODUCT instead of the
+;;       egg scrambling mnemonic.
 (defun matrix-*-vector (m v)
   "Perform matrix-vector multiplication. Matrix m is a list of lists (rows!)  and v, the
 vector, is also a list."
   (map 'list
        ;; unite them as a sequence 
        (lambda (row)
-	 ;; add the matrix-eggs together
+	 ;; "scramble the eggs" together
 	 (accumulate #'+ 0
-		     ;; scable the vector eggs on top of the
-		     ;; matrix columns
+		     ;; break the "vector-eggs" on top of the matrix columns, imagine how
+		     ;; the columns overflow - trickling down along them
 		     (map 'list #'* row v))) m))
