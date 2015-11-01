@@ -149,7 +149,7 @@ muliplications."
 ;; Exercise 2.36
 
 (defun accumulate-n (op init seqs)
-  "Accumulates the elements under the operation with the same position in the sequences
+  "Accumulates the elements under the operation with the same position in the sequences 
 into a new sequence."
   (if (null (car seqs))
       nil
@@ -160,3 +160,21 @@ into a new sequence."
        (accumulate-n op init (accu-map #'cdr seqs)))))
 
 ;;(accumulate-n #'+ 0 '((1 2 3) (4 5 6) (7 8 9) (10 11 12))) ==> (22 26 30)
+
+
+;; Exercise 2.37
+
+(defun dot-product (v w)
+  (accumulate #'+ 0 (map 'list #'* v w)))
+
+(defun matrix-*-vector (m v)
+  "Perform matrix-vector multiplication. Matrix m is a list of lists (rows!)  and v, the
+vector, is also a list."
+  (map 'list
+       ;; unite them as a sequence 
+       (lambda (row)
+	 ;; add the matrix-eggs together
+	 (accumulate #'+ 0
+		     ;; scable the vector eggs on top of the
+		     ;; matrix columns
+		     (map 'list #'* row v))) m))
