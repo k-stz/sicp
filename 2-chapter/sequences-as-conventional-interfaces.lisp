@@ -188,3 +188,22 @@ vector, is also a list."
   "Transpose matrix mat. mat is a list-of-lists row-major matrix."
   (accumulate-n #'cons '()
 		mat))
+
+(defun matrix-*-matrix (m n)
+  "Multiply matrix. m and n are list-of-lists row-major matrices."
+  (let ((n-cols (transpose n)))
+    (map 'list #'(lambda (m-row)
+		   (map 'list (lambda (n-col)
+				(dot-product m-row n-col))
+			 n-cols)) m)))
+
+;; alternatively: though it twists my idea of matrix multiplication
+;;                this solution reuses code and due to my preconceptions
+;;                of the operation provides a fresh new way to look at it
+(defun 1-matrix-*-matrix (m n)
+  "Multiply matrix. m and n are list-of-lists row-major matrices. (alternative
+implementation to MATRIX-*-MATRIX"
+  (let ((cols (transpose n)))
+    (map 'list (lambda (row)
+		 (matrix-*-vector cols row))
+	 m)))
