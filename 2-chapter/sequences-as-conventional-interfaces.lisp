@@ -110,8 +110,7 @@
 ;; Exercise 2.34
 
 (defun horner-eval (x coefficient-sequence)
-  "Evaluate a polynomial in x at a given value in x. Example: f(x)= 1 + 3x + 5x³ + x^5 at
-x=2 would be (horner-eval 2 (list 1 3 0 5 0 1).  
+  "Evaluate a polynomial in x at a given value in x. Example: f(x)= 1 + 3x + 5x^3 + x^5 at x=2 would be (horner-eval 2 (list 1 3 0 5 0 1).
 
 This function implements Horner's Rule: It can be proven that any algorithm that computes
 arbitrary polynomials must at least use as man additions and multiplications as Horner's
@@ -120,7 +119,7 @@ rule, thus Horner's Rule is an optimal algorithm for polynomial evaluation!
 This was proved (for the number additions) by A.M. Otrowski in 1954 paper that essentially
 founded the modern study of optional algorithms. While V.Y.Pan 1966 proved it for
 muliplications."
-  (accumulate (lambda (this-coeff higher-terms) ;;??;;
+  (accumulate (lambda (this-coeff higher-terms)
 		;; it helps to imagnine it "backwards" starting at the initial=0 then, as
 		;; according to Horner's rule "we multiply by x" (* x 0) "then add a.n-1
 		;; (* this-coeff (* x 0)) since we're at the end of the deferred chain
@@ -181,3 +180,11 @@ vector, is also a list."
 		     ;; break the "vector-eggs" on top of the matrix columns, imagine how
 		     ;; the columns overflow - trickling down along them
 		     (map 'list #'* row v))) m))
+
+
+(defparameter *m* '((1 2 3) (4 5 6) (7 8 9)))
+
+(defun transpose (mat)
+  "Transpose matrix mat. mat is a list-of-lists row-major matrix."
+  (accumulate-n #'cons '()
+		mat))
