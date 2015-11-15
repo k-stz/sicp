@@ -197,9 +197,10 @@ vector, is also a list."
 				(dot-product m-row n-col))
 			 n-cols)) m)))
 
-;; alternatively: though it twists my idea of matrix multiplication
-;;                this solution reuses code and due to my preconceptions
-;;                of the operation provides a fresh new way to look at it
+;; alternatively: though it twists my idea of matrix multiplication this
+;;                solution reuses code. Due to my preconceptions of matrix
+;;                multiplication it provides a fresh new way to look at it
+
 (defun 1-matrix-*-matrix (m n)
   "Multiply matrix. m and n are list-of-lists row-major matrices. (alternative
 implementation to MATRIX-*-MATRIX"
@@ -207,3 +208,36 @@ implementation to MATRIX-*-MATRIX"
     (map 'list (lambda (row)
 		 (matrix-*-vector cols row))
 	 m)))
+
+
+;; Exercise 2.38
+
+(defun fold-left (op initial sequence)
+  "Opposite of FOLD-RIGHT. First applies operation on <initial> and the element at the end of
+the sequence working backwards through it."
+  (labels ((iter (result rest)
+		 (if (null rest)
+		     result
+		     ;; the first argument is the crucial difference to the recursive
+		     ;; implementation of ACCUMULATE. See how we build the deferred
+		     ;; chain upward the list resolving it backwards?
+		     (iter (funcall op result (first rest))
+			   (rest rest)))))
+    (iter initial sequence)))
+
+(defun fold-right (op initial sequence)
+  "ACCUMULATE is also known as FOLD-RIGHT, because it combines the first
+element of the sequence with the result of combinding all the elements to the right."
+  (accumulate op initial sequence))
+
+;; division is a noncommutative operation:
+;; (fold-right #'/ 1 (list 1 2 3)) => 3/2
+;; (fold-left  #'/ 1 (list 1 2 3))  => 1/6
+;; and so is LIST so to speak
+;; (fold-right #'list nil (list 1 2 3)) => (1 (2 (3 NIL)))
+;; (fold-left  #'list nil (list 1 2 3)) => (((NIL 1) 2) 3)
+
+;; An operation must be _commutative_ in order for FOLD-LEFT and FOLD-RIGHT to return
+;; the same result.
+;; (= (fold-right #'* 1 (list 1 2 3))
+;;    (fold-left  #'* 1 (list 1 2 3))) ==> T
