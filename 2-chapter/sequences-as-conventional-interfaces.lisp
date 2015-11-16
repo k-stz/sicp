@@ -241,3 +241,20 @@ element of the sequence with the result of combinding all the elements to the ri
 ;; the same result.
 ;; (= (fold-right #'* 1 (list 1 2 3))
 ;;    (fold-left  #'* 1 (list 1 2 3))) ==> T
+
+
+;; Exercise 2.39
+
+(defun fold-right-reverse (sequence)
+  "Implementation of REVERSE using FOLD-RIGHT."
+  (fold-right (lambda (x y)
+		(append y (list x)))
+	      nil
+	      sequence))
+
+(defun fold-left-reverse (sequence)
+  "Implementation of REVERSE using FOLD-LEFT."
+  (fold-left (lambda (x y)
+	       (append (list y) x))
+	     nil
+	     sequence))
