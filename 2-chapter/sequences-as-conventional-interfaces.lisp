@@ -241,3 +241,28 @@ element of the sequence with the result of combinding all the elements to the ri
 ;; the same result.
 ;; (= (fold-right #'* 1 (list 1 2 3))
 ;;    (fold-left  #'* 1 (list 1 2 3))) ==> T
+
+
+
+;;; Nested Mappings
+
+
+(defun ordered-pairs (n)
+  (accumulate #'append nil
+	      (map 'list
+		   (lambda (i)
+		     (map 'list
+			  (lambda (j) (list j i))
+			  (enumerate-interval 1 (1- i))))
+		   (enumerate-interval 1 n))))
+
+;; above we combined the mapping and accumulating with APPEND. This is a common pattern
+;; that we will isolate it as a separate procedure:
+
+(defun flatmap (fn list)
+  "The function given must map its input to a list type element, then the result is
+APPENDed."
+  (accumulate #'append nil
+	      (map 'list fn list)))
+
+
