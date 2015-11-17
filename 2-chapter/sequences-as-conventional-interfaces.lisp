@@ -266,3 +266,10 @@ APPENDed."
 	      (map 'list fn list)))
 
 
+;; using FLAT-MAP:
+(defun 1-ordered-pairs (n)
+  (flatmap (lambda (i)
+	     (map 'list
+		  (lambda (j) (list j i))
+		  (enumerate-interval 1 (1- i))))
+	   (enumerate-interval 1 n)))
