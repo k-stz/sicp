@@ -273,3 +273,5 @@ APPENDed."
 		  (lambda (j) (list j i))
 		  (enumerate-interval 1 (1- i))))
 	   (enumerate-interval 1 n)))
+
+;; filter for primes

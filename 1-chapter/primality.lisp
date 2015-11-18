@@ -1,3 +1,6 @@
+(defpackage :sicp (:use :cl))
+(in-package :sicp)
+
 ;;primality = Primzahl-Eigenschaft
 ;;composite = the opposite of prime numbers, that is a number that has a
 ;;            positive divisor other than one or itself. 
@@ -37,7 +40,7 @@
 ;; that yields us Theta(sqrt(n)) Order of growth!!!
 ;;The Carmichael numbers fail the Farmat test, those are extremly rare numbers
 ;; that are not prime but pass the test anyway example numbers: 561, 1105
-;;;The FERMAT-TEST procedure effectifly implement exercise 1.27 as well!
+;;;The FERMAT-TEST procedure effectively implement exercise 1.27 as well!
 (defun fermat-test (prime) ;example primes: 149,107,61,83
    (when (not (primep prime))
      (format t "~a is not a prime number" prime))

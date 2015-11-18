@@ -7,6 +7,7 @@
   :serial t
   :components
   ((:module "1-chapter/"
-	    :components ((:file "newton")))
+	    :components ((:file "primality")
+			 (:file "newton")))
    (:module "2-chapter/"
 	    :components ((:file "line-segments")))))
