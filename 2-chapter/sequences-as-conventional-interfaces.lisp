@@ -292,3 +292,17 @@ APPENDed."
        (filter #'prime-sum?
 	       ;; enumerate
 	       (1-ordered-pairs n))))
+
+(defun %remove (item list)
+  (filter (lambda (x) (not (= x item)))
+	  list))
+
+(defun permutations (list)
+  (if (null list)
+      (list nil) ;; if list is empty join the elements from the deferred chain with it
+                 ;; using the CONS below. Ergo (cons <something> NIL) => (<something>)
+      (flatmap (lambda (x)
+		 (map 'list
+		      (lambda (p) (cons x p))
+		      (permutations (%remove x list))))
+	       list)))
