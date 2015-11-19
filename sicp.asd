@@ -10,4 +10,5 @@
 	    :components ((:file "primality")
 			 (:file "newton")))
    (:module "2-chapter/"
-	    :components ((:file "line-segments")))))
+	    :components ((:file "line-segments")
+			 (:file "sequences-as-conventional-interfaces.lisp")))))

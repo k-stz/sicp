@@ -275,3 +275,20 @@ APPENDed."
 	   (enumerate-interval 1 n)))
 
 ;; filter for primes
+
+(defun prime-sum? (pair)
+  (primep (+ (first pair) (second pair))))
+
+(defun make-pair-sum (pair)
+  (let ((first (first pair))
+	(second (second pair)))
+    (list first second (+ first second))))
+
+(defun prime-sum-pairs (n)
+  ;; map
+  (map 'list
+       #'make-pair-sum
+       ;; filter
+       (filter #'prime-sum?
+	       ;; enumerate
+	       (1-ordered-pairs n))))
