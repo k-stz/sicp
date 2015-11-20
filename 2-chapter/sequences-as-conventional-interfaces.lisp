@@ -244,8 +244,26 @@ element of the sequence with the result of combinding all the elements to the ri
 
 
 
-;;; Nested Mappings
+;; Exercise 2.39
 
+(defun fold-right-reverse (sequence)
+  "Implementation of REVERSE using FOLD-RIGHT."
+  (fold-right (lambda (x y)
+		(append y (list x)))
+	      nil
+	      sequence))
+
+(defun fold-left-reverse (sequence)
+  "Implementation of REVERSE using FOLD-LEFT."
+  (fold-left (lambda (x y)
+	       (append (list y) x))
+	     nil
+	     sequence))
+
+
+
+
+;;; Nested Mappings
 
 (defun ordered-pairs (n)
   (accumulate #'append nil

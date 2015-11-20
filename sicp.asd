@@ -11,4 +11,4 @@
 			 (:file "newton")))
    (:module "2-chapter/"
 	    :components ((:file "line-segments")
-			 (:file "sequences-as-conventional-interfaces.lisp")))))
+			 (:file "sequences-as-conventional-interfaces")))))
