@@ -319,9 +319,10 @@ APPENDed."
   (if (null list)
       (list nil) ;; if list is empty join the elements from the deferred chain with it
                  ;; using the CONS below. Ergo (cons <something> NIL) => (<something>)
-      (flatmap (lambda (x)
+      (flatmap (lambda (x) ;; runs 'list'-times, recursively on a smaller list then..
 		 (map 'list
-		      (lambda (p) (cons x p))
+		      (lambda (p) (cons x p)) ;; the deferred chain stacks up (cons x ..)
+		                              ;; the chain has always depth (lengh list)
 		      (permutations (%remove x list))))
 	       list)))
 
