@@ -288,7 +288,7 @@ APPENDed."
 (defun 1-ordered-pairs (n)
   (flatmap (lambda (i)
 	     (map 'list
-		  (lambda (j) (list j i))
+		  (lambda (j) (print (list j i)))
 		  (enumerate-interval 1 (1- i))))
 	   (enumerate-interval 1 n)))
 
@@ -324,3 +324,17 @@ APPENDed."
 		      (lambda (p) (cons x p))
 		      (permutations (%remove x list))))
 	       list)))
+
+
+;; Exercise 2.40
+
+(defun unique-pairs (n)
+  ;; already implemented beforehand:
+  (1-ordered-pairs n))
+
+;; using UNIQUE-PAIRS in the implementation
+(defun 1-prime-sum-pairs (n)
+       (map 'list
+	    #'make-pair-sum
+	    (filter #'prime-sum?
+		    (unique-pairs n))))
