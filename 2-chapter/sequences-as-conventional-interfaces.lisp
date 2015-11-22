@@ -288,7 +288,7 @@ APPENDed."
 (defun 1-ordered-pairs (n)
   (flatmap (lambda (i)
 	     (map 'list
-		  (lambda (j) (print (list j i)))
+		  (lambda (j) (list j i))
 		  (enumerate-interval 1 (1- i))))
 	   (enumerate-interval 1 n)))
 
@@ -339,3 +339,27 @@ APPENDed."
 	    #'make-pair-sum
 	    (filter #'prime-sum?
 		    (unique-pairs n))))
+
+
+;; Exercise 2.41
+
+(defun ordered-triples (n)
+  "Returns triples i, j, k of ordered integers smaller or equal to n."
+  ;; triples require a third nested mapping
+  (flatmap
+   (lambda (i)
+     (flatmap
+      ;; now we map lists to a list and need to append the result twice - hence
+      ;; using FLATMAP twice.
+      (lambda (j)
+	(map 'list
+	     (lambda (k) (list k j i))
+	     (enumerate-interval 1 (1- j))))
+      (enumerate-interval 1 (1- i))))
+   (enumerate-interval 1 n)))
+
+;; (defun tuple-sum-less (n s)
+;;   "Return triples of integers that are ordered and smaller or equal to n
+;; and whose sum is s."
+;;   ;; enumerate our triples
+;;   (ordered-triples n))
