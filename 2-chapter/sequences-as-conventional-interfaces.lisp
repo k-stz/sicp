@@ -344,7 +344,7 @@ APPENDed."
 ;; Exercise 2.41
 
 (defun ordered-triples (n)
-  "Returns triples i, j, k of ordered integers smaller or equal to n."
+  "Returns triple i, j, k of ordered distict integers smaller or equal to n."
   ;; triples require a third nested mapping
   (flatmap
    (lambda (i)
@@ -358,8 +358,11 @@ APPENDed."
       (enumerate-interval 1 (1- i))))
    (enumerate-interval 1 n)))
 
-;; (defun tuple-sum-less (n s)
-;;   "Return triples of integers that are ordered and smaller or equal to n
-;; and whose sum is s."
-;;   ;; enumerate our triples
-;;   (ordered-triples n))
+(defun triple-sum-equal-s (n s)
+  "Return triples of distinct ordered integers that are ordered and smaller or equal to n
+and whose sum is s."
+  ;; enumerate our triples
+  (filter (lambda (triple)
+	    ;; the triple list form lends itself to be used as argument to APPLY
+	    (= (apply #'+ triple) s))
+	  (ordered-triples n)))
