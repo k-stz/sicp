@@ -366,3 +366,29 @@ and whose sum is s."
 	    ;; the triple list form lends itself to be used as argument to APPLY
 	    (= (apply #'+ triple) s))
 	  (ordered-triples n)))
+
+
+;; Exercise 2.42
+
+(defvar *empty-board*)
+
+(defun save? (k positions)
+  )
+
+(defun adjoin-position (new-row k rest-of-queens)
+  )
+
+(defun queen (board-size)
+  (labels ((queen-cols (k)
+	     (if (= k 0)
+		 (list *empty-board*)
+		 (filter
+		  (lambda (positions) (save? k positions))
+		  (flatmap
+		   (lambda (rest-of-queens)
+		     (map 'list
+			  (lambda (new-row)
+			    (adjoin-position new-row k rest-of-queens))
+			  (enumerate-interval 1 board-size)))
+		   (queen-cols (- k 1)))))))
+    (queen-cols board-size)))
