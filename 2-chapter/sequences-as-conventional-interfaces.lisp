@@ -370,20 +370,6 @@ and whose sum is s."
 
 ;; Exercise 2.42
 
-;; 
-;; (defun adjoin-position! (new-element index list)
-;;   "Add new element to list at position k destructively"
-;;   (if (= index 0)
-;;       (push new-element list)
-;;       (push new-element (cdr (nthcdr index list))))
-;;   list)
-
-;; (defun adjoin-position (new-element index list)
-;;   "Add new element to list at position, nondestructively"
-;;   (let ((list-copy (copy-list list)))
-;;     (adjoin-position! new-element index list-copy)))
-
-
 ;; The board will be a list, where (length list) = board-size
 ;; and each element will be a number whose position in the list
 ;; is the column and the magnitude the row.
@@ -395,39 +381,52 @@ and whose sum is s."
 (defparameter *empty-board* '())
 
 (defun adjoin-position (new-row k rest-of-queens)
+  "Add a new-row to the current n-board."
   (append rest-of-queens (list new-row)))
 
-;; NEXT-TODO finish
-;; (defun save? (k positions)
-;;   ;; Our representation makes 2 queens in a row impossible
-;;   ;; hence we test for intersection across columns:
-;;   (if (and (loop for queen in positions
-;; 	      :never
-;; 	      ;; same magnitude = resides in same column on a different row
-;; 		(= queen k))
-;; 	   )
-;;       T
-;;       NIL))
+
+(defun board-diagonal-test (board-positions)
+  "Tests if the last - (first (last board-positions)) - queen can attack any previously
+placed queen diagonally. True if it can't attack."
+  (let ((new-queen (first (last board-positions))))
+    (loop for i in (reverse (butlast board-positions))
+       ;; diagonal-delta is just the difference in row distance for each row we
+       ;; move from the newly placed queen. Like a diagonal it increases by 1 per row.
+       for diagonal-delta from 1
+       :never
+	 (or
+	  ;; test "left" diagonal
+	  (= (+ (- diagonal-delta) new-queen) i)
+	  ;; test "right" diagonal
+	  (= (+ diagonal-delta new-queen) i)))))
 
 (defun save? (k positions)
-  (print (list k positions))
-  (when (<= k 0) (error "can't verify board size ~a" k))
+  "True if the last queen in positions can't attack any other queen."
+  (declare (ignore k)) ;; k isn't needed due to our board representation.
   (let  ((new-queen (first (last positions))))
-;;    (print (list k positions new-queen))
     (if (and (loop for queen in (butlast positions)
 		:never
 		  (= queen new-queen))
-	     ;; TODO diagonal test
-	     (board-diagonal-test positions)
-	     )
+	     (board-diagonal-test positions))
 	t
 	nil)))
 
+
+;; A "position" is a set of rows of size k. k positions represent the full board.
 (defun queen (board-size)
+  "Solves the N Queen problem."
   (labels ((queen-cols (k)
 	     (if (= k 0)
 		 (list *empty-board*)
-		 (filter ;; returns all the positions that pass the test
+		 (filter
+		  ;; returns all the positions that pass the test
+		  ;; it is important that we filter here each of the
+		  ;; board-sets with the newly added _row_ that branches
+		  ;; to k-boards with a queen in the k-th position.
+		  ;; The crucial part to understand is:
+		  ;; this filter doesn't terminate the QUEEN-COLS procedure, but
+		  ;; recursively adds new ROWS until there is (- k 1) nomore at each step
+		  ;; creating a kx[1-k] board that passes the SAVE?  test
 		  (lambda (positions) (save? k positions))
 		  (flatmap
 		   (lambda (rest-of-queens)
@@ -442,17 +441,4 @@ and whose sum is s."
     (queen-cols board-size)))
 
 
-(defun board-diagonal-test (board-positions)
-  "Tests if the last - (first (last board-positions)) - queen can attack any previously
-placed queen diagonally."
-  (let ((new-queen (first (last board-positions))))
-    (loop for i in (reverse (butlast board-positions))
-       ;; diagonal-delta is the just the difference in column distance for each column we
-       ;; advance from the newly placed queen like a diagonal it increases by 1 per column
-       for diagonal-delta from 1
-       :never
-	 (or
-	  ;; test "left" diagonal
-	  (= (+ (- diagonal-delta) new-queen) i)
-	  ;; test "right" diagonal
-	  (= (+ diagonal-delta new-queen) i)))))
+
