@@ -81,7 +81,7 @@
 
 ;; implement map in terms of accumulate
 (defun accu-map (fn sequence)
-  "Imlementation of MAP using ACCUMULATE"
+  "Implementation of MAP using ACCUMULATE"
   (accumulate
    (lambda (x y)
      (cons (funcall fn x)
@@ -118,9 +118,9 @@ rule, thus Horner's Rule is an optimal algorithm for polynomial evaluation!
 
 This was proved (for the number additions) by A.M. Otrowski in 1954 paper that essentially
 founded the modern study of optional algorithms. While V.Y.Pan 1966 proved it for
-muliplications."
+multiplications."
   (accumulate (lambda (this-coeff higher-terms)
-		;; it helps to imagnine it "backwards" starting at the initial=0 then, as
+		;; it helps to imagine it "backwards" starting at the initial=0 then, as
 		;; according to Horner's rule "we multiply by x" (* x 0) "then add a.n-1
 		;; (* this-coeff (* x 0)) since we're at the end of the deferred chain
 		;; "this-coeff" is indeed the last value in the coefficient-sequence. Now
@@ -227,7 +227,7 @@ the sequence working backwards through it."
 
 (defun fold-right (op initial sequence)
   "ACCUMULATE is also known as FOLD-RIGHT, because it combines the first
-element of the sequence with the result of combinding all the elements to the right."
+element of the sequence with the result of combining all the elements to the right."
   (accumulate op initial sequence))
 
 ;; division is a noncommutative operation:
@@ -322,7 +322,7 @@ APPENDed."
       (flatmap (lambda (x) ;; runs 'list'-times, recursively on a smaller list then..
 		 (map 'list
 		      (lambda (p) (cons x p)) ;; the deferred chain stacks up (cons x ..)
-		                              ;; the chain has always depth (lengh list)
+		                              ;; the chain has always depth (length list)
 		      (permutations (%remove x list))))
 	       list)))
 
@@ -344,7 +344,7 @@ APPENDed."
 ;; Exercise 2.41
 
 (defun ordered-triples (n)
-  "Returns triple i, j, k of ordered distict integers smaller or equal to n."
+  "Returns triple i, j, k of ordered distinct integers smaller or equal to n."
   ;; triples require a third nested mapping
   (flatmap
    (lambda (i)
@@ -359,7 +359,7 @@ APPENDed."
    (enumerate-interval 1 n)))
 
 (defun triple-sum-equal-s (n s)
-  "Return triples of distinct ordered integers that are ordered and smaller or equal to n
+  "Return triples of distinct ordered integers that are and smaller or equal to n
 and whose sum is s."
   ;; enumerate our triples
   (filter (lambda (triple)
@@ -425,8 +425,8 @@ placed queen diagonally. True if it can't attack."
 		  ;; to k-boards with a queen in the k-th position.
 		  ;; The crucial part to understand is:
 		  ;; this filter doesn't terminate the QUEEN-COLS procedure, but
-		  ;; recursively adds new ROWS until there is (- k 1) nomore at each step
-		  ;; creating a kx[1-k] board that passes the SAVE?  test
+		  ;; recursively adds new ROWS until there is (- k 1) no more at each step
+		  ;; creating a k x [1-k] board that passes the SAVE?  test
 		  (lambda (positions) (save? k positions))
 		  (flatmap
 		   (lambda (rest-of-queens)
