@@ -388,26 +388,40 @@ and whose sum is s."
 ;; and each element will be a number whose position in the list
 ;; is the column and the magnitude the row.
 ;; example:
-;; (list 0 0 1) represents the board
-;; Q _ _         (list 0
-;; Q _ _   ergo:       0
-;; _ Q _               1)
+;; (list 1 1 2) represents the board
+;; Q _ _         (list 1
+;; Q _ _   ergo:       1
+;; _ Q _               2)
 (defparameter *empty-board* '())
 
 (defun adjoin-position (new-row k rest-of-queens)
   (append rest-of-queens (list new-row)))
 
 ;; NEXT-TODO finish
+;; (defun save? (k positions)
+;;   ;; Our representation makes 2 queens in a row impossible
+;;   ;; hence we test for intersection across columns:
+;;   (if (and (loop for queen in positions
+;; 	      :never
+;; 	      ;; same magnitude = resides in same column on a different row
+;; 		(= queen k))
+;; 	   )
+;;       T
+;;       NIL))
+
 (defun save? (k positions)
-  ;; Our representation makes 2 queens in a row impossible
-  ;; hence we test for intersection across columns:
-  (if (and (loop for queen in positions
-	      :never
-	      ;; same magnitude = resides in same column on a different row
-		(= queen k))
-	   )
-      T
-      NIL))
+  (print (list k positions))
+  (when (<= k 0) (error "can't verify board size ~a" k))
+  (let  ((new-queen (first (last positions))))
+;;    (print (list k positions new-queen))
+    (if (and (loop for queen in (butlast positions)
+		:never
+		  (= queen new-queen))
+	     ;; TODO diagonal test
+	     (board-diagonal-test positions)
+	     )
+	t
+	nil)))
 
 (defun queen (board-size)
   (labels ((queen-cols (k)
@@ -427,3 +441,18 @@ and whose sum is s."
 		   (queen-cols (- k 1)))))))
     (queen-cols board-size)))
 
+
+(defun board-diagonal-test (board-positions)
+  "Tests if the last - (first (last board-positions)) - queen can attack any previously
+placed queen diagonally."
+  (let ((new-queen (first (last board-positions))))
+    (loop for i in (reverse (butlast board-positions))
+       ;; diagonal-delta is the just the difference in column distance for each column we
+       ;; advance from the newly placed queen like a diagonal it increases by 1 per column
+       for diagonal-delta from 1
+       :never
+	 (or
+	  ;; test "left" diagonal
+	  (= (+ (- diagonal-delta) new-queen) i)
+	  ;; test "right" diagonal
+	  (= (+ diagonal-delta new-queen) i)))))
