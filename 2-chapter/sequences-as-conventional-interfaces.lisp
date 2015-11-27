@@ -426,7 +426,10 @@ placed queen diagonally. True if it can't attack."
 		  ;; The crucial part to understand is:
 		  ;; this filter doesn't terminate the QUEEN-COLS procedure, but
 		  ;; recursively adds new ROWS until there is (- k 1) no more at each step
-		  ;; creating a k x [1-k] board that passes the SAVE?  test
+		  ;; creating a k x [1-k] board that passes the SAVE?
+		  ;; Keep in mind while reading this function: this is where we pop out
+		  ;; of the recursion and continue at (queen-cols (- k 1)) below
+		  ;; while working up the deferred chain of depth k.
 		  (lambda (positions) (save? k positions))
 		  (flatmap
 		   (lambda (rest-of-queens)
@@ -441,4 +444,32 @@ placed queen diagonally. True if it can't attack."
     (queen-cols board-size)))
 
 
+;; Exercise 2.43 - Louis Reasoner's QUEEN implementation 
 
+;; This procedure creates a tree-recursive process: each element in
+;; the ENUMERATE-INTERVALL branches of into another call to ENUMERATE-
+;; INTERVAL and QUEEN-COLS.
+;; This happens board-size times, because for each branch we run down
+;; (queen-cols (- k 1)) until we reach (= k 0).
+;; ergo 0(n^n) this means that the time it takes is: T*(board-size^board-size)
+;; a terrible time complexity
+(defun louis-queen (board-size)
+  "Solves the N Queen problem."
+  (labels ((queen-cols (k)
+	     (if (= k 0)
+		 (list *empty-board*)
+		 (filter
+		  (lambda (positions) (save? k positions))
+		  (flatmap
+		   (lambda (new-row)
+		     (map 'list
+			  (lambda (rest-of-queens)
+			    (adjoin-position new-row k rest-of-queens))
+			  ;; this queen-cols deferred chain always ends up in the
+			  ;; surrounded by the ENUMERATE-INTERVALS mapping 
+			  ;; which means we create a QUEEN-COLS deferred chain for
+			  ;; each element in enumerate-interval, which in turn
+			  ;; ends up surrounded by the...
+			  (print (queen-cols (- k 1)))))
+		   (enumerate-interval 1 board-size))))))
+    (queen-cols board-size)))
