@@ -11,4 +11,5 @@
 			 (:file "newton")))
    (:module "2-chapter/"
 	    :components ((:file "line-segments")
-			 (:file "sequences-as-conventional-interfaces")))))
+			 (:file "sequences-as-conventional-interfaces")
+			 (:file "the-picture-language")))))
