@@ -55,8 +55,8 @@
    2))
 
 
-;; Does the width of an interval combination through addition or substraction
-;; yield the same result as using each intervalls width for the same combination?
+;; Does the width of an interval combination through addition or subtraction
+;; yield the same result as using each intervals width for the same combination?
 ;; (width (add-interval interval-x interval-y)) = (+ (width interval-x) (width interval-y)?)
 
 (defun width-test (x y)
@@ -66,10 +66,10 @@
 ;; This relation holds true as long as (<= lower-bound upper-bound)
 ;; The combination width is directly derived from the addition, negation of it's
 ;; components bounds. Given a width from one interval we get the combination width by
-;; changin the bound of of the interval by exactly the magnitude of the other
+;; changing the bound of of the interval by exactly the magnitude of the other
 ;; bound. Therefore the combination bound changes by the same magnitude.
 
-;; This doesn't work for multiplication: negating the bounds (muliplying a negative and
+;; This doesn't work for multiplication: negating the bounds (multiplying a negative and
 ;; positive bound), doesn't change the width of one bounds with the same magnitude as
 ;; the combination. Just imagine two identical intervals |-2 -1|, with 0.5 width they
 ;; combine into |1 4| with width 1.5.
@@ -83,7 +83,7 @@
   (let ((y-lower-bound (lower-bound y))
 	(y-upper-bound (upper-bound y)))
     ;; if y-lower-bound is negative, or zero, and the upper-bound positive or zero
-    ;; it spans zero. Mutliplying the two yielding a negative number, or zero indicates
+    ;; it spans zero. Multiplying the two yielding a negative number, or zero indicates
     ;; an interval containing 0!
     (if (<= (* y-upper-bound y-lower-bound) 0)
 	(error "Division by zero: Interval ~a spans zero." y)
@@ -210,7 +210,7 @@
 ;; hence if
 ;; t = i*i'
 ;; then from the above follows
-;; upper-bound(t) = upper-bound(i)*upper-bound(i'), similiarly for
+;; upper-bound(t) = upper-bound(i)*upper-bound(i'), similarity for
 ;; lower-bound(t).
 
 ;; corollary if x,y are centers of i and i' then
@@ -241,9 +241,9 @@
 
 
 ;; Exercise 2.14
-;; Lem is right, the above return different results for intervals r1:(1 1) r2:(1 2)
+;; Lem is right, the above returns different results for intervals r1:(1 1) r2:(1 2)
 
-;; lets focus on the use of division, expexcially on the inverse (/ 1 r1)
+;; lets focus on the use of division, especially on the inverse (/ 1 r1)
 ;; usually: (1*x)/x = 1
 
 (defvar *one* (make-interval 1 1))
@@ -282,7 +282,7 @@
 ;; interval arithmetic.
 
 ;; We might be thinking that substituting actual values for the resistors "nailing
-;; them in" would prohib increasingly pessimistic values such that:
+;; them in" would prohibit increasingly pessimistic values such that:
 
 ;; 1/r , where r is really 0.5 yields 1/0.5 => 2. In PAR2 we have to do another division
 ;; 1/2 => 0.5. But the point of intervals is that they represent _uncertainties_ where
@@ -294,12 +294,12 @@
 
 ;; Exercise 2.16
 ;; We could assume that if we nailed the values down prior to using intervals, so that
-;; any subsequent operation wouldn't blow up the extremes when operating with the
-;; same interval but rather simply devour it unnotices then it might work.
+;; any subsequent operation wouldn't blow up the extremes, when operating with the
+;; same interval, but rather simply devour it unnoticed, then it might work.
 ;; But since it is hinted to be a very hard problem I suggest not trying to solve it
 ;; as this probably implies that many concepts are needed prior to solving it.
 
-;; From wikipedia, on the "Dependency problem" of interval arithmetic
+;; From Wikipedia, on the "Dependency problem" of interval arithmetic
 
 ;; "If an interval occurs several times in a calculation using parameters, and each
 ;; occurrence is taken independently then this can lead to an unwanted expansion of the
@@ -314,7 +314,7 @@
 ;; as far as covering a large range, preventing more meaningful conclusions." (bad)
 
 ;; This "larger area" can even blow up to ]-∞,∞[ Which means we could devise a system that
-;; would test algebraic formulation for occurence of certain intervals multiple times and
-;; then acertain them being accurate, but this would be a heuristic. The pragmatic
-;; question hence is how many of everyday uses of artithmetic interval operations can't be
+;; would test algebraic formulation for occurrence of certain intervals multiple times and
+;; then ascertain them being accurate, but this would be a heuristic. The pragmatic
+;; question hence is how many of everyday uses of arithmetic interval operations can't be
 ;; reformulated to use the variables involved only once.
