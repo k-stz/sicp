@@ -26,5 +26,27 @@
 ;; The language uses ordinary Lisp functions and hence allows us to use do everything we
 ;; can do with Lisp functions, for example treat them as first-class objects.
 
+;; TODO: test once picture language core is implemented
 
+;; (defvar wave2 (beside wave (flip-vert wave)))
+;; (defvar wave4 (below wave2 wave2))
 
+;; (defun flipped-pairs (painter)
+;;   (let ((painter2 (beside painter (flip-vert painter))))
+;;     (below painter2 painter2)))
+
+;; (defvar wave4 (flipped-pairs wave))
+
+;; (defun right-split (painter n)
+;;   (if (= n 0)
+;;       painter
+;;       (let ((smaller (right-split painter (- n 1))))
+;; 	(beside painter (below smaller smaller)))))
+
+;; Exercise 2.44
+
+;; (defun up-split (painter n)
+;;   (if (= n 0)
+;;       painter
+;;       (let ((smaller (right-split painter (- n 1))))
+;; 	(below painter (beside smaller smaller)))))
