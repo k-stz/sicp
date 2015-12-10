@@ -12,8 +12,8 @@
 ;; We consider a picture language that helps us describe an image that is transformed and
 ;; enclosed by a parallelogram.
 
-;; TODO: rewrite the three properties of language with the acutall example. e.g. means
-;;       of combiniation is a closure who's components are procedures, not lists as until
+;; TODO: rewrite the three properties of a language with the actual example. e.g. means
+;;       of combination is a closure who's components are procedures, not lists as until
 ;;       now with CONS.
 
 ;; This language has primitives: _the painter_ we call WAVE that draws crude lines
