@@ -50,3 +50,11 @@
 ;;       painter
 ;;       (let ((smaller (right-split painter (- n 1))))
 ;; 	(below painter (beside smaller smaller)))))
+
+;;; higher-order operations
+
+;; (defun square-of-four (tl tr bl br)
+;;   (lambda (painter)
+;;     (let ((top (beside (funcall tl painter) (funcall tr painter)))
+;; 	  (bottom (beside (bl funcall painter) (br funcall painter))))
+;;       (below bottom top))))
