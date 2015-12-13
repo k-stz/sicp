@@ -76,3 +76,17 @@
 ;;     (let ((top (beside (funcall tl painter) (funcall tr painter)))
 ;; 	  (bottom (beside (bl funcall painter) (br funcall painter))))
 ;;       (below bottom top))))
+
+
+;; (defun flipped-pairs (painter)
+;;   (let ((combine4 (square-of-four identity flip-vert
+;; 				  identity flip-vert)))
+;;     ;; TODO: FUNCALL?
+;;     (combine4 painter)))
+
+
+;; (defun square-limit-2 (painter n)
+;;   (let ((combine4 (square-of-four flip-horiz identity
+;; 				  rotate180 flip-vert)))
+;;     (combine4 (corner-split painter n))))
+
