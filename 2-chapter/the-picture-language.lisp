@@ -90,3 +90,17 @@
 ;; 				  rotate180 flip-vert)))
 ;;     (combine4 (corner-split painter n))))
 
+
+;;; Exercise 2.45
+
+;; SPLIT higher-order procedure which can implement RIGHT-SPLIT and UP-SPLIT
+
+;; (defun split (fn-1 fn-2)
+;;   (labels ((rec (painter n)
+;; 	     (if (= n 0)
+;; 		 painter
+;; 		 (let ((smaller (rec painter (- n 1))))
+;; 		   (funcall fn-1 painter
+;; 			    (funcall fn-2 smaller smaller))))))
+;;     #'rec ;; to return the function slot
+;;     ))
