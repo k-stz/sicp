@@ -104,3 +104,41 @@
 ;; 			    (funcall fn-2 smaller smaller))))))
 ;;     #'rec ;; to return the function slot
 ;;     ))
+
+
+
+;;; Pic lang implementation (partly)
+
+
+;;; Exercise 2.47
+
+(defun make-frame (origin edge-1 edge-2)
+  "Frame constructor."
+  (list origin edge-1 edge-2))
+
+
+;; selectors
+
+(defun origin-frame (frame)
+  (first frame))
+
+(defun edge-1-frame (frame)
+  (second frame))
+
+(defun edge-2-frame (frame)
+  (third frame))
+
+;; alternative implementation - part of the exercise
+;; (defun make-frame (origin edge-1 edge-2)
+;;   "Frame constructor."
+;;   (cons origin (cons edge-1 edge-2)))
+
+;; ;; selectors
+;; (defun origin-frame (frame)
+;;   (first frame))
+
+;; (defun edge-1-frame (frame)
+;;   (second frame))
+
+;; (defun edge-2-frame (frame)
+;;   (rest (rest frame)))
