@@ -142,3 +142,37 @@
 
 ;; (defun edge-2-frame (frame)
 ;;   (rest (rest frame)))
+
+
+;;;
+
+;; vector stuff
+
+(defun make-vector (&rest components)
+  "Vector constructor."
+  components)
+
+
+(defun xcor-vector (vector)
+  (first vector))
+
+(defun ycor-vector (vector)
+  (second vector))
+
+(defun add-vector (v1 v2)
+  (map 'list #'+ v1 v2))
+
+(defun scale-vector (scalar vector)
+  (mapcar #'(lambda (component) (* component scalar))
+	  vector))
+
+(defun frame-coord-map (frame)
+  "Returns a function that maps a unit vector to a vector in the frame. Meaning v(0,0) is
+at origin _of the frame_ and v(1,1) is at the diagonal across. "
+  (lambda (vector)
+    (add-vector
+     (origin-frame frame)
+     (add-vector (scale-vector (xcor-vector vector)
+			       (edge-1-frame frame))
+		 (scale-vector (ycor-vector vector)
+			       (edge-2-frame frame))))))
