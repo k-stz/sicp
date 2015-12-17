@@ -175,7 +175,7 @@
 
 (defun frame-coord-map (frame)
   "Returns a function that maps a unit vector to a vector in the frame. Meaning v(0,0) is
-at origin _of the frame_ and v(1,1) is at the diagonal across. "
+at origin _of the frame_ and v(1,1) is the point across the diagonal."
   (lambda (vector)
     (add-vector
      (origin-frame frame)
