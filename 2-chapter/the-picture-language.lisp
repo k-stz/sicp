@@ -146,7 +146,9 @@
 
 ;;;
 
-;; vector stuff
+;; vector stuff, incidentally this is
+
+;; Exercise 2.46
 
 (defun make-vector (&rest components)
   "Vector constructor."
@@ -162,9 +164,14 @@
 (defun add-vector (v1 v2)
   (map 'list #'+ v1 v2))
 
+(defun sub-vector (v1 v2)
+  (map 'list #'- v1 v2))
+
 (defun scale-vector (scalar vector)
   (mapcar #'(lambda (component) (* component scalar))
 	  vector))
+
+;;
 
 (defun frame-coord-map (frame)
   "Returns a function that maps a unit vector to a vector in the frame. Meaning v(0,0) is
