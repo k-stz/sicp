@@ -110,42 +110,6 @@
 ;;; Pic lang implementation (partly)
 
 
-;;; Exercise 2.47
-
-(defun make-frame (origin edge-1 edge-2)
-  "Frame constructor."
-  (list origin edge-1 edge-2))
-
-
-;; selectors
-
-(defun origin-frame (frame)
-  (first frame))
-
-(defun edge-1-frame (frame)
-  (second frame))
-
-(defun edge-2-frame (frame)
-  (third frame))
-
-;; alternative implementation - part of the exercise
-;; (defun make-frame (origin edge-1 edge-2)
-;;   "Frame constructor."
-;;   (cons origin (cons edge-1 edge-2)))
-
-;; ;; selectors
-;; (defun origin-frame (frame)
-;;   (first frame))
-
-;; (defun edge-1-frame (frame)
-;;   (second frame))
-
-;; (defun edge-2-frame (frame)
-;;   (rest (rest frame)))
-
-
-;;;
-
 ;; vector stuff, incidentally this is
 
 ;; Exercise 2.46
@@ -183,3 +147,84 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 			       (edge-1-frame frame))
 		 (scale-vector (ycor-vector vector)
 			       (edge-2-frame frame))))))
+
+;;; Exercise 2.47
+
+(defun make-frame (origin edge-1 edge-2)
+  "Frame constructor."
+  (list origin edge-1 edge-2))
+
+
+;; selectors
+
+(defun origin-frame (frame)
+  (first frame))
+
+(defun edge-1-frame (frame)
+  (second frame))
+
+(defun edge-2-frame (frame)
+  (third frame))
+
+;; alternative implementation - part of the exercise
+;; (defun make-frame (origin edge-1 edge-2)
+;;   "Frame constructor."
+;;   (cons origin (cons edge-1 edge-2)))
+
+;; ;; selectors
+;; (defun origin-frame (frame)
+;;   (first frame))
+
+;; (defun edge-1-frame (frame)
+;;   (second frame))
+
+;; (defun edge-2-frame (frame)
+;;   (rest (rest frame)))
+
+
+;;; test painter
+
+;; constructor
+(defun make-line-segment (vector-1 vector-2)
+  (list vector-1 vector-2))
+
+;; selector
+(defun line-segment-vector-1 (line-segment)
+  (first line-segment))
+
+(defun line-segment-vector-2 (line-segment)
+  (second line-segment))
+
+
+(defun transform-line-segments (frame line-segments)
+  (let ((transform-fn (frame-coord-map frame)))
+    (loop for line-segment in line-segments
+       :collect
+	 (list
+	  ;; so we can change the implementation detail of line-segment
+	  ;; else, if we knew it is just a list, we could mapcar over
+	  ;; both vectors that make up the line-segment
+	  (funcall transform-fn
+		   (line-segment-vector-1 line-segment))
+	  (funcall transform-fn 
+	  	   (line-segment-vector-2 line-segment))))))
+
+(defparameter *rectangle-line-segments*
+  (list
+   (make-line-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
+   (make-line-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
+   (make-line-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
+   (make-line-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0))))
+
+(defparameter *test-frame*
+  (make-frame (make-vector 100 100) (make-vector 50 0) (make-vector 100 50)))
+
+(defparameter *transformed-line-segments*
+  (transform-line-segments *test-frame* *rectangle-line-segments*))
+
+
+;; (defun draw-line-segment (line-segment)
+;;   (let ((v1 (line-segment-vector-1 line-segment))
+;; 	(v2 (line-segment-vector-2 line-segment)))
+;;     (list (xcor-vector v1) (xcor-vector v1)
+;; 	  (xcor-vector v2) (xcor-vector v2))))
