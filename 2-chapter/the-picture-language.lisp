@@ -223,8 +223,9 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
   (transform-line-segments *test-frame* *rectangle-line-segments*))
 
 
-;; (defun draw-line-segment (line-segment)
-;;   (let ((v1 (line-segment-vector-1 line-segment))
-;; 	(v2 (line-segment-vector-2 line-segment)))
-;;     (list (xcor-vector v1) (xcor-vector v1)
-;; 	  (xcor-vector v2) (xcor-vector v2))))
+(defun draw-line-segment (line-segment)
+  (let ((v1 (line-segment-vector-1 line-segment))
+	(v2 (line-segment-vector-2 line-segment)))
+    (apply #'pic-objects:add-line-segment 
+     (list (xcor-vector v1) (ycor-vector v1)
+	   (xcor-vector v2) (ycor-vector v2)))))
