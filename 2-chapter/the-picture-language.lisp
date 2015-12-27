@@ -52,7 +52,7 @@
 ;; 	(let ((top-left (beside up up))
 ;; 	      (bottom-right (below right right))
 ;; 	      (corner (corner-split painter (- n 1))))
-;; 	  (besie (below painter top-left)
+;; 	  (beside (below painter top-left)
 ;; 		 (below bottom-right corner))))))
 
 ;; (defun square-limit (painter n)
@@ -226,6 +226,14 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defun draw-line-segment (line-segment)
   (let ((v1 (line-segment-vector-1 line-segment))
 	(v2 (line-segment-vector-2 line-segment)))
+    ;; test if drawing environment (sdl) is running TODO
     (apply #'pic-objects:add-line-segment 
      (list (xcor-vector v1) (ycor-vector v1)
 	   (xcor-vector v2) (ycor-vector v2)))))
+
+;; With this we can finally implement our first painter
+
+(defun parallelogram (frame)
+  "A painter that draws a parallelogram of lines."
+  (mapcar #'draw-line-segment
+	  (transform-line-segments frame *rectangle-line-segments*)))
