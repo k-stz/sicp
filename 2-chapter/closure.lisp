@@ -1,9 +1,9 @@
 (defpackage :sicp (:use :cl)) (in-package :sicp)
 
 ;; Closure,
-;; in abstract algebra refers to an operation that given a specific set elements
-;; as input returns elements of the set. We say "the elements are closed an operation to
-;; elements of the set produces an element that is again an element of the set".
+;; in abstract algebra refers to an operation that given a specific set of elements
+;; as input returns elements of the set. We say "the elements are closed under an operation
+;; if applying the operation on the elements produces elements of the same set".
 ;; Which is the case for the CONS operation, which always returns an object that
 ;; can be fed back into CONS.
 ;; Important distinction:

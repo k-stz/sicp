@@ -6,6 +6,11 @@
 
 (in-package :sicp-picture-language)
 
+;; To get anything to draw on the screen, first run the sdl window:
+;; (pic-lang:main)
+
+
+
 ;; Section 2.2.4 Example: the picture language
 
 
@@ -226,7 +231,6 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defun draw-line-segment (line-segment)
   (let ((v1 (line-segment-vector-1 line-segment))
 	(v2 (line-segment-vector-2 line-segment)))
-    ;; test if drawing environment (sdl) is running TODO
     (apply #'pic-objects:add-line-segment 
      (list (xcor-vector v1) (ycor-vector v1)
 	   (xcor-vector v2) (ycor-vector v2)))))
@@ -237,3 +241,10 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
   "A painter that draws a parallelogram of lines."
   (mapcar #'draw-line-segment
 	  (transform-line-segments frame *rectangle-line-segments*)))
+
+
+;;
+
+(defun segments->painter (segment-list)
+  (lambda (frame)
+    (for-each)))
