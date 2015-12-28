@@ -2,13 +2,22 @@
   (:use :cl
 	:sicp
 	:pic-lang ;; in system: picture-language-package
-	))
+	)
+  ;; we only need want this particual functions to clear the screen
+  (:import-from :pic-objects :clear-lines))
 
 (in-package :sicp-picture-language)
 
 ;; To get anything to draw on the screen, first run the sdl window:
 ;; (pic-lang:main)
 
+;; utils------------------------------------------------------------------------
+
+(defun clear-screen ()
+  ;; TODO: later add clear rectangles objects once needed
+  (clear-lines))
+
+;;------------------------------------------------------------------------------
 
 
 ;; Section 2.2.4 Example: the picture language
@@ -237,10 +246,11 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 
 ;; With this we can finally implement our first painter
 
-(defun parallelogram (frame)
-  "A painter that draws a parallelogram of lines."
-  (mapcar #'draw-line-segment
-	  (transform-line-segments frame *rectangle-line-segments*)))
+;; see below for a better implementation
+;; (defun parallelogram-1 (frame)
+;;   "A painter that draws a parallelogram of lines."
+;;   (mapcar #'draw-line-segment
+;; 	  (transform-line-segments frame *rectangle-line-segments*)))
 
 
 ;;
@@ -256,3 +266,8 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 	 (funcall (frame-coord-map frame) (start-segment segment))
 	 (funcall (frame-coord-map frame) (end-segment segment)))))
      segment-list)))
+
+(defun parallelogram (frame)
+  (funcall
+   (segments->painter *rectangle-line-segments*)
+   frame))
