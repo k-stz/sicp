@@ -1,4 +1,8 @@
-(defpackage :sicp (:use :cl)) (in-package :sicp)
+(defpackage :sicp
+  (:use :cl)
+  (:export :for-each))
+
+(in-package :sicp)
 
 ;; Closure,
 ;; in abstract algebra refers to an operation that given a specific set of elements

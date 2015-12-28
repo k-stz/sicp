@@ -190,14 +190,14 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 ;;; test painter
 
 ;; constructor
-(defun make-line-segment (vector-1 vector-2)
-  (list vector-1 vector-2))
+(defun make-line-segment (start-vector end-vector)
+  (list start-vector end-vector))
 
-;; selector
-(defun line-segment-vector-1 (line-segment)
+;; selector - reuse from "line-segment.lisp"
+(defun start-segment (line-segment)
   (first line-segment))
 
-(defun line-segment-vector-2 (line-segment)
+(defun end-segment (line-segment)
   (second line-segment))
 
 
@@ -210,9 +210,9 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 	  ;; else, if we knew it is just a list, we could mapcar over
 	  ;; both vectors that make up the line-segment
 	  (funcall transform-fn
-		   (line-segment-vector-1 line-segment))
+		   (start-segment line-segment))
 	  (funcall transform-fn 
-	  	   (line-segment-vector-2 line-segment))))))
+	  	   (end-segment line-segment))))))
 
 (defparameter *rectangle-line-segments*
   (list
@@ -229,8 +229,8 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 
 
 (defun draw-line-segment (line-segment)
-  (let ((v1 (line-segment-vector-1 line-segment))
-	(v2 (line-segment-vector-2 line-segment)))
+  (let ((v1 (start-segment line-segment))
+	(v2 (end-segment line-segment)))
     (apply #'pic-objects:add-line-segment 
      (list (xcor-vector v1) (ycor-vector v1)
 	   (xcor-vector v2) (ycor-vector v2)))))
@@ -247,4 +247,12 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 
 (defun segments->painter (segment-list)
   (lambda (frame)
-    (for-each)))
+    ;; exporting every symbol that might is used in later exercises or chapters 
+    (for-each
+     (lambda (segment)
+       (draw-line-segment ;; we draw here, because FOR-EACH doesn't return a meaningful
+	                  ;; value it is supposed to be used to perform an action 
+	(make-line-segment
+	 (funcall (frame-coord-map frame) (start-segment segment))
+	 (funcall (frame-coord-map frame) (end-segment segment)))))
+     segment-list)))

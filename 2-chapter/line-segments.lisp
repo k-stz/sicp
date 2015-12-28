@@ -1,5 +1,12 @@
 (defpackage :sicp
-  (:use :cl))
+  (:use :cl)
+  (:export :make-point
+	   :x-point
+	   :y-point
+	   :make-segment
+	   :start-segment
+	   :end-segment
+	   ))
 
 (in-package :sicp)
 
