@@ -8,6 +8,7 @@
 		:x1 :x2 :y1 :y2 :get-rectangle
 		:add-line-segment
 		:add-rectangle-as ;; used to draw rectangles
+		:vec3 ;; needed for RECTANGLE internal data representation
 		))
 
 (in-package :sicp-picture-language)
@@ -285,15 +286,22 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
    (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
 
 (defun nyo (frame)
-  "A Painter. Draws Nyo on the screen."
-  (let* ((coord (mapcar (frame-coord-map frame) *nyo-verts*))
-	 (x1 (elt coord 0))
-	 (x2 (elt coord 1))
-	 (y1 (elt coord 2))
-	 (y2 (elt coord 3))
-	 (width (vector-length (print (sub-vector x2 x1))))
-	 )
-
-    (print width)
-    ;; (pic-objects:make-rectangle (xcor-vector x1) (ycor-vector x1)
-    ))
+  "A Painter. Draws Nyo on the screen. Not quite as fancy as Rogers."
+  (let* ((coord
+	  (mapcar #'(lambda (vector)
+		      ;; here we translate the (1.0 1.0) pairs into
+		      ;; #(1.0 1.0 0.0) vec3, which is the expected type
+		      ;; the rectangle drawing function wants. Just an implementation detail
+		      (apply #'vec3 vector))
+		  (mapcar (frame-coord-map frame) *nyo-verts*)))
+	 (trans-x1 (elt coord 0))
+	 (trans-x2 (elt coord 1))
+	 (trans-y1 (elt coord 2))
+	 (trans-y2 (elt coord 3))
+	 (nyo (pic-objects:make-rectangle)))
+    (with-slots (x1 x2 y1 y2) nyo
+      (setf x1 trans-x1
+	    x2 trans-x2
+	    y1 trans-y1
+	    y2 trans-y2))
+    (add-rectangle-as (gensym) nyo)))
