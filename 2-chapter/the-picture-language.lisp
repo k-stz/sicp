@@ -156,8 +156,8 @@
 	  vector))
 
 (defun vector-length (vector)
-  (coerce (sqrt (+ (xcor-vector vector)
-		   (ycor-vector vector)))
+  (coerce (sqrt (+ (expt (xcor-vector vector) 2)
+		   (expt (ycor-vector vector) 2)))
 	  'single-float))
 
 ;;
@@ -284,15 +284,16 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
    (make-vector 0.0 0.0) (make-vector 1.0 0.0)   ;; x1 x2
    (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
 
-;; (defun nyo (frame)
-;;   "A Painter. Draws Nyo on the screen."
-;;   (let* ((coord (mapcar (frame-coord-map frame) *nyo-verts*))
-;; 	 (x1 (elt coord 0))
-;; 	 (x2 (elt coord 1))
-;; 	 (y1 (elt coord 2))
-;; 	 (y2 (elt coord 3))
-;; ;	 (width (vector-length ))
-;; 	 )
+(defun nyo (frame)
+  "A Painter. Draws Nyo on the screen."
+  (let* ((coord (mapcar (frame-coord-map frame) *nyo-verts*))
+	 (x1 (elt coord 0))
+	 (x2 (elt coord 1))
+	 (y1 (elt coord 2))
+	 (y2 (elt coord 3))
+	 (width (vector-length (print (sub-vector x2 x1))))
+	 )
 
-;;     (pic-objects:make-rectangle (xcor-vector x1) (ycor-vector x1)
-;;     ))
+    (print width)
+    ;; (pic-objects:make-rectangle (xcor-vector x1) (ycor-vector x1)
+    ))
