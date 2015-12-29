@@ -4,7 +4,11 @@
 	:pic-lang ;; in system: picture-language-package
 	)
   ;; we only need want this particual functions to clear the screen
-  (:import-from :pic-objects :clear-lines))
+  (:import-from :pic-objects :clear-lines :clear-parallelograms
+		:x1 :x2 :y1 :y2 :get-rectangle
+		:add-line-segment
+		:add-rectangle-as ;; used to draw rectangles
+		))
 
 (in-package :sicp-picture-language)
 
@@ -15,7 +19,9 @@
 
 (defun clear-screen ()
   ;; TODO: later add clear rectangles objects once needed
-  (clear-lines))
+  (clear-lines)
+  (clear-parallelograms)
+  (format t "~&Screen Cleared~%"))
 
 ;;------------------------------------------------------------------------------
 
@@ -149,6 +155,11 @@
   (mapcar #'(lambda (component) (* component scalar))
 	  vector))
 
+(defun vector-length (vector)
+  (coerce (sqrt (+ (xcor-vector vector)
+		   (ycor-vector vector)))
+	  'single-float))
+
 ;;
 
 (defun frame-coord-map (frame)
@@ -233,14 +244,10 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defparameter *test-frame*
   (make-frame (make-vector 100 100) (make-vector 50 0) (make-vector 100 50)))
 
-(defparameter *transformed-line-segments*
-  (transform-line-segments *test-frame* *rectangle-line-segments*))
-
-
 (defun draw-line-segment (line-segment)
   (let ((v1 (start-segment line-segment))
 	(v2 (end-segment line-segment)))
-    (apply #'pic-objects:add-line-segment 
+    (apply #'add-line-segment 
      (list (xcor-vector v1) (ycor-vector v1)
 	   (xcor-vector v2) (ycor-vector v2)))))
 
@@ -271,3 +278,21 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
   (funcall
    (segments->painter *rectangle-line-segments*)
    frame))
+
+(defparameter *nyo-verts*
+  (list
+   (make-vector 0.0 0.0) (make-vector 1.0 0.0)   ;; x1 x2
+   (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
+
+;; (defun nyo (frame)
+;;   "A Painter. Draws Nyo on the screen."
+;;   (let* ((coord (mapcar (frame-coord-map frame) *nyo-verts*))
+;; 	 (x1 (elt coord 0))
+;; 	 (x2 (elt coord 1))
+;; 	 (y1 (elt coord 2))
+;; 	 (y2 (elt coord 3))
+;; ;	 (width (vector-length ))
+;; 	 )
+
+;;     (pic-objects:make-rectangle (xcor-vector x1) (ycor-vector x1)
+;;     ))
