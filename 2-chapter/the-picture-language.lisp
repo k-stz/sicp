@@ -210,6 +210,8 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 
 ;;; test painter
 
+;;; Exercise - 2.48
+
 ;; constructor
 (defun make-line-segment (start-vector end-vector)
   (list start-vector end-vector))
@@ -221,6 +223,8 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defun end-segment (line-segment)
   (second line-segment))
 
+
+;;
 
 (defun transform-line-segments (frame line-segments)
   (let ((transform-fn (frame-coord-map frame)))
