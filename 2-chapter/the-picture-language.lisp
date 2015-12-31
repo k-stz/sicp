@@ -213,8 +213,15 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 ;;; Exercise - 2.48
 
 ;; constructor
-(defun make-line-segment (start-vector end-vector)
+(defun make-segment (start-vector end-vector)
   (list start-vector end-vector))
+
+;; handy macro for segment creation
+(defmacro defsegment (sv-x sv-y ev-x ev-y) ; sv = start-vector (...)
+  "Handy macro to write segments easier. Especially when trying
+to make new Painters!"
+  `(make-segment (make-vector ,sv-x ,sv-y)
+		 (make-vector ,ev-x ,ev-y)))
 
 ;; selector - reuse from "line-segment.lisp"
 (defun start-segment (line-segment)
@@ -223,6 +230,16 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defun end-segment (line-segment)
   (second line-segment))
 
+;; segment utils
+
+(defun mid-point (segment)
+  (let* ((start-segment (start-segment segment))
+	 (end-segment (end-segment segment)))
+    (make-vector
+     (newton-sicp:avg (xcor-vector start-segment)
+		      (xcor-vector end-segment))
+     (newton-sicp:avg (ycor-vector start-segment)
+		      (ycor-vector end-segment)))))
 
 ;;
 
@@ -241,10 +258,10 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 
 (defparameter *rectangle-line-segments*
   (list
-   (make-line-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
-   (make-line-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
-   (make-line-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
-   (make-line-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0))))
+   (make-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
+   (make-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
+   (make-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
+   (make-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0))))
 
 (defparameter *test-frame*
   (make-frame (make-vector 100 100) (make-vector 50 0) (make-vector 100 50)))
@@ -274,15 +291,10 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
      (lambda (segment)
        (draw-line-segment ;; we draw here, because FOR-EACH doesn't return a meaningful
 	                  ;; value it is supposed to be used to perform an action 
-	(make-line-segment
+	(make-segment
 	 (funcall (frame-coord-map frame) (start-segment segment))
 	 (funcall (frame-coord-map frame) (end-segment segment)))))
      segment-list)))
-
-(defun parallelogram (frame)
-  (funcall
-   (segments->painter *rectangle-line-segments*)
-   frame))
 
 (defparameter *nyo-verts*
   (list
@@ -309,3 +321,79 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 	    y1 trans-y1
 	    y2 trans-y2))
     (add-rectangle-as (gensym) nyo)))
+
+;; for painter creating tests
+
+(defparameter *rect-frame* (make-frame (make-vector 250.0 250.0)
+				       (make-vector 100.0 0.0)
+				       (make-vector 0.0 100.0)))
+
+;;; Exercise - 2.49
+
+;; a) Draws the outline of the designated frame
+(defun parallelogram (frame)
+  "A Painter. Draws the outline of the designated frame."
+  (funcall
+   (segments->painter *rectangle-line-segments*)
+   frame))
+
+;; b)
+(defun cross (frame)
+  "A Painter. Draws a cross."
+  (funcall
+   (segments->painter
+    (list
+     (make-segment (make-vector 0.0 0.0)
+			(make-vector 1.0 1.0))
+     (make-segment (make-vector 1.0 0.0)
+			(make-vector 0.0 1.0))))
+   frame))
+
+;; c)
+;; (defun diamond (frame)
+;;   "A Painter. Draws a diamond shape."
+;;   (let ((mid-points (mapcar #'mid-point *rectangle-line-segments*)))
+;;     (funcall
+;;      (segments->painter
+;;       (list
+;;        ;; well not quite elegant TODO: find elegant solution
+;;        ;; to iterating through list taking two arguments
+;;        (make-segment (first mid-points)
+;; 		     (second mid-points))
+;;        (make-segment (second mid-points)
+;; 		     (third mid-points))
+;;        (make-segment (third mid-points)
+;; 		     (fourth mid-points))
+;;        (make-segment (fourth mid-points)
+;; 		     (first mid-points))))
+;;      frame)))
+
+;; d)
+(defun wave (frame)
+  "A Painter. Draws the SICP wave shape."
+  (funcall
+   (segments->painter
+    (list
+     ;; head
+     (defsegment 0.4 1.0 0.35 0.85)
+     (defsegment 0.6 1.0 0.65 0.85)
+     (defsegment 0.35 0.85 0.4 0.65)
+     (defsegment 0.65 0.85 0.6 0.65)
+     (defsegment 0.4 0.65 0.35 0.65)
+     (defsegment 0.6 0.65 0.7 0.65)
+     ;; left arm
+     (defsegment 0.35 0.65 0.2 0.60)
+     (defsegment 0.2 0.60 0.0 0.85)
+     (defsegment 0.0 0.70 0.2 0.45)
+     (defsegment 0.35 0.6 0.2 0.45)
+     (defsegment 0.35 0.6 0.4 0.55)
+     ;; left leg
+     (defsegment 0.4 0.55 0.25 0.0)
+     (defsegment 0.38 0.0 0.5 0.33)
+     ;; right leg
+     (defsegment 0.5 0.33 0.62 0.0)
+     (defsegment 0.73 0.0 0.60 0.5)
+     ;; right arm
+     (defsegment 0.6 0.5 1.0 0.2)
+     (defsegment 0.7 0.65 1.0 0.4)))
+   frame))
