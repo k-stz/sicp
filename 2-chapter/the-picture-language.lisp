@@ -397,3 +397,30 @@ to make new Painters!"
      (defsegment 0.6 0.5 1.0 0.2)
      (defsegment 0.7 0.65 1.0 0.4)))
    frame))
+
+
+
+;; Transforming a combining painters
+
+(defun transform-painter (painter origin corner-1 corner-2)
+  "Returns a Painter that will be transformed given the unit-square representation
+given as arguments: origin, coner-1, corner-2. This unit-square transformation is in
+terms of the frame eventually passed to the PAINTER upon invokation!"
+  (lambda (frame)
+    (let* ((trans-fn (funcall #'frame-coord-map frame))
+	   (new-origin (funcall trans-fn origin)))
+      (funcall painter
+	       (make-frame new-origin
+			   ;; vector from new-origin to the transformed corner-1
+			   (sub-vector (funcall trans-fn corner-1) new-origin)
+   			   (sub-vector (funcall trans-fn corner-2) new-origin))))))
+
+
+(defun flip-vert (painter)
+  "Flip the PAINTER resulting drawing upside down."
+  (transform-painter painter
+		     (make-vector 0.0 1.0) ;; new origin
+		     (make-vector 1.0 1.0) ;; new end of edge-1!
+		     (make-vector 0.0 0.0) ;; new end of edge-2!
+		     ))
+
