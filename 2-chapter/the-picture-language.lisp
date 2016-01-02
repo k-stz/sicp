@@ -404,7 +404,7 @@ to make new Painters!"
 
 (defun transform-painter (painter origin corner-1 corner-2)
   "Returns a Painter that will be transformed given the unit-square representation
-given as arguments: origin, coner-1, corner-2. This unit-square transformation is in
+^as arguments: origin, coner-1, corner-2. This unit-square transformation is in
 terms of the frame eventually passed to the PAINTER upon invokation!"
   (lambda (frame)
     (let* ((trans-fn (funcall #'frame-coord-map frame))
@@ -424,3 +424,9 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 		     (make-vector 0.0 0.0) ;; new end of edge-2!
 		     ))
 
+(defun shrink-to-upper-right (painter)
+  "PAINTER trasnformation."
+  (transform-painter painter
+		     (make-vector 0.5 0.5)
+		     (make-vector 1.0 0.5)
+		     (make-vector 0.5 1.0)))
