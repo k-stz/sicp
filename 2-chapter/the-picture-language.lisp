@@ -425,8 +425,22 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 		     ))
 
 (defun shrink-to-upper-right (painter)
-  "PAINTER trasnformation."
+  "PAINTER transformation. Ditto."
   (transform-painter painter
 		     (make-vector 0.5 0.5)
 		     (make-vector 1.0 0.5)
 		     (make-vector 0.5 1.0)))
+
+
+(defun rotate-90 (painter)
+  "PAINTER transformation. Rotate image 90-degree counterclockwise."
+  (transform-painter painter
+		     (make-vector 0.0 1.0)
+		     (make-vector 0.0 0.0)
+		     (make-vector 1.0 1.0)))
+
+(defun squash-inwards (painter)
+  (transform-painter painter
+		     (make-vector 0.0 0.0)
+		     (make-vector 0.65 0.35)
+		     (make-vector 0.35 0.65)))
