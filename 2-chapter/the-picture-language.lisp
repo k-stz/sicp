@@ -444,3 +444,21 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 		     (make-vector 0.0 0.0)
 		     (make-vector 0.65 0.35)
 		     (make-vector 0.35 0.65)))
+
+;; Frame transformation is the key to defining means of combination for two or more
+;; painters
+
+(defun beside (painter-1 painter-2)
+  (let ((paint-left
+	 (transform-painter painter-1
+			    (make-vector 0.0 0.0)
+			    (make-vector 0.5 0.0)
+			    (make-vector 0.0 1.0)))
+	(paint-right
+	 (transform-painter painter-2
+			    (make-vector 0.5 0.0)
+			    (make-vector 1.0 0.0)
+			    (make-vector 0.5 1.0))))
+    (lambda (frame)
+      (funcall paint-left frame)
+      (funcall paint-right frame))))
