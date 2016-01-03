@@ -394,8 +394,8 @@ to make new Painters!"
      (defsegment 0.5 0.33 0.62 0.0)
      (defsegment 0.73 0.0 0.60 0.5)
      ;; right arm
-     (defsegment 0.6 0.5 1.0 0.2)
-     (defsegment 0.7 0.65 1.0 0.4)))
+     (defsegment 0.6 0.5 1.0 0.15)
+     (defsegment 0.7 0.65 1.0 0.3)))
    frame))
 
 
@@ -449,6 +449,7 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 ;; painters
 
 (defun beside (painter-1 painter-2)
+  "Returns PAINTER that'll draws two images next to each other."
   (let ((paint-left
 	 (transform-painter painter-1
 			    (make-vector 0.0 0.0)
