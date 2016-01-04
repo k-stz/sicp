@@ -468,10 +468,29 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
       (funcall paint-right frame))))
 
 
+;;; Exercise - 2.50, FLIP-HORIZ and 180- and 270-degree rotation painter
+
+(defun flip-horiz (painter)
+  "Make Painter that will flip the image horizontally."
+  (transform-painter painter
+		     (make-vector 1.0 0.0)
+		     (make-vector 0.0 0.0)
+		     (make-vector 1.0 1.0)))
+
+
+(defun rotate-180 (painter)
+  (rotate-90 (rotate-90 painter)))
+
+(defun rotate-270 (painter)
+  (rotate-90 (rotate-180 painter)))
+
+;;;
+
+;; (TODO: once BELOW implemented):
 ;; now we can finally use some of the previously introduced painters:
 
 ;; (defun wave2 ()
-;;   (beside wave (flip-vert wave)))
+;;   (beside #'wave (flip-vert #'wave)))
 
 ;; (defun wave4 ()
-;;    (below wave2 wave2))
+;;    (below #'wave2 #'wave2))
