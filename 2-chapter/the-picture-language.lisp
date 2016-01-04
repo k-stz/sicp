@@ -37,20 +37,23 @@
 ;;       of combination is a closure who's components are procedures, not lists as until
 ;;       now with CONS.
 
-;; This language has primitives: _the painter_ we call WAVE that draws crude lines
+;; This language has primitives: _the painter_ we such as WAVE, PARALLELOGRAM
+;; that draws crude lines, or a picture, like NYO, inside a given frame
 
-;; Means of combination: e.g. BELOW that takes WAVEs (painter) as argument and returns a
-;; new painter. It has the closure property.
+;; Means of combination: e.g. BELOW that takes PAINTERs as argument and returns a
+;; new painter that will draw the two painters below eachother in the given frame.
+;; It has the closure property.
 
-;; Means of abstraction: BELOW can be abstracted by WAVE2, using a DEFUN
+;; Means of abstraction: once composite PAINTERs are made they can be given names such
+;;                       as BELOW which is just such an example. Since we're using CL
+;;                       to implement the mini language, we can use DEFUN as means of
+;;                       abstractions (the language's (cl) means of abstractions can be
+;;                       used.
 
 ;; The language uses ordinary Lisp functions and hence allows us to use do everything we
 ;; can do with Lisp functions, for example treat them as first-class objects.
 
-;; TODO: test once picture language core is implemented
 
-;; (defvar wave2 (beside wave (flip-vert wave)))
-;; (defvar wave4 (below wave2 wave2))
 
 ;; (defun flipped-pairs (painter)
 ;;   (let ((painter2 (beside painter (flip-vert painter))))
@@ -463,3 +466,12 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
     (lambda (frame)
       (funcall paint-left frame)
       (funcall paint-right frame))))
+
+
+;; now we can finally use some of the previously introduced painters:
+
+;; (defun wave2 ()
+;;   (beside wave (flip-vert wave)))
+
+;; (defun wave4 ()
+;;    (below wave2 wave2))
