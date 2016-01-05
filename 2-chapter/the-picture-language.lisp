@@ -484,7 +484,32 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 (defun rotate-270 (painter)
   (rotate-90 (rotate-180 painter)))
 
-;;;
+
+;;; Exercise - 2.51, BELOW implementatio
+
+(defun below (painter-1 painter-2)
+  (let ((painter-up
+	 (transform-painter painter-1
+			    (make-vector 0.0 0.5)
+			    (make-vector 1.0 0.5)
+			    (make-vector 0.0 1.0)))
+	(painter-down
+	 (transform-painter painter-2
+			    (make-vector 0.0 0.0)
+			    (make-vector 1.0 0.0)
+			    (make-vector 0.0 0.5))))
+    (lambda (frame)
+      (funcall painter-up frame)
+      (funcall painter-down frame))))
+
+;; BELOW interms of rotation and BESIDE painters!
+;; (defun below-1 (painter-1 painter-2)
+;;   (rotate-90
+;;    (beside (rotate-270 painter-1)
+;; 	   (rotate-270 painter-2))))
+
+
+
 
 ;; (TODO: once BELOW implemented):
 ;; now we can finally use some of the previously introduced painters:
