@@ -478,6 +478,8 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 
 ;;; higher-order operations
 
+
+;; see below for examples FLIPPED-PAIRS and SQUARE-LIMIT-2
 (defun square-of-four (tl tr bl br)
   "Takes four one-argument painter operations and will aranges the given PAINTER
 in a square-of-four. The images transformed then get assigned to one of the four square
@@ -489,33 +491,39 @@ Now you only need to pass it a PAINTER to return a PAINTER!"
       (below bottom top))))
 
 
-;; (defun flipped-pairs (painter)
-;;   (let ((combine4 (square-of-four identity flip-vert
-;; 				  identity flip-vert)))
-;;     ;; TODO: FUNCALL?
-;;     (combine4 painter)))
+(defun flipped-pairs (painter)
+  (let ((combine4 (square-of-four #'identity #'flip-vert
+				  #'identity #'flip-vert)))
+    (funcall combine4 painter)))
 
 
 ;; (defun square-limit-2 (painter n)
-;;   (let ((combine4 (square-of-four flip-horiz identity
-;; 				  rotate180 flip-vert)))
-;;     (combine4 (corner-split painter n))))
+;;   (let ((combine4 (square-of-four #'flip-horiz #'identity
+;; 				  #'rotate-180 #'flip-vert)))
+;;     (funcall combine4 (corner-split painter n))))
 
 
 ;;; Exercise 2.45
 
 ;; SPLIT higher-order procedure which can implement RIGHT-SPLIT and UP-SPLIT
 
-;; (defun split (fn-1 fn-2)
-;;   (labels ((rec (painter n)
-;; 	     (if (= n 0)
-;; 		 painter
-;; 		 (let ((smaller (rec painter (- n 1))))
-;; 		   (funcall fn-1 painter
-;; 			    (funcall fn-2 smaller smaller))))))
-;;     #'rec ;; to return the function slot
-;;     ))
+(defun split (fn-1 fn-2)
+  "General painter splitting operation. Must be given two two-argument painter
+transformation operations."
+  (labels ((splitter (painter n)
+	     (if (= n 0)
+		 painter
+		 (let ((smaller (splitter painter (- n 1))))
+		   (funcall fn-1 painter
+			    (funcall fn-2 smaller smaller))))))
+    #'splitter ;; to return the function slot content
+    ))
 
+;; example of SPLIT use, implementing UP-SPLIT in terms of SPLIT
+;; (defun splitter-up-split (painter n)
+;;   (funcall (split #'below #'beside)
+;; 	   painter
+;; 	   n))
 
 ;; For convenient tests
 
@@ -528,3 +536,4 @@ Now you only need to pass it a PAINTER to return a PAINTER!"
   "Draws the painter given on a big, square frame. For quick tests."
   (clear-screen)
   (funcall painter *frame*))
+
