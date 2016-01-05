@@ -222,6 +222,8 @@ to make new Painters!"
    (make-vector 0.0 0.0) (make-vector 1.0 0.0)   ;; x1 x2
    (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
 
+;; TODO: only draw parallelogram with a single nyo on it. Need to set the texture
+;; coordinates
 (defun nyo (frame)
   "A Painter. Draws Nyo on the screen. Not quite as fancy as Rogers."
   (let* ((coord
@@ -467,20 +469,24 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 	  (beside (below painter top-left)
 		 (below bottom-right corner))))))
 
-;; (defun square-limit (painter n)
-;;   (let* ((quarter (corner-split painter n))
-;; 	 (half (beside (flip-horiz quarter) quarter)))
-;;     (below (flip-vert half) half)))
+(defun square-limit (painter n)
+  (let* ((quarter (corner-split painter n))
+	 (half (beside (flip-horiz quarter) quarter)))
+    (below (flip-vert half) half)))
 
 
 
 ;;; higher-order operations
 
-;; (defun square-of-four (tl tr bl br)
-;;   (lambda (painter)
-;;     (let ((top (beside (funcall tl painter) (funcall tr painter)))
-;; 	  (bottom (beside (bl funcall painter) (br funcall painter))))
-;;       (below bottom top))))
+(defun square-of-four (tl tr bl br)
+  "Takes four one-argument painter operations and will aranges the given PAINTER
+in a square-of-four. The images transformed then get assigned to one of the four square
+namely, for example, tl to the _t_op _l_eft one.
+Now you only need to pass it a PAINTER to return a PAINTER!"
+  (lambda (painter)
+    (let ((top (beside (funcall tl painter) (funcall tr painter)))
+	  (bottom (beside (funcall bl painter) (funcall br painter))))
+      (below bottom top))))
 
 
 ;; (defun flipped-pairs (painter)
