@@ -392,9 +392,9 @@ to make new Painters!"
      (defsegment 0.35 0.6 0.4 0.55)
      ;; left leg
      (defsegment 0.4 0.55 0.25 0.0)
-     (defsegment 0.38 0.0 0.5 0.33)
+     (defsegment 0.4 0.0 0.5 0.33)
      ;; right leg
-     (defsegment 0.5 0.33 0.62 0.0)
+     (defsegment 0.5 0.33 0.60 0.0)
      (defsegment 0.73 0.0 0.60 0.5)
      ;; right arm
      (defsegment 0.6 0.5 1.0 0.15)
@@ -509,13 +509,14 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 ;; 	   (rotate-270 painter-2))))
 
 
-
-
-;; (TODO: once BELOW implemented):
 ;; now we can finally use some of the previously introduced painters:
 
-;; (defun wave2 ()
-;;   (beside #'wave (flip-vert #'wave)))
+(defun wave2 (frame)
+  (funcall
+   (beside #'wave (flip-vert #'wave))
+   frame))
 
-;; (defun wave4 ()
-;;    (below #'wave2 #'wave2))
+(defun wave4 (frame)
+  (funcall
+   (below #'wave2 #'wave2)
+   frame))
