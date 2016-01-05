@@ -454,7 +454,7 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 (defun up-split (painter n)
   (if (= n 0)
       painter
-      (let ((smaller (right-split painter (- n 1))))
+      (let ((smaller (up-split painter (- n 1))))
 	(below painter (beside smaller smaller)))))
 
 
