@@ -353,23 +353,16 @@ to make new Painters!"
    frame))
 
 ;; c)
-;; (defun diamond (frame)
-;;   "A Painter. Draws a diamond shape."
-;;   (let ((mid-points (mapcar #'mid-point *rectangle-line-segments*)))
-;;     (funcall
-;;      (segments->painter
-;;       (list
-;;        ;; well not quite elegant TODO: find elegant solution
-;;        ;; to iterating through list taking two arguments
-;;        (make-segment (first mid-points)
-;; 		     (second mid-points))
-;;        (make-segment (second mid-points)
-;; 		     (third mid-points))
-;;        (make-segment (third mid-points)
-;; 		     (fourth mid-points))
-;;        (make-segment (fourth mid-points)
-;; 		     (first mid-points))))
-;;      frame)))
+(defun diamond (frame)
+  "A Painter. Draws a diamond shape."
+  (funcall
+   (segments->painter
+    (list
+     (defsegment 0.5 0.0 1.0 0.5)
+     (defsegment 1.0 0.5 0.5 1.0)
+     (defsegment 0.5 1.0 0.0 0.5)
+     (defsegment 0.0 0.5 0.5 0.0)))
+   frame))
 
 ;; d)
 (defun wave (frame)
