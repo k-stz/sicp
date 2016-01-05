@@ -19,7 +19,7 @@
 ;; utils------------------------------------------------------------------------
 
 (defun clear-screen ()
-  ;; TODO: later add clear rectangles objects once needed
+  "Clears the all object from the screen."
   (clear-lines)
   (clear-parallelograms)
   (format t "~&Screen Cleared~%"))
@@ -55,83 +55,10 @@
 
 
 
-;; (defun flipped-pairs (painter)
-;;   (let ((painter2 (beside painter (flip-vert painter))))
-;;     (below painter2 painter2)))
-
-;; (defvar wave4 (flipped-pairs wave))
-
-;; (defun right-split (painter n)
-;;   (if (= n 0)
-;;       painter
-;;       (let ((smaller (right-split painter (- n 1))))
-;; 	(beside painter (below smaller smaller)))))
-
-
-;; (defun corner-split (painter n)
-;;   (if (= n 0)
-;;       painter
-;;       (let ((up (up-split painter (- n 1)))
-;; 	    (right (right-split painter (- n 1))))
-;; 	(let ((top-left (beside up up))
-;; 	      (bottom-right (below right right))
-;; 	      (corner (corner-split painter (- n 1))))
-;; 	  (beside (below painter top-left)
-;; 		 (below bottom-right corner))))))
-
-;; (defun square-limit (painter n)
-;;   (let* ((quarter (corner-split painter n))
-;; 	 (half (beside (flip-horiz quarter) quarter)))
-;;     (below (flip-vert half) half)))
-
-
-;; Exercise 2.44
-
-;; (defun up-split (painter n)
-;;   (if (= n 0)
-;;       painter
-;;       (let ((smaller (right-split painter (- n 1))))
-;; 	(below painter (beside smaller smaller)))))
-
-;;; higher-order operations
-
-;; (defun square-of-four (tl tr bl br)
-;;   (lambda (painter)
-;;     (let ((top (beside (funcall tl painter) (funcall tr painter)))
-;; 	  (bottom (beside (bl funcall painter) (br funcall painter))))
-;;       (below bottom top))))
-
-
-;; (defun flipped-pairs (painter)
-;;   (let ((combine4 (square-of-four identity flip-vert
-;; 				  identity flip-vert)))
-;;     ;; TODO: FUNCALL?
-;;     (combine4 painter)))
-
-
-;; (defun square-limit-2 (painter n)
-;;   (let ((combine4 (square-of-four flip-horiz identity
-;; 				  rotate180 flip-vert)))
-;;     (combine4 (corner-split painter n))))
-
-
-;;; Exercise 2.45
-
-;; SPLIT higher-order procedure which can implement RIGHT-SPLIT and UP-SPLIT
-
-;; (defun split (fn-1 fn-2)
-;;   (labels ((rec (painter n)
-;; 	     (if (= n 0)
-;; 		 painter
-;; 		 (let ((smaller (rec painter (- n 1))))
-;; 		   (funcall fn-1 painter
-;; 			    (funcall fn-2 smaller smaller))))))
-;;     #'rec ;; to return the function slot
-;;     ))
 
 
 
-;;; Pic lang implementation (partly)
+;;; Pic lang implementation:
 
 
 ;; vector stuff, incidentally this is
@@ -259,14 +186,14 @@ to make new Painters!"
 	  (funcall transform-fn 
 	  	   (end-segment line-segment))))))
 
-(defparameter *rectangle-line-segments*
+(defvar *rectangle-line-segments*
   (list
    (make-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
    (make-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
    (make-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
    (make-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0))))
 
-(defparameter *test-frame*
+(defvar *test-frame*
   (make-frame (make-vector 100 100) (make-vector 50 0) (make-vector 100 50)))
 
 (defun draw-line-segment (line-segment)
@@ -275,15 +202,6 @@ to make new Painters!"
     (apply #'add-line-segment 
      (list (xcor-vector v1) (ycor-vector v1)
 	   (xcor-vector v2) (ycor-vector v2)))))
-
-;; With this we can finally implement our first painter
-
-;; see below for a better implementation
-;; (defun parallelogram-1 (frame)
-;;   "A painter that draws a parallelogram of lines."
-;;   (mapcar #'draw-line-segment
-;; 	  (transform-line-segments frame *rectangle-line-segments*)))
-
 
 ;;
 
@@ -299,7 +217,7 @@ to make new Painters!"
 	 (funcall (frame-coord-map frame) (end-segment segment)))))
      segment-list)))
 
-(defparameter *nyo-verts*
+(defvar *nyo-verts*
   (list
    (make-vector 0.0 0.0) (make-vector 1.0 0.0)   ;; x1 x2
    (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
@@ -327,9 +245,9 @@ to make new Painters!"
 
 ;; for painter creating tests
 
-(defparameter *rect-frame* (make-frame (make-vector 250.0 250.0)
-				       (make-vector 100.0 0.0)
-				       (make-vector 0.0 100.0)))
+(defvar *rect-frame* (make-frame (make-vector 250.0 250.0)
+				 (make-vector 100.0 0.0)
+				 (make-vector 0.0 100.0)))
 
 ;;; Exercise - 2.49
 
@@ -513,3 +431,94 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
   (funcall
    (below #'wave2 #'wave2)
    frame))
+
+
+
+;;Funtctions that needed pic-lang implemented to work:--------------------------
+
+
+(defun flipped-pairs (painter)
+  (let ((painter2 (beside painter (flip-vert painter))))
+    (below painter2 painter2)))
+
+(defun right-split (painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (right-split painter (- n 1))))
+	(beside painter (below smaller smaller)))))
+
+;; Exercise 2.44
+
+(defun up-split (painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (right-split painter (- n 1))))
+	(below painter (beside smaller smaller)))))
+
+
+(defun corner-split (painter n)
+  (if (= n 0)
+      painter
+      (let ((up (up-split painter (- n 1)))
+	    (right (right-split painter (- n 1))))
+	(let ((top-left (beside up up))
+	      (bottom-right (below right right))
+	      (corner (corner-split painter (- n 1))))
+	  (beside (below painter top-left)
+		 (below bottom-right corner))))))
+
+;; (defun square-limit (painter n)
+;;   (let* ((quarter (corner-split painter n))
+;; 	 (half (beside (flip-horiz quarter) quarter)))
+;;     (below (flip-vert half) half)))
+
+
+
+;;; higher-order operations
+
+;; (defun square-of-four (tl tr bl br)
+;;   (lambda (painter)
+;;     (let ((top (beside (funcall tl painter) (funcall tr painter)))
+;; 	  (bottom (beside (bl funcall painter) (br funcall painter))))
+;;       (below bottom top))))
+
+
+;; (defun flipped-pairs (painter)
+;;   (let ((combine4 (square-of-four identity flip-vert
+;; 				  identity flip-vert)))
+;;     ;; TODO: FUNCALL?
+;;     (combine4 painter)))
+
+
+;; (defun square-limit-2 (painter n)
+;;   (let ((combine4 (square-of-four flip-horiz identity
+;; 				  rotate180 flip-vert)))
+;;     (combine4 (corner-split painter n))))
+
+
+;;; Exercise 2.45
+
+;; SPLIT higher-order procedure which can implement RIGHT-SPLIT and UP-SPLIT
+
+;; (defun split (fn-1 fn-2)
+;;   (labels ((rec (painter n)
+;; 	     (if (= n 0)
+;; 		 painter
+;; 		 (let ((smaller (rec painter (- n 1))))
+;; 		   (funcall fn-1 painter
+;; 			    (funcall fn-2 smaller smaller))))))
+;;     #'rec ;; to return the function slot
+;;     ))
+
+
+;; For convenient tests
+
+(defvar *big-frame*
+  (make-frame (make-vector 150.0 100.0)
+	      (make-vector 400.0 0.0)
+	      (make-vector 0.0 400.0)))
+
+(defun test-painter (painter)
+  "Draws the painter given on a big, square frame. For quick tests."
+  (clear-screen)
+  (funcall painter *frame*))
