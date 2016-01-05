@@ -37,23 +37,21 @@
 ;;       of combination is a closure who's components are procedures, not lists as until
 ;;       now with CONS.
 
-;; This language has primitives: _the painter_ we such as WAVE, PARALLELOGRAM
+;; This language has primitives: _the painter_ such as WAVE, PARALLELOGRAM
 ;; that draws crude lines, or a picture, like NYO, inside a given frame
 
 ;; Means of combination: e.g. BELOW that takes PAINTERs as argument and returns a
-;; new painter that will draw the two painters below eachother in the given frame.
+;; new painter that will draw the two painters below each other in the given frame.
 ;; It has the closure property.
 
 ;; Means of abstraction: once composite PAINTERs are made they can be given names such
 ;;                       as BELOW which is just such an example. Since we're using CL
-;;                       to implement the mini language, we can use DEFUN as means of
-;;                       abstractions (the language's (cl) means of abstractions can be
+;;                       to implement the picture language, we can use DEFUN as means of
+;;                       abstraction (the language's (cl) means of abstractions can be
 ;;                       used.
 
-;; The language uses ordinary Lisp functions and hence allows us to use do everything we
-;; can do with Lisp functions, for example treat them as first-class objects.
-
-
+;; The language uses ordinary Lisp functions and hence allows us to do everything we
+;; can do with Lisp functions. For example, treat them as first-class objects.
 
 
 
