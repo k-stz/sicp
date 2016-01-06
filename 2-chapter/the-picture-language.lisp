@@ -533,5 +533,5 @@ transformation operations."
 (defun test-painter (painter)
   "Draws the painter given on a big, square frame. For quick tests."
   (clear-screen)
-  (funcall painter *frame*))
+  (funcall painter *big-frame*))
 
