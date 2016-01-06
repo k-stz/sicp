@@ -236,6 +236,10 @@ to make new Painters!"
 	 (trans-y1 (elt coord 2))
 	 (trans-y2 (elt coord 3))
 	 (nyo (pic-objects:make-rectangle)))
+    ;; changing NYO drawing to just display the "front" animation
+    (pic-objects::change-animation-state nyo :walk :down 0 :nyo)
+    (pic-objects::apply-animation-state nyo)
+    ;; /changing animation done
     (with-slots (x1 x2 y1 y2) nyo
       (setf x1 trans-x1
 	    x2 trans-x2
