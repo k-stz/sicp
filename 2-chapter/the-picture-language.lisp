@@ -3,12 +3,15 @@
 	:sicp
 	:pic-lang ;; in system: picture-language-package
 	)
-  ;; we only need want this particual functions to clear the screen
+  ;; to clear the screen
   (:import-from :pic-objects :clear-lines :clear-parallelograms
+		;; modify the NYO-painter rectangle
 		:x1 :x2 :y1 :y2 :get-rectangle
+		;; draw lines
 		:add-line-segment
-		:add-rectangle-as ;; used to draw rectangles
-		:vec3 ;; needed for RECTANGLE internal data representation
+		;; draw NYO - the painter substitute for SICP's Roger
+		:add-rectangle-as
+		:vec3 ;; needed for NYO's internal data representation
 		))
 
 (in-package :sicp-picture-language)
@@ -30,36 +33,40 @@
 ;; Section 2.2.4 Example: the picture language
 
 
-;; We consider a picture language that helps us describe an image that is transformed and
-;; enclosed by a parallelogram.
-
-;; TODO: rewrite the three properties of a language with the actual example. e.g. means
-;;       of combination is a closure who's components are procedures, not lists as until
-;;       now with CONS.
-
-;; This language has primitives: _the painter_ such as WAVE, PARALLELOGRAM
-;; that draws crude lines, or a picture, like NYO, inside a given frame
-
-;; Means of combination: e.g. BELOW that takes PAINTERs as argument and returns a
-;; new painter that will draw the two painters below each other in the given frame.
-;; It has the closure property.
-
-;; Means of abstraction: once composite PAINTERs are made they can be given names such
-;;                       as BELOW which is just such an example. Since we're using CL
-;;                       to implement the picture language, we can use DEFUN as means of
-;;                       abstraction (the language's (cl) means of abstractions can be
-;;                       used.
-
-;; The language uses ordinary Lisp functions and hence allows us to do everything we
-;; can do with Lisp functions. For example, treat them as first-class objects.
+;; We consider a picture language that let's us describe a picture that is enclosed and
+;; transformed by a parallelogram (the "frame"), to fit them. Then we draw more intricate
+;; pictures by dividing the frame in sub-frames and draw further pictures within them.
 
 
 
+;; The properties of a language, according to SICP
 
-;;; Pic lang implementation:
+;; 1. primitives: _the painter_ such as WAVE, NYO, DIAMOND, CROSS etc.  that draw crude
+;; lines, or a picture, like NYO, inside a given frame.
 
 
-;; vector stuff, incidentally this is
+;; 2. means of combination: with the powerful PAINTER at its core we have procedures that
+;; compose new painters from other painters that satisfy the closure property such as
+;; BELOW, BESIDE, FLIP-VERT.
+
+;; 3. means of abstraction: First we have data abstraction. See the implementation of
+;; frames with their constructor and selectors MAKE-FRAME and ORIGIN-FRAME. The
+;; implementation of vectors with MAKE-VECTOR and their selector XCOR-VECTOR AND
+;; YCOR-VECTOR.
+;; Since the language was implemented on top of Lisp, we have all the abstractions
+;; available that the language provides, such as defining functions and higher-order
+;; functions.  Procedure abstraction is what actualised the implementation of PAINTERs and
+;; which masked a great deal of complexity by creating new line-drawing painters in the
+;; form of SEGMENTS->PAINTER, and the core function, FRAME-COORD-MAP, which, after
+;; implementing TRANSFORM-PAINTER with it, allowed to easily implement the core feature of
+;; our picture language, the drawing of nested pictures.
+
+
+
+;;; The picture language implementation:
+
+
+;; vector stuff, incidentally, this is
 
 ;; Exercise 2.46
 
@@ -120,7 +127,8 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 (defun edge-2-frame (frame)
   (third frame))
 
-;; alternative implementation - part of the exercise
+;; alternative implementation - part of the exercise:
+
 ;; (defun make-frame (origin edge-1 edge-2)
 ;;   "Frame constructor."
 ;;   (cons origin (cons edge-1 edge-2)))
@@ -136,7 +144,6 @@ at origin _of the frame_ and v(1,1) is the point across the diagonal."
 ;;   (rest (rest frame)))
 
 
-;;; test painter
 
 ;;; Exercise - 2.48
 
@@ -158,39 +165,7 @@ to make new Painters!"
 (defun end-segment (line-segment)
   (second line-segment))
 
-;; segment utils
-
-(defun mid-point (segment)
-  (let* ((start-segment (start-segment segment))
-	 (end-segment (end-segment segment)))
-    (make-vector
-     (newton-sicp:avg (xcor-vector start-segment)
-		      (xcor-vector end-segment))
-     (newton-sicp:avg (ycor-vector start-segment)
-		      (ycor-vector end-segment)))))
-
-;;
-
-(defun transform-line-segments (frame line-segments)
-  (let ((transform-fn (frame-coord-map frame)))
-    (loop for line-segment in line-segments
-       :collect
-	 (list
-	  ;; so we can change the implementation detail of line-segment
-	  ;; else, if we knew it is just a list, we could mapcar over
-	  ;; both vectors that make up the line-segment
-	  (funcall transform-fn
-		   (start-segment line-segment))
-	  (funcall transform-fn 
-	  	   (end-segment line-segment))))))
-
-(defvar *rectangle-line-segments*
-  (list
-   (make-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
-   (make-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
-   (make-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
-   (make-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0))))
-
+;; A distorted --non-rectangular-- frame
 (defvar *test-frame*
   (make-frame (make-vector 100 100) (make-vector 50 0) (make-vector 100 50)))
 
@@ -204,12 +179,15 @@ to make new Painters!"
 ;;
 
 (defun segments->painter (segment-list)
+  "Takes a bunch of segments, see MAKE-SEGMENT, and returns a PAINTER that will draw
+them. Expects the line to be within a unit-frame, meaning coordinate values are in range
+[0,1]."
   (lambda (frame)
-    ;; exporting every symbol that might is used in later exercises or chapters 
+    ;; exporting every symbol that might be used in later exercises or chapters 
     (for-each
      (lambda (segment)
        (draw-line-segment ;; we draw here, because FOR-EACH doesn't return a meaningful
-	                  ;; value it is supposed to be used to perform an action 
+	                  ;; value, it is supposed to be used to perform an action 
 	(make-segment
 	 (funcall (frame-coord-map frame) (start-segment segment))
 	 (funcall (frame-coord-map frame) (end-segment segment)))))
@@ -220,8 +198,6 @@ to make new Painters!"
    (make-vector 0.0 0.0) (make-vector 1.0 0.0)   ;; x1 x2
    (make-vector 0.0 1.0) (make-vector 1.0 1.0))) ;; y1 y2
 
-;; TODO: only draw parallelogram with a single nyo on it. Need to set the texture
-;; coordinates
 (defun nyo (frame)
   "A Painter. Draws Nyo on the screen. Not quite as fancy as Rogers."
   (let* ((coord
@@ -247,13 +223,15 @@ to make new Painters!"
 	    y2 trans-y2))
     (add-rectangle-as (gensym) nyo)))
 
-;; for painter creating tests
-
-(defvar *rect-frame* (make-frame (make-vector 250.0 250.0)
-				 (make-vector 100.0 0.0)
-				 (make-vector 0.0 100.0)))
-
 ;;; Exercise - 2.49
+
+(defvar *rectangle-line-segments*
+  (list
+   (make-segment (make-vector 0.0 0.0) (make-vector 0.0 1.0))
+   (make-segment (make-vector 0.0 0.0) (make-vector 1.0 0.0))
+   (make-segment (make-vector 1.0 0.0) (make-vector 1.0 1.0))
+   (make-segment (make-vector 0.0 1.0) (make-vector 1.0 1.0)))
+  "Data for drawing a rectangle.")
 
 ;; a) Draws the outline of the designated frame
 (defun parallelogram (frame)
@@ -269,9 +247,9 @@ to make new Painters!"
    (segments->painter
     (list
      (make-segment (make-vector 0.0 0.0)
-			(make-vector 1.0 1.0))
+		   (make-vector 1.0 1.0))
      (make-segment (make-vector 1.0 0.0)
-			(make-vector 0.0 1.0))))
+		   (make-vector 0.0 1.0))))
    frame))
 
 ;; c)
@@ -320,10 +298,14 @@ to make new Painters!"
 
 ;; Transforming a combining painters
 
+
+;; Frame transformation is the key to defining means of combination for two or more
+;; painters
+
 (defun transform-painter (painter origin corner-1 corner-2)
   "Returns a Painter that will be transformed given the unit-square representation
-^as arguments: origin, coner-1, corner-2. This unit-square transformation is in
-terms of the frame eventually passed to the PAINTER upon invokation!"
+as arguments: origin, corner-1, corner-2. This unit-square transformation is in
+terms of the frame eventually passed to the PAINTER upon invocation!"
   (lambda (frame)
     (let* ((trans-fn (funcall #'frame-coord-map frame))
 	   (new-origin (funcall trans-fn origin)))
@@ -333,6 +315,8 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 			   (sub-vector (funcall trans-fn corner-1) new-origin)
    			   (sub-vector (funcall trans-fn corner-2) new-origin))))))
 
+
+;; some painter operation that satisfy the closure property
 
 (defun flip-vert (painter)
   "Flip the PAINTER resulting drawing upside down."
@@ -363,11 +347,8 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 		     (make-vector 0.65 0.35)
 		     (make-vector 0.35 0.65)))
 
-;; Frame transformation is the key to defining means of combination for two or more
-;; painters
-
 (defun beside (painter-1 painter-2)
-  "Returns PAINTER that'll draws two images next to each other."
+  "Returns a PAINTER that'll draw two pictures next to each other."
   (let ((paint-left
 	 (transform-painter painter-1
 			    (make-vector 0.0 0.0)
@@ -400,7 +381,7 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
   (rotate-90 (rotate-180 painter)))
 
 
-;;; Exercise - 2.51, BELOW implementatio
+;;; Exercise - 2.51, BELOW implementation
 
 (defun below (painter-1 painter-2)
   (let ((painter-up
@@ -417,7 +398,7 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
       (funcall painter-up frame)
       (funcall painter-down frame))))
 
-;; BELOW interms of rotation and BESIDE painters!
+;; BELOW in terms of rotation and BESIDE!
 ;; (defun below-1 (painter-1 painter-2)
 ;;   (rotate-90
 ;;    (beside (rotate-270 painter-1)
@@ -438,8 +419,8 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 
 
 
-;;Funtctions that needed pic-lang implemented to work:--------------------------
-
+;; The rest of the previously implemented function before the core of the
+;; language was there to test them
 
 (defun flipped-pairs (painter)
   (let ((painter2 (beside painter (flip-vert painter))))
@@ -471,6 +452,8 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 	  (beside (below painter top-left)
 		 (below bottom-right corner))))))
 
+;;
+
 (defun square-limit (painter n)
   (let* ((quarter (corner-split painter n))
 	 (half (beside (flip-horiz quarter) quarter)))
@@ -481,9 +464,9 @@ terms of the frame eventually passed to the PAINTER upon invokation!"
 ;;; higher-order operations
 
 
-;; see below for examples FLIPPED-PAIRS and SQUARE-LIMIT-2
+;; see further below for examples FLIPPED-PAIRS and SQUARE-LIMIT-2
 (defun square-of-four (tl tr bl br)
-  "Takes four one-argument painter operations and will aranges the given PAINTER
+  "Takes four one-argument painter operations and will arrange the given PAINTER
 in a square-of-four. The images transformed then get assigned to one of the four square
 namely, for example, tl to the _t_op _l_eft one.
 Now you only need to pass it a PAINTER to return a PAINTER!"
@@ -507,7 +490,7 @@ Now you only need to pass it a PAINTER to return a PAINTER!"
 
 ;;; Exercise 2.45
 
-;; SPLIT higher-order procedure which can implement RIGHT-SPLIT and UP-SPLIT
+;; SPLIT, a higher-order procedure, which can implement RIGHT-SPLIT and UP-SPLIT
 
 (defun split (fn-1 fn-2)
   "General painter splitting operation. Must be given two two-argument painter
@@ -521,13 +504,14 @@ transformation operations."
     #'splitter ;; to return the function slot content
     ))
 
-;; example of SPLIT use, implementing UP-SPLIT in terms of SPLIT
+;; example of SPLIT use; implementing UP-SPLIT in terms of SPLIT
 ;; (defun splitter-up-split (painter n)
 ;;   (funcall (split #'below #'beside)
 ;; 	   painter
 ;; 	   n))
 
-;; For convenient tests
+
+;; Convenient for tests
 
 (defvar *big-frame*
   (make-frame (make-vector 150.0 100.0)
@@ -538,4 +522,3 @@ transformation operations."
   "Draws the painter given on a big, square frame. For quick tests."
   (clear-screen)
   (funcall painter *big-frame*))
-
