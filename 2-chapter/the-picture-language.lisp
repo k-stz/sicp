@@ -270,6 +270,10 @@ them. Expects the line to be within a unit-frame, meaning coordinate values are 
   (funcall
    (segments->painter
     (list
+     ;; smile
+     (defsegment 0.45 0.7 0.5 0.67)
+     (defsegment 0.5 0.67 0.55 0.7)
+     
      ;; head
      (defsegment 0.4 1.0 0.35 0.85)
      (defsegment 0.6 1.0 0.65 0.85)
@@ -395,8 +399,8 @@ terms of the frame eventually passed to the PAINTER upon invocation!"
 			    (make-vector 1.0 0.0)
 			    (make-vector 0.0 0.5))))
     (lambda (frame)
-      (funcall painter-up frame)
-      (funcall painter-down frame))))
+      (funcall painter-down frame)
+      (funcall painter-up frame))))
 
 ;; BELOW in terms of rotation and BESIDE!
 ;; (defun below-1 (painter-1 painter-2)
@@ -447,10 +451,12 @@ terms of the frame eventually passed to the PAINTER upon invocation!"
       (let ((up (up-split painter (- n 1)))
 	    (right (right-split painter (- n 1))))
 	(let ((top-left (beside up up))
+	      ;; (top-left up)
 	      (bottom-right (below right right))
+	      ;; (bottom-right right)
 	      (corner (corner-split painter (- n 1))))
-	  (beside (below painter top-left)
-		 (below bottom-right corner))))))
+	  (beside (below top-left painter)
+		 (below corner bottom-right))))))
 
 ;;
 
@@ -522,3 +528,13 @@ transformation operations."
   "Draws the painter given on a big, square frame. For quick tests."
   (clear-screen)
   (funcall painter *big-frame*))
+
+
+
+;; Showcasing the stratified design in action, that is
+;; Exercise 2.51
+
+;; a) added some lines, to form a smile, to the WAVE picture
+
+
+
