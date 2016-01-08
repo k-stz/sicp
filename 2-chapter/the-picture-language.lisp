@@ -213,7 +213,7 @@ them. Expects the line to be within a unit-frame, meaning coordinate values are 
 	 (trans-y2 (elt coord 3))
 	 (nyo (pic-objects:make-rectangle)))
     ;; changing NYO drawing to just display the "front" animation
-    (pic-objects::change-animation-state nyo :walk :down 0 :nyo)
+    (pic-objects::change-animation-state nyo :walk :left 0 :nyo)
     (pic-objects::apply-animation-state nyo)
     ;; /changing animation done
     (with-slots (x1 x2 y1 y2) nyo
@@ -450,10 +450,11 @@ terms of the frame eventually passed to the PAINTER upon invocation!"
       painter
       (let ((up (up-split painter (- n 1)))
 	    (right (right-split painter (- n 1))))
-	(let ((top-left (beside up up))
-	      ;; (top-left up)
-	      (bottom-right (below right right))
-	      ;; (bottom-right right)
+	(let (;; change due to exercise 2.52
+	      ;; (top-left (beside up up))
+	      (top-left up)
+	      ;; (bottom-right (below right right))
+	      (bottom-right right)
 	      (corner (corner-split painter (- n 1))))
 	  (beside (below painter top-left)
 		 (below bottom-right corner))))))
