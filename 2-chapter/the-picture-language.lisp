@@ -390,14 +390,14 @@ terms of the frame eventually passed to the PAINTER upon invocation!"
 (defun below (painter-1 painter-2)
   (let ((painter-up
 	 (transform-painter painter-1
-			    (make-vector 0.0 0.5)
-			    (make-vector 1.0 0.5)
-			    (make-vector 0.0 1.0)))
-	(painter-down
-	 (transform-painter painter-2
 			    (make-vector 0.0 0.0)
 			    (make-vector 1.0 0.0)
-			    (make-vector 0.0 0.5))))
+			    (make-vector 0.0 0.5)))
+	(painter-down
+	 (transform-painter painter-2
+			    (make-vector 0.0 0.5)
+			    (make-vector 1.0 0.5)
+			    (make-vector 0.0 1.0))))
     (lambda (frame)
       (funcall painter-down frame)
       (funcall painter-up frame))))
@@ -455,8 +455,8 @@ terms of the frame eventually passed to the PAINTER upon invocation!"
 	      (bottom-right (below right right))
 	      ;; (bottom-right right)
 	      (corner (corner-split painter (- n 1))))
-	  (beside (below top-left painter)
-		 (below corner bottom-right))))))
+	  (beside (below painter top-left)
+		 (below bottom-right corner))))))
 
 ;;
 
@@ -536,5 +536,13 @@ transformation operations."
 
 ;; a) added some lines, to form a smile, to the WAVE picture
 
+;; b) CORNER-SPLIT modified
 
+;; c) modify SQUARE-LIMIT, TO LOOK
+
+(defun m-square-limit (painter n)
+  (funcall
+   (square-of-four #'flip-vert #'identity
+		   #'rotate-180 #'flip-vert)
+   painter))
 
