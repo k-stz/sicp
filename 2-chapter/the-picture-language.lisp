@@ -539,11 +539,15 @@ transformation operations."
 
 ;; b) CORNER-SPLIT modified
 
-;; c) modify SQUARE-LIMIT, TO LOOK
+;; c) modify SQUARE-LIMIT, so that NYO looks outside
 
 (defun m-square-limit (painter n)
-  (funcall
-   (square-of-four #'flip-vert #'identity
-		   #'rotate-180 #'flip-vert)
-   painter))
+  ;; the FLIP-HORIZ here takes care of Nyo looking the other way
+  (let ((quarter (corner-split (flip-horiz painter) n)))
+    (funcall
+     ;; here we abstracted away the (half (beside ...) (below (flip-vert half) half)
+     (square-of-four #'flip-horiz #'identity
+		     #'(lambda (painter)
+			 (flip-vert (flip-horiz painter))) #'flip-vert)
+     quarter)))
 
