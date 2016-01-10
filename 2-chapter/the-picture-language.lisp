@@ -33,8 +33,8 @@
 ;; Section 2.2.4 Example: the picture language
 
 
-;; We consider a picture language that let's us describe a picture that is enclosed and
-;; transformed by a parallelogram (the "frame"), to fit them. Then we draw more intricate
+;; We consider a picture language that lets us describe a pictures that is enclosed and
+;; transformed by a parallelogram --the "frame"-- to fit it. Then we draw more intricate
 ;; pictures by dividing the frame in sub-frames and draw further pictures within them.
 
 
@@ -47,7 +47,7 @@
 
 ;; 2. means of combination: with the powerful PAINTER at its core we have procedures that
 ;; compose new painters from other painters that satisfy the closure property such as
-;; BELOW, BESIDE, FLIP-VERT.
+;; BELOW, BESIDE and FLIP-VERT.
 
 ;; 3. means of abstraction: First we have data abstraction. See the implementation of
 ;; frames with their constructor and selectors MAKE-FRAME and ORIGIN-FRAME. The
@@ -58,8 +58,8 @@
 ;; functions.  Procedure abstraction is what actualised the implementation of PAINTERs and
 ;; which masked a great deal of complexity by creating new line-drawing painters in the
 ;; form of SEGMENTS->PAINTER, and the core function, FRAME-COORD-MAP, which, after
-;; implementing TRANSFORM-PAINTER with it, allowed to easily implement the core feature of
-;; our picture language, the drawing of nested pictures.
+;; implementing TRANSFORM-PAINTER with it, allowed us to easily implement the core feature
+;; of: our picture language, the drawing of nested pictures.
 
 
 
