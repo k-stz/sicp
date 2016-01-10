@@ -13,4 +13,5 @@
 	    :components ((:file "line-segments")
 			 (:file "closure")
 			 (:file "sequences-as-conventional-interfaces")
-			 (:file "the-picture-language")))))
+			 (:file "the-picture-language")
+			 (:file "symbolic-data")))))
