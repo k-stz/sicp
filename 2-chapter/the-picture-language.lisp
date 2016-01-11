@@ -183,7 +183,6 @@ to make new Painters!"
 them. Expects the line to be within a unit-frame, meaning coordinate values are in range
 [0,1]."
   (lambda (frame)
-    ;; exporting every symbol that might be used in later exercises or chapters 
     (for-each
      (lambda (segment)
        (draw-line-segment ;; we draw here, because FOR-EACH doesn't return a meaningful
