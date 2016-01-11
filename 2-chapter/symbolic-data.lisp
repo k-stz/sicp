@@ -28,3 +28,25 @@
 
 ;; (memq 'red '(red shoes blue socks)) ;; ==> (RED SHOES BLUE SOCKS)
 
+
+;; exercise 2.54
+
+(defun equal? (list-1 list-2)
+  "Returns true if the two lists contain EQ elements and in the same order."
+  (cond ((and (eq list-1 nil)
+	      (eq list-2 nil)) t)
+	((eq (first list-1) (first list-2))
+	 (equal? (rest list-1) (rest list-2)))
+	(t ;; else:
+	 nil)))
+
+
+
+;; exercise 2.55
+
+;; (car ''abracadabra) ;; ==> QUOTE
+;; because 'a is a shorthand for (quote a), ergo ''a is (quote (quote a))
+;; and that's why (car (quote (quote a))) returns QUOTE
+;; (quote (quote a)) returns a quoted list containing (quote a)
+;; so that (car ''abracadabra) is equivallent to (car '(quote abracadabra))
+;; ==> QUOTE
