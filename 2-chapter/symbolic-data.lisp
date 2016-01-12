@@ -50,3 +50,40 @@
 ;; (quote (quote a)) returns a quoted list containing (quote a)
 ;; so that (car ''abracadabra) is equivallent to (car '(quote abracadabra))
 ;; ==> QUOTE
+
+
+
+;; Example: Symbolic Differentiation
+
+;; To illustrate the power of symbolic manipulation we will implement a procedure
+;; that will differentiate an algebraic expression. The procedure shall take
+;; as agrument the expression and a variable and return the derivative with
+;; respect to the variable.
+
+;; "Symbolic differentiation is of historical significance in Lisp. It was one of
+;; the motivating examples behind the development of a computer language for
+;; symbolic manipulation."
+
+;; Thanks to the notion of data abstraction we can approach the problem of differentiation
+;; abstractly by first considering how to deal with "sums", "products" and "variables"
+;; without worring about how they're represented.
+
+
+;; Lets simplify further by only considering expression build up with only addition and
+;; muliplication operations. Now we can formulate these four reduction rules:
+
+;; dc/dx = 0, for c, a constant or a variable different from x 
+
+;; dx/dx = 1
+
+;; d(u+v)    du      dv          Notice that the last two reduction rules are recursive:
+;; ------ = ----  + ----         to get the derivative of a sum we first find the derivative
+;;   dx      dx      dx          of the terms. The summands now could either be of the form
+;;                               of the latter two rules, or of the first two, and hence
+;; d(uv)       dv        du      evaluate to a constant 0 or 1. Quite handy as 0 and 1 are
+;; ------ = u(----) + v(----)    the identity elements of addition and multiplication operation.
+;;   dx        dx        dx
+
+
+;; careful: SICP seems to call the first term of an addition the "augend" and the second
+;; the "addend" literature suggests these terms to be used the other way around
