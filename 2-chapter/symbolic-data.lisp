@@ -13,7 +13,7 @@
 ;; (list 'a 'b 'c) ;; ==> (a b c)
 ;; (list (list 'george)) ;; ==> ((george))
 ;; (cdr '((x1 x2) (y1 y2))) ;; ==> ((y1 y2))
-;; because '((x1 x2) (y1 y2)) is logically equivallent to:
+;; because '((x1 x2) (y1 y2)) is logically equivalent to:
 ;; (cons (cons 'x1 (cons 'x2 nil)) #|2nd:|# (cons (cons 'y1 (cons 'y2 nil)) nil))
 ;; so that the CDR is: (cons                            nil)
 ;;      list within list ->  (cons 'y1 (cons 'y2 nil))
@@ -48,7 +48,7 @@
 ;; because 'a is a shorthand for (quote a), ergo ''a is (quote (quote a))
 ;; and that's why (car (quote (quote a))) returns QUOTE
 ;; (quote (quote a)) returns a quoted list containing (quote a)
-;; so that (car ''abracadabra) is equivallent to (car '(quote abracadabra))
+;; so that (car ''abracadabra) is equivalent to (car '(quote abracadabra))
 ;; ==> QUOTE
 
 
@@ -57,7 +57,7 @@
 
 ;; To illustrate the power of symbolic manipulation we will implement a procedure
 ;; that will differentiate an algebraic expression. The procedure shall take
-;; as agrument the expression and a variable and return the derivative with
+;; as argument the expression and a variable and return the derivative with
 ;; respect to the variable.
 
 ;; "Symbolic differentiation is of historical significance in Lisp. It was one of
@@ -66,11 +66,11 @@
 
 ;; Thanks to the notion of data abstraction we can approach the problem of differentiation
 ;; abstractly by first considering how to deal with "sums", "products" and "variables"
-;; without worring about how they're represented.
+;; without worrying about how they're represented.
 
 
 ;; Lets simplify further by only considering expression build up with only addition and
-;; muliplication operations. Now we can formulate these four reduction rules:
+;; multiplication operations. Now we can formulate these four reduction rules:
 
 ;; dc/dx = 0, for c, a constant or a variable different from x 
 
@@ -98,7 +98,7 @@
 ;; (make-sum a1 a2)      -- makes a sum
 ;; (product? e)          -- is e a product?
 ;; (multiplier e)        -- multiplier of e
-;; (muliplicand e)       -- multiplicant of e
+;; (multiplicand e)      -- multiplicand of e
 
 
 (defun deriv (exp var)
@@ -122,7 +122,7 @@
 	(t ;; else
 	 (error "Expression ~a is of unknown type" exp)))))
 
-;; DERIV implements the complete differntiation algorithm. Since it is expressed in terms
+;; DERIV implements the complete differentiation algorithm. Since it is expressed in terms
 ;; of abstract data, our wishful thinking tools, it will work no matter how we choose
 ;; to represent algebraic expressions, as long as we design a proper set of selectors
 ;; and constructors.
