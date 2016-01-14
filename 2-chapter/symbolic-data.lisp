@@ -87,3 +87,42 @@
 
 ;; careful: SICP seems to call the first term of an addition the "augend" and the second
 ;; the "addend" literature suggests these terms to be used the other way around
+
+
+
+;; wishful thinking implementation:
+
+;; (variable? e)         -- is e a variable?
+;; (sum? e)              -- is e a sum?
+;; (addend e) (augend e) -- sum expression selectors
+;; (make-sum a1 a2)      -- makes a sum
+;; (product? e)          -- is e a product?
+;; (multiplier e)        -- multiplier of e
+;; (muliplicand e)       -- multiplicant of e
+
+
+(defun deriv (exp var)
+  (cond (;; first rule
+	 (number? exp) 0)
+	(;; second rule
+	 (variable? exp)
+	 (if (same-variable? exp var) 1 0))
+	((sum? exp)
+	 ;; third rule. see the recursive nature?
+	 (make-sum (deriv (addend exp) var)
+		   (deriv (augend exp) var)))
+	((product? exp)
+	 ;; fourth rule
+	 (make-sum
+	  (make-product (mulitplier exp)
+			(deriv (multiplicand exp) var)))
+	 ;; TODO: why are the arguments reversed here?
+	 (make-product (deriv (multiplier exp) var)
+		       (multiplicand exp)))
+	(t ;; else
+	 (error "Expression ~a is of unknown type" exp)))))
+
+;; DERIV implements the complete differntiation algorithm. Since it is expressed in terms
+;; of abstract data, our wishful thinking tools, it will work no matter how we choose
+;; to represent algebraic expressions, as long as we design a proper set of selectors
+;; and constructors.
