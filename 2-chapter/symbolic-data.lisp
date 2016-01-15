@@ -2,10 +2,17 @@
 (in-package :sicp)
 
 (defun memq (item list)
+  "Searches for <item> in <list>. If the item isn't part of the list it returns NIL,
+else it will return the rest of the list lead by the item in question."
   (cond ((null list) NIL)
 	((eq item (first list)) list)
 	(t
 	 (memq item (rest list)))))
+
+;; TODO: was implemented previously?
+
+(defun number? (x)
+  (numberp x))
 
 
 ;; exercise 2.53
@@ -114,15 +121,63 @@
 	((product? exp)
 	 ;; fourth rule
 	 (make-sum
-	  (make-product (mulitplier exp)
-			(deriv (multiplicand exp) var)))
-	 ;; TODO: why are the arguments reversed here?
-	 (make-product (deriv (multiplier exp) var)
-		       (multiplicand exp)))
+	  (make-product (multiplier exp)
+			(deriv (multiplicand exp) var))
+	  ;; TODO: why are the arguments reversed here?
+	  (make-product (deriv (multiplier exp) var)
+			(multiplicand exp))))
 	(t ;; else
-	 (error "Expression ~a is of unknown type" exp)))))
+	 (error "Expression ~a is of unknown type" exp))))
 
 ;; DERIV implements the complete differentiation algorithm. Since it is expressed in terms
 ;; of abstract data, our wishful thinking tools, it will work no matter how we choose
 ;; to represent algebraic expressions, as long as we design a proper set of selectors
 ;; and constructors.
+
+
+;; Representing algebraic expression
+;; we will represent them as lisp forms (Lisp combinations)
+;; I.e. an expression like ax + b will be represented as (+ (* a x) b)
+;; this approach his many advantages. The most prominent one is that we already have a 
+;; parser for such forms build into our language, Lisp.
+
+(defun variable? (x)
+  (symbolp x))
+
+(defun same-variable? (var-1 var-2)
+  (and (variable? var-1) (variable? var-2) (eq var-1 var-2)))
+
+(defun make-sum (a1 a2)
+  "Make an algebraic expression of the sum of A1 and A2."
+  `(+ ,a1 ,a2))
+
+(defun make-product (a1 a2)
+  "Make an algebraic expression of the product of A1 and A2."
+  `(* ,a1 ,a2))
+
+;; sum contructor and selectors:
+;; here we see the advantage of using Lisp forms to represent expressions.
+;; To tell if an algebraic expression is a sum, we just need to see if the
+;; first element in the list is a +! (sum? '(+ 1 1)),
+;; (first '(+ 1 1)) ==> +
+
+(defun sum? (expression)
+  "Returns true if the algebraic expression is a sum."
+  (eq (first expression) '+))
+
+(defun addend (sum)
+  (second sum))
+
+(defun augend (sum)
+  (third sum))
+
+;; product contructor and selectors
+
+(defun product? (expression)
+  (eq (first expression) '*))
+
+(defun multiplier (product)
+  (second product))
+
+(defun multiplicand (product)
+  (third product))
