@@ -1,4 +1,4 @@
-(defpackage :sicp (:use :cl))
+(in-package :sicp)
 
 (defun rp (r1 r2)
   "Computes the parallel equivalent resistance Rp of resistors r1 and r2"

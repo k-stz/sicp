@@ -6,7 +6,8 @@
   :license "MIT"
   :serial t
   :components
-  ((:module "1-chapter/"
+  ((:file "package")
+   (:module "1-chapter/"
 	    :components ((:file "primality")
 			 (:file "newton")))
    (:module "2-chapter/"

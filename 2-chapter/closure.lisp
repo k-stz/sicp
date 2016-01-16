@@ -1,7 +1,3 @@
-(defpackage :sicp
-  (:use :cl)
-  (:export :for-each))
-
 (in-package :sicp)
 
 ;; Closure,

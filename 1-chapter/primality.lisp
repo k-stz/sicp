@@ -1,4 +1,3 @@
-(defpackage :sicp (:use :cl))
 (in-package :sicp)
 
 ;;primality = Primzahl-Eigenschaft

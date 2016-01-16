@@ -1,6 +1,3 @@
-(defpackage :sicp
-  (:use :cl))
-
 (in-package :sicp)
 
 ;;; exercise 2.2

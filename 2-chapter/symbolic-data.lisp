@@ -1,4 +1,3 @@
-(defpackage :sicp (:use :cl))
 (in-package :sicp)
 
 (defun memq (item list)
@@ -14,12 +13,11 @@ else it will return the rest of the list lead by the item in question."
 (defun number? (x)
   (numberp x))
 
-(defun =number? (x y)
-  "Returns true if x and y are numbers. Unlike CL:= it will return NIL if it encounters a
-non-number object instead of signalling an error."
-  (if (and (number? x) (number? 1))
-      (= x y)
-      nil))
+;; utils
+
+(defun =number? (exp num)
+  "Checks whether an expression is equal to a given number."
+  (and (number? exp) (= exp num)))
 
 ;; exercise 2.53
 
