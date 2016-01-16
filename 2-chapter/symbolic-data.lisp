@@ -14,6 +14,12 @@ else it will return the rest of the list lead by the item in question."
 (defun number? (x)
   (numberp x))
 
+(defun =number? (x y)
+  "Returns true if x and y are numbers. Unlike CL:= it will return NIL if it encounters a
+non-number object instead of signalling an error."
+  (if (and (number? x) (number? 1))
+      (= x y)
+      nil))
 
 ;; exercise 2.53
 
@@ -123,7 +129,6 @@ else it will return the rest of the list lead by the item in question."
 	 (make-sum
 	  (make-product (multiplier exp)
 			(deriv (multiplicand exp) var))
-	  ;; TODO: why are the arguments reversed here?
 	  (make-product (deriv (multiplier exp) var)
 			(multiplicand exp))))
 	(t ;; else
@@ -149,7 +154,14 @@ else it will return the rest of the list lead by the item in question."
 
 (defun make-sum (a1 a2)
   "Make an algebraic expression of the sum of A1 and A2."
-  `(+ ,a1 ,a2))
+  (cond ((=number? a1 0) a2)
+	((=number? a2 0) a1)
+	((and (number? a1)
+	      (number? a2))
+	 (print 'reached)
+	 (+ a1 a2))
+	(t ;;else
+	 `(+ ,a1 ,a2))))
 
 (defun make-product (a1 a2)
   "Make an algebraic expression of the product of A1 and A2."
