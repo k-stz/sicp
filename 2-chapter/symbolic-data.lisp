@@ -161,9 +161,15 @@ else it will return the rest of the list lead by the item in question."
 	(t ;;else
 	 `(+ ,a1 ,a2))))
 
-(defun make-product (a1 a2)
-  "Make an algebraic expression of the product of A1 and A2."
-  `(* ,a1 ,a2))
+(defun make-product (m1 m2)
+  "Make an algebraic expression of the product of M1 and M2."
+  (cond ((or (=number? m1 0)
+	     (=number? m2 0)) 0)
+	((=number? m1 1) m2)
+	((=number? m2 1) m1)
+	((and (number? m1) (number? m2)) (* m1 m2))
+	(t ;;else
+	 `(* ,m1 ,m2))))
 
 ;; sum contructor and selectors:
 ;; here we see the advantage of using Lisp forms to represent expressions.
