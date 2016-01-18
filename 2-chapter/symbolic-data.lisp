@@ -137,7 +137,7 @@ else it will return the rest of the list lead by the item in question."
 	;; exercise 2.56 - exponentiation rule
 	((exponentiation? exp)
 	 (make-product
-	  (make-exponentionation (make-product (base exp) (exponent exp))
+	  (make-exponentionation (make-product (exponent exp) (base exp))
 				 (- (exponent exp) 1))
 	  (deriv (base exp) var)))
 	(t ;; else
