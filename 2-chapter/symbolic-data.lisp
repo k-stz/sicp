@@ -83,18 +83,23 @@ else it will return the rest of the list lead by the item in question."
 ;; Lets simplify further by only considering expression build up with only addition and
 ;; multiplication operations. Now we can formulate these four reduction rules:
 
-;; dc/dx = 0, for c, a constant or a variable different from x 
+;; 1. dc/dx = 0, for c, a constant or a variable different from x 
 
-;; dx/dx = 1
+;; 2. dx/dx = 1
 
-;; d(u+v)    du      dv          Notice that the last two reduction rules are recursive:
-;; ------ = ----  + ----         to get the derivative of a sum we first find the derivative
-;;   dx      dx      dx          of the terms. The summands now could either be of the form
-;;                               of the latter two rules, or of the first two, and hence
-;; d(uv)       dv        du      evaluate to a constant 0 or 1. Quite handy as 0 and 1 are
-;; ------ = u(----) + v(----)    the identity elements of addition and multiplication operation.
-;;   dx        dx        dx
+;; 3. d(u+v)    du      dv          Notice that the last two reduction rules are recursive:
+;;    ------ = ----  + ----         to get the derivative of a sum we first find the derivative
+;;      dx      dx      dx          of the terms. The summands now could either be of the form
+;;                                  of the latter two rules, or of the first two, and hence
+;; 4. d(uv)       dv        du      evaluate to a constant 0 or 1. Quite handy as 0 and 1 are
+;;    ------ = u(----) + v(----)    the identity elements of addition and multiplication operation.
+;;      dx        dx        dx
 
+;; exercise 2.56, the exponentiation rule:
+;; 
+;; 5. d(u^n)              du
+;;    ------ = nu^(n-1) (----)
+;;      dx                dx
 
 ;; careful: SICP seems to call the first term of an addition the "augend" and the second
 ;; the "addend" literature suggests these terms to be used the other way around
@@ -128,7 +133,13 @@ else it will return the rest of the list lead by the item in question."
 	  (make-product (multiplier exp)
 			(deriv (multiplicand exp) var))
 	  (make-product (deriv (multiplier exp) var)
-			(multiplicand exp))))
+			(multiplicand exp))))	 
+	;; exercise 2.56 - exponentiation rule
+	((exponentiation? exp)
+	 (make-product
+	  (make-exponentionation (make-product (base exp) (exponent exp))
+				 (- (exponent exp) 1))
+	  (deriv (base exp) var)))
 	(t ;; else
 	 (error "Expression ~a is of unknown type" exp))))
 
@@ -197,3 +208,26 @@ else it will return the rest of the list lead by the item in question."
 
 (defun multiplicand (product)
   (third product))
+
+;; exercise 2.56 - adding exponentiation to the differntiation algorithm
+;;                 expression of the form (** x 2) denote x²
+
+(defun exponentiation? (expression)
+  (eq (first expression) '**))
+
+(defun base (power-expression)
+  "Return the base of a power-expression. base^exponent=power."
+  (second power-expression))
+
+(defun exponent (power-expression)
+  "Return the exponent of a power-expression. base^exponent=power"
+  (third power-expression))
+
+(defun make-exponentionation (base exponent)
+  (cond ((=number? exponent 0) 1)
+	((=number? exponent 1) base)
+	((and (number? base) (number? exponent))
+	 (expt base exponent))
+	(t ;; else
+	 `(** ,base ,exponent))))
+
