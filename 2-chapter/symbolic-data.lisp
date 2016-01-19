@@ -138,7 +138,7 @@ else it will return the rest of the list lead by the item in question."
 	((exponentiation? exp)
 	 (make-product
 	  (make-exponentionation (make-product (exponent exp) (base exp))
-				 (- (exponent exp) 1))
+				 (make-sum (exponent exp) -1))
 	  (deriv (base exp) var)))
 	(t ;; else
 	 (error "Expression ~a is of unknown type" exp))))
