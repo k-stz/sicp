@@ -152,7 +152,7 @@ else it will return the rest of the list lead by the item in question."
 ;; Representing algebraic expression
 ;; we will represent them as lisp forms (Lisp combinations)
 ;; I.e. an expression like ax + b will be represented as (+ (* a x) b)
-;; this approach his many advantages. The most prominent one is that we already have a 
+;; this approach has many advantages. The most prominent one is that we already have a 
 ;; parser for such forms build into our language, Lisp.
 
 (defun variable? (x)
@@ -161,16 +161,24 @@ else it will return the rest of the list lead by the item in question."
 (defun same-variable? (var-1 var-2)
   (and (variable? var-1) (variable? var-2) (eq var-1 var-2)))
 
-(defun make-sum (a1 a2)
+(defun make-sum (&rest summands)
   "Make an algebraic expression of the sum of A1 and A2."
-  (cond ((=number? a1 0) a2)
-	((=number? a2 0) a1)
-	((and (number? a1)
-	      (number? a2))
-	 (print 'reached)
-	 (+ a1 a2))
-	(t ;;else
-	 `(+ ,a1 ,a2))))
+  (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
+	 (non-numbers (filter #'(lambda (x) (not (number? x))) summands))
+	 )
+    (if (= numbers-sum 0)
+	`(+ ,@non-numbers)
+	`(+ ,numbers-sum ,@non-numbers)))
+
+  ;; implementation for a two-pair only sums:
+    ;; (cond ((=number? a1 0) a2)
+  ;;   ((=number? a2 0) a1)
+  ;;   ((and (number? a1)
+  ;; 	    (number? a2))
+  ;;    (+ a1 a2))
+  ;;   (t ;;else
+  ;;    `(+ ,a1 ,a2)))
+  ))
 
 (defun make-product (m1 m2)
   "Make an algebraic expression of the product of M1 and M2."
@@ -196,7 +204,7 @@ else it will return the rest of the list lead by the item in question."
   (second sum))
 
 (defun augend (sum)
-  (third sum))
+  (apply #'make-sum (cddr sum)))
 
 ;; product contructor and selectors
 
