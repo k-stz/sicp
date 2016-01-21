@@ -168,16 +168,16 @@ else it will return the rest of the list lead by the item in question."
 	 )
     (if (= numbers-sum 0)
 	`(+ ,@non-numbers)
-	`(+ ,numbers-sum ,@non-numbers)))
+	`(+ ,numbers-sum ,@non-numbers))
 
   ;; implementation for a two-pair only sums:
     ;; (cond ((=number? a1 0) a2)
-  ;;   ((=number? a2 0) a1)
-  ;;   ((and (number? a1)
-  ;; 	    (number? a2))
-  ;;    (+ a1 a2))
-  ;;   (t ;;else
-  ;;    `(+ ,a1 ,a2)))
+    ;; ((=number? a2 0) a1)
+    ;; ((and (number? a1)
+    ;; 	    (number? a2))
+    ;;  (+ a1 a2))
+    ;; (t ;;else
+    ;;  `(+ ,a1 ,a2)))
   ))
 
 (defun make-product (m1 m2)
