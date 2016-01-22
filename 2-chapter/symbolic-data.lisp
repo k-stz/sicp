@@ -161,16 +161,25 @@ else it will return the rest of the list lead by the item in question."
 (defun same-variable? (var-1 var-2)
   (and (variable? var-1) (variable? var-2) (eq var-1 var-2)))
 
+
+;;; exercise 2.57 - modifying MAKE-SUM and MAKE-PRODUCT to take multiple arguments
+
 (defun make-sum (&rest summands)
-  "Make an algebraic expression of the sum of A1 and A2."
+  "Make an algebraic expression sum of the summands given."
   (if (<= (length summands) 1)
-      (car summands)
+      (error "Need at least two summands to make a sum. Summands passed: ~a" summands)
       (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
-	     (non-numbers (filter #'(lambda (x) (not (number? x))) summands))
-	     )
+	     (non-numbers (filter #'(lambda (x) (not (number? x))) summands)))
+	
 	(if (= numbers-sum 0)
-	    `(+ ,@non-numbers)
-	    `(+ ,numbers-sum ,@non-numbers))
+	    (if (= (length non-numbers) 1)
+		(first non-numbers)
+		`(+ ,@non-numbers))
+	    (if (null non-numbers)
+		numbers-sum
+		`(+ ,numbers-sum ,@non-numbers)))
+
+
 
 	;; implementation for a two-pair only sums:
 	;; (cond ((=number? a1 0) a2)
@@ -182,17 +191,36 @@ else it will return the rest of the list lead by the item in question."
 	;;  `(+ ,a1 ,a2)))
 	)))
 
-(defun make-product (m1 m2)
-  "Make an algebraic expression of the product of M1 and M2."
-  (cond ((or (=number? m1 0)
-	     (=number? m2 0)) 0)
-	((=number? m1 1) m2)
-	((=number? m2 1) m1)
-	((and (number? m1) (number? m2)) (* m1 m2))
-	(t ;;else
-	 `(* ,m1 ,m2))))
+(defun make-product (&rest factors)
+  "Make an algebraic expression product of the factors given ."
+  (if (<= (length factors) 1)
+      (error "Need at least two factors to make a sum. Factors passed: ~a" factors)
 
-;; sum contructor and selectors:
+      ;; filter out all the numbers and multiply them, supersedes filtering out 1 and 0
+      
+      (let* ((numbers (filter #'(lambda (x) (number? x)) factors))
+	     (non-numbers (filter #'(lambda (x) (not (number? x))) factors))
+	     (numbers-product (apply #'* numbers)))
+
+        (cond ((null numbers) `(* ,@non-numbers))
+	      ((= numbers-product 0) 0)
+	      ((and (= numbers-product 1) (null non-numbers)) 1)
+	      ((and (= numbers-product 1 (length non-numbers))) (first non-numbers))
+	      ((and (= numbers-product 1) (> (length non-numbers) 1) `(* ,@non-numbers)))
+	      (t ;; else:
+	       `(* ,numbers-product ,@non-numbers))))
+
+      ;; implementation for a two-pair only product:
+      ;; (cond ((or (=number? m1 0)
+      ;; 	     (=number? m2 0)) 0)
+      ;; 	((=number? m1 1) m2)
+      ;; 	((=number? m2 1) m1)
+      ;; 	((and (number? m1) (number? m2)) (* m1 m2))
+      ;; 	(t ;;else
+      ;; 	 `(* ,m1 ,m2)))
+      ))
+
+;; sum constructor and selectors:
 ;; here we see the advantage of using Lisp forms to represent expressions.
 ;; To tell if an algebraic expression is a sum, we just need to see if the
 ;; first element in the list is a +! (sum? '(+ 1 1)),
@@ -206,7 +234,9 @@ else it will return the rest of the list lead by the item in question."
   (second sum))
 
 (defun augend (sum)
-  (apply #'make-sum (cddr sum)))
+  (if (<= (length sum) 3)
+      (third sum) ;;'(+ x2 x3)
+      (apply #'make-sum (cddr sum))))
 
 ;; product contructor and selectors
 
@@ -217,7 +247,9 @@ else it will return the rest of the list lead by the item in question."
   (second product))
 
 (defun multiplicand (product)
-  (third product))
+  (if (<= (length product) 3)
+      (third product)
+      (apply #'make-product (cddr product))))
 
 ;; exercise 2.56 - adding exponentiation to the differntiation algorithm
 ;;                 expression of the form (** x 2) denote x²
