@@ -163,22 +163,24 @@ else it will return the rest of the list lead by the item in question."
 
 (defun make-sum (&rest summands)
   "Make an algebraic expression of the sum of A1 and A2."
-  (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
-	 (non-numbers (filter #'(lambda (x) (not (number? x))) summands))
-	 )
-    (if (= numbers-sum 0)
-	`(+ ,@non-numbers)
-	`(+ ,numbers-sum ,@non-numbers))
+  (if (<= (length summands) 1)
+      (car summands)
+      (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
+	     (non-numbers (filter #'(lambda (x) (not (number? x))) summands))
+	     )
+	(if (= numbers-sum 0)
+	    `(+ ,@non-numbers)
+	    `(+ ,numbers-sum ,@non-numbers))
 
-  ;; implementation for a two-pair only sums:
-    ;; (cond ((=number? a1 0) a2)
-    ;; ((=number? a2 0) a1)
-    ;; ((and (number? a1)
-    ;; 	    (number? a2))
-    ;;  (+ a1 a2))
-    ;; (t ;;else
-    ;;  `(+ ,a1 ,a2)))
-  ))
+	;; implementation for a two-pair only sums:
+	;; (cond ((=number? a1 0) a2)
+	;; ((=number? a2 0) a1)
+	;; ((and (number? a1)
+	;; 	    (number? a2))
+	;;  (+ a1 a2))
+	;; (t ;;else
+	;;  `(+ ,a1 ,a2)))
+	)))
 
 (defun make-product (m1 m2)
   "Make an algebraic expression of the product of M1 and M2."
