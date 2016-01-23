@@ -162,7 +162,29 @@ else it will return the rest of the list lead by the item in question."
   (and (variable? var-1) (variable? var-2) (eq var-1 var-2)))
 
 
-;;; exercise 2.57 - modifying MAKE-SUM and MAKE-PRODUCT to take multiple arguments
+;; implementation for a two-pair only sums:
+;; (defun make-sum (a1 a2)
+;;   (cond ((=number? a1 0) a2)
+;; 	((=number? a2 0) a1)
+;; 	((and (number? a1)
+;; 	      (number? a2))
+;; 	 (+ a1 a2))
+;; 	(t ;;else
+;; 	 `(+ ,a1 ,a2))))
+
+
+;; implementation for a two-pair only product:
+;; (defun make-product (m1 m2)
+;;   (cond ((or (=number? m1 0)
+;;       	     (=number? m2 0)) 0)
+;;       	((=number? m1 1) m2)
+;;       	((=number? m2 1) m1)
+;;       	((and (number? m1) (number? m2)) (* m1 m2))
+;;       	(t ;;else
+;;       	 `(* ,m1 ,m2))))
+
+
+;;; exercise 2.57 - modifying MAKE-SUM and MAKE-PRODUCT to work with multiple arguments
 
 (defun make-sum (&rest summands)
   "Make an algebraic expression sum of the summands given."
@@ -177,19 +199,7 @@ else it will return the rest of the list lead by the item in question."
 		`(+ ,@non-numbers))
 	    (if (null non-numbers)
 		numbers-sum
-		`(+ ,numbers-sum ,@non-numbers)))
-
-
-
-	;; implementation for a two-pair only sums:
-	;; (cond ((=number? a1 0) a2)
-	;; ((=number? a2 0) a1)
-	;; ((and (number? a1)
-	;; 	    (number? a2))
-	;;  (+ a1 a2))
-	;; (t ;;else
-	;;  `(+ ,a1 ,a2)))
-	)))
+		`(+ ,numbers-sum ,@non-numbers))))))
 
 (defun make-product (&rest factors)
   "Make an algebraic expression product of the factors given ."
@@ -208,17 +218,7 @@ else it will return the rest of the list lead by the item in question."
 	      ((and (= numbers-product 1 (length non-numbers))) (first non-numbers))
 	      ((and (= numbers-product 1) (> (length non-numbers) 1) `(* ,@non-numbers)))
 	      (t ;; else:
-	       `(* ,numbers-product ,@non-numbers))))
-
-      ;; implementation for a two-pair only product:
-      ;; (cond ((or (=number? m1 0)
-      ;; 	     (=number? m2 0)) 0)
-      ;; 	((=number? m1 1) m2)
-      ;; 	((=number? m2 1) m1)
-      ;; 	((and (number? m1) (number? m2)) (* m1 m2))
-      ;; 	(t ;;else
-      ;; 	 `(* ,m1 ,m2)))
-      ))
+	       `(* ,numbers-product ,@non-numbers))))))
 
 ;; sum constructor and selectors:
 ;; here we see the advantage of using Lisp forms to represent expressions.
