@@ -273,3 +273,33 @@ else it will return the rest of the list lead by the item in question."
 	(t ;; else
 	 `(** ,base ,exponent))))
 
+
+;; exercise 2.58 - infix algebraic expression.
+
+;; a) constructors, selectors and predicates for infix algebraic expressions of fully parenthesised,
+;;    two argument expressions
+
+;; in the foll
+
+;; sums
+
+(defun make-infix-sum (a1 a2)
+  (cond ((=number? a1 0) a2)
+	((=number? a2 0) a1)
+	((and (number? a1)
+	      (number? a2))
+	 (+ a1 a2))
+	(t ;;else
+	 `(,a1 + ,a2))))
+
+
+(defun infix-sum? (expression)
+  "Infix sum predicate. Returns true if the alebraic expression is a sum."
+  (eq (second expression) '+))
+
+(defun infix-addend (sum)
+  (first sum))
+
+(defun infix-augend (sum)
+  (third sum))
+
