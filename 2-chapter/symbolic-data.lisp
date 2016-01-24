@@ -186,70 +186,73 @@ else it will return the rest of the list lead by the item in question."
 
 ;;; exercise 2.57 - modifying MAKE-SUM and MAKE-PRODUCT to work with multiple arguments
 
-(defun make-sum (&rest summands)
-  "Make an algebraic expression sum of the summands given."
-  (if (<= (length summands) 1)
-      (error "Need at least two summands to make a sum. Summands passed: ~a" summands)
-      (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
-	     (non-numbers (filter #'(lambda (x) (not (number? x))) summands)))
+;; (defun make-sum (&rest summands)
+;;   "Make an algebraic expression sum of the summands given."
+;;   (if (<= (length summands) 1)
+;;       (error "Need at least two summands to make a sum. Summands passed: ~a" summands)
+;;       (let* ((numbers-sum (apply #'+ (filter #'(lambda (x) (number? x)) summands)))
+;; 	     (non-numbers (filter #'(lambda (x) (not (number? x))) summands)))
 	
-	(if (= numbers-sum 0)
-	    (if (= (length non-numbers) 1)
-		(first non-numbers)
-		`(+ ,@non-numbers))
-	    (if (null non-numbers)
-		numbers-sum
-		`(+ ,numbers-sum ,@non-numbers))))))
+;; 	(if (= numbers-sum 0)
+;; 	    (if (= (length non-numbers) 1)
+;; 		(first non-numbers)
+;; 		`(+ ,@non-numbers))
+;; 	    (if (null non-numbers)
+;; 		numbers-sum
+;; 		`(+ ,numbers-sum ,@non-numbers))))))
 
-(defun make-product (&rest factors)
-  "Make an algebraic expression product of the factors given ."
-  (if (<= (length factors) 1)
-      (error "Need at least two factors to make a sum. Factors passed: ~a" factors)
+;; (defun make-product (&rest factors)
+;;   "Make an algebraic expression product of the factors given ."
+;;   (if (<= (length factors) 1)
+;;       (error "Need at least two factors to make a sum. Factors passed: ~a" factors)
 
-      ;; filter out all the numbers and multiply them, supersedes filtering out 1 and 0
+;;       ;; filter out all the numbers and multiply them, supersedes filtering out 1 and 0
       
-      (let* ((numbers (filter #'(lambda (x) (number? x)) factors))
-	     (non-numbers (filter #'(lambda (x) (not (number? x))) factors))
-	     (numbers-product (apply #'* numbers)))
+;;       (let* ((numbers (filter #'(lambda (x) (number? x)) factors))
+;; 	     (non-numbers (filter #'(lambda (x) (not (number? x))) factors))
+;; 	     (numbers-product (apply #'* numbers)))
 
-        (cond ((null numbers) `(* ,@non-numbers))
-	      ((= numbers-product 0) 0)
-	      ((and (= numbers-product 1) (null non-numbers)) 1)
-	      ((and (= numbers-product 1 (length non-numbers))) (first non-numbers))
-	      ((and (= numbers-product 1) (> (length non-numbers) 1) `(* ,@non-numbers)))
-	      (t ;; else:
-	       `(* ,numbers-product ,@non-numbers))))))
+;;         (cond ((null numbers) `(* ,@non-numbers))
+;; 	      ((= numbers-product 0) 0)
+;; 	      ((and (= numbers-product 1) (null non-numbers)) 1)
+;; 	      ((and (= numbers-product 1 (length non-numbers))) (first non-numbers))
+;; 	      ((and (= numbers-product 1) (> (length non-numbers) 1) `(* ,@non-numbers)))
+;; 	      (t ;; else:
+;; 	       `(* ,numbers-product ,@non-numbers))))))
 
-;; sum constructor and selectors:
+
+;; sum constructor, selectors, predicates:
 ;; here we see the advantage of using Lisp forms to represent expressions.
 ;; To tell if an algebraic expression is a sum, we just need to see if the
 ;; first element in the list is a +! (sum? '(+ 1 1)),
 ;; (first '(+ 1 1)) ==> +
 
-(defun sum? (expression)
-  "Returns true if the algebraic expression is a sum."
-  (eq (first expression) '+))
+;; (defun sum? (expression)
+;;   "Returns true if the algebraic expression is a sum."
+;;   (eq (first expression) '+))
 
-(defun addend (sum)
-  (second sum))
+;; (defun addend (sum)
+;;   (second sum))
 
-(defun augend (sum)
-  (if (<= (length sum) 3)
-      (third sum) ;;'(+ x2 x3)
-      (apply #'make-sum (cddr sum))))
+;; (defun augend (sum)
+;;   (if (<= (length sum) 3)
+;;       (third sum) ;;'(+ x2 x3)
+;;       (apply #'make-sum (cddr sum))))
 
-;; product contructor and selectors
 
-(defun product? (expression)
-  (eq (first expression) '*))
+;; product contructor, selectors, predicates
 
-(defun multiplier (product)
-  (second product))
+;; (defun product? (expression)
+;;   (eq (first expression) '*))
 
-(defun multiplicand (product)
-  (if (<= (length product) 3)
-      (third product)
-      (apply #'make-product (cddr product))))
+;; (defun multiplier (product)
+;;   (second product))
+
+;; (defun multiplicand (product)
+;;   (if (<= (length product) 3)
+;;       (third product)
+;;       (apply #'make-product (cddr product))))
+
 
 ;; exercise 2.56 - adding exponentiation to the differntiation algorithm
 ;;                 expression of the form (** x 2) denote x²
@@ -277,13 +280,12 @@ else it will return the rest of the list lead by the item in question."
 ;; exercise 2.58 - infix algebraic expression.
 
 ;; a) constructors, selectors and predicates for infix algebraic expressions of fully parenthesised,
-;;    two argument expressions
+;;    two argument expressions:
 
-;; in the foll
 
-;; sums
+;;; sums (infix constructor, selector, predicates)
 
-(defun make-infix-sum (a1 a2)
+(defun make-sum (a1 a2)
   (cond ((=number? a1 0) a2)
 	((=number? a2 0) a1)
 	((and (number? a1)
@@ -293,13 +295,35 @@ else it will return the rest of the list lead by the item in question."
 	 `(,a1 + ,a2))))
 
 
-(defun infix-sum? (expression)
+(defun sum? (expression)
   "Infix sum predicate. Returns true if the alebraic expression is a sum."
   (eq (second expression) '+))
 
-(defun infix-addend (sum)
+(defun addend (sum)
   (first sum))
 
-(defun infix-augend (sum)
+(defun augend (sum)
   (third sum))
+
+
+;;; products (infix constructor, selector, predicates)
+
+(defun make-product (m1 m2)
+    (cond ((or (=number? m1 0)
+      	     (=number? m2 0)) 0)
+      	((=number? m1 1) m2)
+      	((=number? m2 1) m1)
+      	((and (number? m1) (number? m2)) (* m1 m2))
+      	(t ;;else
+      	 `(,m1 * ,m2))))
+
+(defun product? (expression)
+  (eq (second expression) '*))
+
+(defun multiplier (product)
+  (first product))
+
+(defun multiplicand (product)
+  (third product))
+
 
