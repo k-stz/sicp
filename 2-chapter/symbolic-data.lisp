@@ -327,3 +327,38 @@ else it will return the rest of the list lead by the item in question."
   (third product))
 
 
+;; b) like a) but with multiple arguments, that is, not only parenthesised two arguments
+
+;; example for a): (deriv '(x + (3 * (x + (y + 2)))) 'x) ==> 4
+
+;; example for b): (deriv '(x + 3 * (x + y + 2)))
+
+;; Since we need to understand that a '*' takes priority when occuring "in the wild" that is
+;; together with unparenthesiszed addends, I suggest, we reduce the problem back to how it
+;; appears in a). Which means we will find the multiplications in the wild and parenthesise
+;; the expressions in such a way that a)-like problems will be formed, for which we have a
+;; solution.
+;; First we need to understand that unnecessary parenthesis have been dropped:
+;; (x + y + 2) = (x + (y + 2)).
+
+;; scratch that, lets form list using tokens
+
+(defun token-split (list token)
+  "Splits list into sublists between the token given. Sublists in a list given are
+  considered elements. This means that (token-split '(1 * (2 3)) '*) =returns=> (1 (2 3))"
+  (labels ((rec (list new-sublist)
+	     (cond ((eq (first list) token)
+		    ;; we found a token, lets build a new sublist..
+		    (cons (nreverse new-sublist)
+			  (rec (rest list) ;; ..starting right _after_ the token (REST)
+			       nil)))
+		   ((null list) new-sublist) ;; total end of the list reached, return the build
+		   ;; sublist since the last token (or base case, begining of
+		   ;; list containing no occurence of the token
+		    (t ;; else
+		     (rec (rest list)
+			  ;; here add up the elements prior to the next token into the
+			  ;; new sublist
+			  (cons (first list) new-sublist))))))
+	   (rec list '()))))
+
