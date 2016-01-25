@@ -344,8 +344,8 @@ else it will return the rest of the list lead by the item in question."
 ;; scratch that, lets form list using tokens
 
 (defun token-split (list token)
-  "Splits list into sublists between the token given. Sublists in a list given are
-  considered elements. This means that (token-split '(1 * (2 3)) '*) =returns=> (1 (2 3))"
+  "Splits list into sublists between the token given. Lists within lists are not recursed
+into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
   (labels ((rec (list new-sublist)
 	     (cond ((eq (first list) token)
 		    ;; we found a token, lets build a new sublist..
