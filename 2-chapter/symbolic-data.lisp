@@ -317,14 +317,14 @@ else it will return the rest of the list lead by the item in question."
       	(t ;;else
       	 `(,m1 * ,m2))))
 
-(defun product? (expression)
-  (eq (second expression) '*))
+;; (defun product? (expression)
+;;   (eq (second expression) '*))
 
-(defun multiplier (product)
-  (first product))
+;; (defun multiplier (product)
+;;   (first product))
 
-(defun multiplicand (product)
-  (third product))
+;; (defun multiplicand (product)
+;;   (third product))
 
 
 ;; b) like a) but with multiple arguments, that is, not only parenthesised two arguments
@@ -354,11 +354,23 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 			       nil)))
 		   ((null list) new-sublist) ;; total end of the list reached, return the build
 		   ;; sublist since the last token (or base case, begining of
-		   ;; list containing no occurence of the token
+		   ;; list containing no occurence of the token)
 		    (t ;; else
 		     (rec (rest list)
 			  ;; here add up the elements prior to the next token into the
 			  ;; new sublist
 			  (cons (first list) new-sublist))))))
-	   (rec list '()))))
+	   (rec list '())))
 
+;; (product? '(x + 2)) ==> NIL; (product? '(x + 2 * y)) ==> T; (product? '(x + (2 * y))) ==> NIL
+(defun product? (expression)
+  (if (null (filter #'(lambda (x) (eq '* x)) expression))
+      NIL
+    t))
+
+(defun multiplier (product)
+  (first (token-split product '*)))
+
+(defun multiplicand (product)
+  (apply #'make-product
+	 (rest (token-split product '*))))
