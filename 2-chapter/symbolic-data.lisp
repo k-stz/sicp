@@ -341,7 +341,7 @@ else it will return the rest of the list lead by the item in question."
 ;; First we need to understand that unnecessary parenthesis have been dropped:
 ;; (x + y + 2) = (x + (y + 2)).
 
-;; scratch that, lets form list using tokens
+;; scratch that, lets form lists using tokens
 
 (defun token-split (list token)
   "Splits list into sublists between the token given. Lists within lists are not recursed
@@ -375,6 +375,34 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
   (apply #'make-product
 	 (rest (token-split product '*))))
 
-;;
+;; We want to enforce the multiplication priority and at the same time reduce the problem back to an "a)-like"
+;; one, this is how we'll do it:
 ;; (3 + x * y + 2)
-;; token split:
+;; (3 + (x * y) + 2)
+;; (3 + ((x * y) + 2))
+;; GROUP-AROUD will help us achive that goal.
+
+;; 
+(defun group-around (list symbol)
+  "Parenthesises two elements around symbol given. Such that: (group-around '(1 + 2 * 3)
+'*) => (1 + (2 * 3)). Like TOKEN-SPLIT it doesn't move down the leaves.
+Doesn't cover the case where the symbol appears more than once in a row.
+unhandled example: (group-around '(1 + + 2) '+) "
+  (when (or (eq (first list) symbol) (eq (last list) symbol))
+    (warn 
+     "First or last datum in list is the symbol to be grouped around, function not
+	specified for this case."))
+  (labels ((rec (list grouped-list)
+		(let ((head (first list))
+		      (next (cadr list)))
+		  (cond ((null list) (nreverse grouped-list))
+			((eq symbol next)
+			 (rec (cdddr list);; skip the two ones ahead being grouped actuall
+			      ;; grouping (parenthesising) takes place
+			      ;; here:
+			      (cons (list head next (third list))
+				    grouped-list)))
+			(t
+			 (rec (rest list)
+			      (cons head grouped-list)))))))
+    (rec list nil)))
