@@ -352,7 +352,7 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 		    (cons (nreverse new-sublist)
 			  (rec (rest list) ;; ..starting right _after_ the token (REST)
 			       nil)))
-		   ((null list) new-sublist) ;; total end of the list reached, return the build
+		   ((null list) (list new-sublist)) ;; total end of the list reached, return the build
 		   ;; sublist since the last token (or base case, begining of
 		   ;; list containing no occurence of the token)
 		    (t ;; else
@@ -374,3 +374,7 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 (defun multiplicand (product)
   (apply #'make-product
 	 (rest (token-split product '*))))
+
+;;
+;; (3 + x * y + 2)
+;; token split:
