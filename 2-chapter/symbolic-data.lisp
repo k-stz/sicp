@@ -382,7 +382,9 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 ;; (3 + ((x * y) + 2))
 ;; GROUP-AROUD will help us achive that goal.
 
-;; 
+;; TODO: (group-around '(3 * x * y + 2) '*) ==> ((3 * X) * Y + 2)
+;; if we solve the above, we can also collect the resulting summands into 2-argument sums
+
 (defun group-around (list symbol)
   "Parenthesises two elements around symbol given. Such that: (group-around '(1 + 2 * 3)
 '*) => (1 + (2 * 3)). Like TOKEN-SPLIT it doesn't move down the leaves.
@@ -406,3 +408,5 @@ unhandled example: (group-around '(1 + + 2) '+) "
 			 (rec (rest list)
 			      (cons head grouped-list)))))))
     (rec list nil)))
+
+
