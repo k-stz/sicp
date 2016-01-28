@@ -375,6 +375,17 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
   (apply #'make-product
 	 (rest (token-split product '*))))
 
+
+(defun contains? (exp symbol)
+  "Returns true if the symbol is part of the top-level of the expression. That is (contains? '(x + 2) 'x) is true
+but (contain? '(y + (x + 2) 'x)) is NIL."
+  (if (not (null
+	    (filter (lambda (x) (eq x symbol))
+		    exp)))
+      t
+      nil))
+
+
 ;; We want to enforce the multiplication priority and at the same time reduce the problem back to an "a)-like"
 ;; one, this is how we'll do it:
 ;; (3 + x * y + 2)
