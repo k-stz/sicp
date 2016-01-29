@@ -377,8 +377,8 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 
 
 (defun contains? (exp symbol)
-  "Returns true if the symbol is part of the top-level of the expression. That is (contains? '(x + 2) 'x) is true
-but (contain? '(y + (x + 2) 'x)) is NIL."
+  "Returns true if the symbol is part of the top-level of the expression. That
+is (contains? '(x + 2) 'x) is true but (contain? '(y + (x + 2) 'x)) is NIL."
   (if (not (null
 	    (filter (lambda (x) (eq x symbol))
 		    exp)))
@@ -397,27 +397,27 @@ but (contain? '(y + (x + 2) 'x)) is NIL."
 ;; if we solve the above, we can also collect the resulting summands into 2-argument sums
 
 (defun group-around (list symbol)
-  "Parenthesises two elements around symbol given. Such that: (group-around '(1 + 2 * 3)
-'*) => (1 + (2 * 3)). Like TOKEN-SPLIT it doesn't move down the leaves.
-Doesn't cover the case where the symbol appears more than once in a row.
-unhandled example: (group-around '(1 + + 2) '+) "
+  "Parenthesise elements in a list around a symbol given. Ensures that at most two elements are
+grouped around the symbol. 
+Example: (group-around '(x * y * z) '*) ==> (((X * Y) * Z))"
   (when (or (eq (first list) symbol) (eq (last list) symbol))
     (warn 
      "First or last datum in list is the symbol to be grouped around, function not
 	specified for this case."))
   (labels ((rec (list grouped-list)
-		(let ((head (first list))
-		      (next (cadr list)))
-		  (cond ((null list) (nreverse grouped-list))
-			((eq symbol next)
-			 (rec (cdddr list);; skip the two ones ahead being grouped actuall
-			      ;; grouping (parenthesising) takes place
-			      ;; here:
-			      (cons (list head next (third list))
-				    grouped-list)))
-			(t
-			 (rec (rest list)
-			      (cons head grouped-list)))))))
-    (rec list nil)))
+	     (let ((head (first list))
+		   (next (cadr list)))
+	       (cond ((null list) (nreverse grouped-list))
+		     ((eq symbol next)
+		      (rec (cdddr list) ; skip the two ones ahead being grouped
+			   ;; actuall grouping (parenthesising) takes place here:
+			   (cons (list head next (third list))
+				 grouped-list)))
+		     (t
+		      (rec (rest list)
+			   (cons head grouped-list)))))))
+    (loop for new-list = (rec list nil) then (rec new-list nil)
+       while (contains? new-list symbol)
+	 finally (return new-list))))
 
 
