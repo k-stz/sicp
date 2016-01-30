@@ -320,12 +320,11 @@ else it will return the rest of the list lead by the item in question."
 ;; (defun product? (expression)
 ;;   (eq (second expression) '*))
 
-(defun multiplier (product)
-  (first product))
+;; (defun multiplier (product)
+;;   (first product))
 
-(defun multiplicand (product)
-  (operator-priority-group product)
-  (third product))
+;; (defun multiplicand (product)
+;;   (third product))
 
 
 ;; b) like a) but with multiple arguments, that is, not only parenthesised two arguments
@@ -407,9 +406,9 @@ Example: (group-around '(x * y * z) '*) ==> (((X * Y) * Z))"
 		     (t
 		      (rec (rest list)
 			   (cons head grouped-list)))))))
-    (if (> (length list) 4)
+    (if (> (length list) 3)
 	(loop :for new-list = (rec list nil) :then (rec new-list nil)
-	   :while (and (contains? new-list symbol) (> (length new-list) 4))
+	   :while (and (contains? new-list symbol) (> (length new-list) 3))
 	   :finally (return new-list))
 	list)))
 
@@ -423,3 +422,11 @@ priority."
        (setf transformed-expression
 	     (group-around transformed-expression operator)))
     transformed-expression))
+
+;; now we can implement the selectors
+
+(defun multiplier (product)
+  (first (operator-priority-group product)))
+
+(defun multiplicand (product)
+  (third (operator-priority-group product)))
