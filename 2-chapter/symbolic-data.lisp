@@ -416,8 +416,19 @@ Example: (group-around '(x * y * z) '*) ==> (((X * Y) * Z))"
 		     (t
 		      (rec (rest list)
 			   (cons head grouped-list)))))))
-    (loop for new-list = (rec list nil) then (rec new-list nil)
-       while (contains? new-list symbol)
-	 finally (return new-list))))
+    (if (> (length list) 4)
+	(loop :for new-list = (rec list nil) :then (rec new-list nil)
+	   :while (or (contains? new-list symbol) (> (length new-list) 4))
+	   :finally (return new-list))
+	list)))
 
 
+(defun operator-priority-group (expression)
+  "Applies GROUP-AROUND on the expression given with operators from the evaluation
+priority."
+  (let ((transformed-expression expression))
+    (loop :for operator :in '(* ** +) ; priority list
+       :do
+       (setf transformed-expression
+	     (group-around transformed-expression operator)))
+    transformed-expression))
