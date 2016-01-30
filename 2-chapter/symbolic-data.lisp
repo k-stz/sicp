@@ -371,14 +371,6 @@ is (contains? '(x + 2) 'x) is true but (contain? '(y + (x + 2) 'x)) is NIL."
       t
       nil))
 
-(defun product? (expression)
-  (contains? expression '*))
-
-(defun sum? (expression)
-  (and (not (product? expression))
-      (not (contains? expression '**))
-      (contains? expression '+)))
-
 ;; We want to enforce the multiplication priority and at the same time reduce the problem back to an "a)-like"
 ;; one, this is how we'll do it:
 ;; (3 + x * y + 2)
@@ -423,10 +415,29 @@ priority."
 	     (group-around transformed-expression operator)))
     transformed-expression))
 
-;; now we can implement the selectors
+;; now we can implement the predicates and selectors
+
+(defun product? (expression)
+  (contains? (operator-priority-group expression)
+	     '*))
+
+(defun sum? (expression)
+  (let ((simplified-expression (operator-priority-group expression)))
+    (and (not (product? simplified-expression))
+	 (not (contains? simplified-expression '**))
+	 (contains? simplified-expression '+))))
+
+(defun addend (sum)
+  (first (operator-priority-group sum)))
+
+(defun augend (sum)
+  (third (operator-priority-group sum)))
 
 (defun multiplier (product)
   (first (operator-priority-group product)))
 
 (defun multiplicand (product)
   (third (operator-priority-group product)))
+
+
+;; /exercise 2.58 b) done
