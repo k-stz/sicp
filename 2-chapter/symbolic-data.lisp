@@ -382,10 +382,9 @@ is (contains? '(x + 2) 'x) is true but (contain? '(y + (x + 2) 'x)) is NIL."
   "Parenthesise elements in a list around a symbol given. Ensures that at most two elements are
 grouped around the symbol. 
 Example: (group-around '(x * y * z) '*) ==> (((X * Y) * Z))"
-  (when (or (eq (first list) symbol) (eq (last list) symbol))
+  (when (or (eq (first list) symbol) (eq (car (last list)) symbol))
     (warn 
-     "First or last datum in list is the symbol to be grouped around, function not
-	specified for this case."))
+     "First or last datum in list is the symbol to be grouped around"))
   (labels ((rec (list grouped-list)
 	     (let ((head (first list))
 		   (next (cadr list)))
