@@ -295,15 +295,15 @@ else it will return the rest of the list lead by the item in question."
 	 `(,a1 + ,a2))))
 
 
-(defun sum? (expression)
-  "Infix sum predicate. Returns true if the alebraic expression is a sum."
-  (eq (second expression) '+))
+;; (defun sum? (expression)
+;;   "Infix sum predicate. Returns true if the alebraic expression is a sum."
+;;   (eq (second expression) '+))
 
-(defun addend (sum)
-  (first sum))
+;; (defun addend (sum)
+;;   (first sum))
 
-(defun augend (sum)
-  (third sum))
+;; (defun augend (sum)
+;;   (third sum))
 
 
 ;;; products (infix constructor, selector, predicates)
@@ -320,11 +320,12 @@ else it will return the rest of the list lead by the item in question."
 ;; (defun product? (expression)
 ;;   (eq (second expression) '*))
 
-;; (defun multiplier (product)
-;;   (first product))
+(defun multiplier (product)
+  (first product))
 
-;; (defun multiplicand (product)
-;;   (third product))
+(defun multiplicand (product)
+  (operator-priority-group product)
+  (third product))
 
 
 ;; b) like a) but with multiple arguments, that is, not only parenthesised two arguments
@@ -362,20 +363,6 @@ into, this means that (token-split '(1 * (2 3)) '*) =returns=> ((1) (2 3))"
 			  (cons (first list) new-sublist))))))
 	   (rec list '())))
 
-;; (product? '(x + 2)) ==> NIL; (product? '(x + 2 * y)) ==> T; (product? '(x + (2 * y))) ==> NIL
-(defun product? (expression)
-  (if (null (filter #'(lambda (x) (eq '* x)) expression))
-      NIL
-    t))
-
-(defun multiplier (product)
-  (first (token-split product '*)))
-
-(defun multiplicand (product)
-  (apply #'make-product
-	 (rest (token-split product '*))))
-
-
 (defun contains? (exp symbol)
   "Returns true if the symbol is part of the top-level of the expression. That
 is (contains? '(x + 2) 'x) is true but (contain? '(y + (x + 2) 'x)) is NIL."
@@ -385,16 +372,20 @@ is (contains? '(x + 2) 'x) is true but (contain? '(y + (x + 2) 'x)) is NIL."
       t
       nil))
 
+(defun product? (expression)
+  (contains? expression '*))
+
+(defun sum? (expression)
+  (and (not (product? expression))
+      (not (contains? expression '**))
+      (contains? expression '+)))
 
 ;; We want to enforce the multiplication priority and at the same time reduce the problem back to an "a)-like"
 ;; one, this is how we'll do it:
 ;; (3 + x * y + 2)
 ;; (3 + (x * y) + 2)
 ;; (3 + ((x * y) + 2))
-;; GROUP-AROUD will help us achive that goal.
-
-;; TODO: (group-around '(3 * x * y + 2) '*) ==> ((3 * X) * Y + 2)
-;; if we solve the above, we can also collect the resulting summands into 2-argument sums
+;; GROUP-AROUD will help us achieve that goal.
 
 (defun group-around (list symbol)
   "Parenthesise elements in a list around a symbol given. Ensures that at most two elements are
@@ -418,13 +409,13 @@ Example: (group-around '(x * y * z) '*) ==> (((X * Y) * Z))"
 			   (cons head grouped-list)))))))
     (if (> (length list) 4)
 	(loop :for new-list = (rec list nil) :then (rec new-list nil)
-	   :while (or (contains? new-list symbol) (> (length new-list) 4))
+	   :while (and (contains? new-list symbol) (> (length new-list) 4))
 	   :finally (return new-list))
 	list)))
 
 
 (defun operator-priority-group (expression)
-  "Applies GROUP-AROUND on the expression given with operators from the evaluation
+  "Applies GROUP-AROUND on the expression given with operators in order of evaluation
 priority."
   (let ((transformed-expression expression))
     (loop :for operator :in '(* ** +) ; priority list
