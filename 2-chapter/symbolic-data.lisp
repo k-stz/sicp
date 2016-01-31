@@ -43,11 +43,15 @@ else it will return the rest of the list lead by the item in question."
 ;; exercise 2.54
 
 (defun equal? (list-1 list-2)
-  "Returns true if the two lists contain EQ elements and in the same order."
+  "Returns true if the two arguments are lists of EQ elements and in the same order, or,
+if the two elements are not lists but are EQ elements."
   (cond ((and (eq list-1 nil)
 	      (eq list-2 nil)) t)
-	((eq (first list-1) (first list-2))
-	 (equal? (rest list-1) (rest list-2)))
+	((and (consp list-1) (consp list-2))
+	 (and
+	  (eq (first list-1) (first list-2))
+	  (equal? (rest list-1) (rest list-2))))
+	((and (eq list-1 list-2)) t)
 	(t ;; else:
 	 nil)))
 
