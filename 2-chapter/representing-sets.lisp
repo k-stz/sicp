@@ -22,3 +22,13 @@
 	(t
 	 (intersection-set (rest set-1)
 			   set-2))))
+
+
+;; exercise 2.59
+
+(defun union-set (set-1 set-2)
+  (cond ((null set-1) set-2)
+	((null set-2) set-1)
+	((not (element-of-set? (car set-1) set-2))
+	 (union-set (rest set-1) (cons (car set-1) set-2)))
+	(t (union-set (rest set-1) set-2))))
