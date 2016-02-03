@@ -32,3 +32,29 @@
 	((not (element-of-set? (car set-1) set-2))
 	 (union-set (rest set-1) (cons (car set-1) set-2)))
 	(t (union-set (rest set-1) set-2))))
+
+
+;; exercise 2.60 - sets with duplicates
+
+(defun duplicate-element-of-set? (x set)
+  (element-of-set? x set))
+
+(defun duplicate-adjoin-set (x set)
+  (adjoin-set x set))
+
+;; here we deviate, we filter out multple elements from the
+;; set-1 so we don't have to check an element then already passed or failed
+;; the COND tests
+(defun duplicate-intersection-set (set-1 set-2)
+  (let ((filtered-set-1
+	 (filter #'(lambda (x) (not (equal? x (car set-1))))
+		 (rest set-1))))
+    (cond ((or (null set-1) (null set-2)) '())
+	  ((duplicate-element-of-set? (car set-1) set-2)
+	   (cons (car set-1)
+		 (duplicate-intersection-set
+		  filtered-set-1
+		  set-2)))
+	  (t
+	   (duplicate-intersection-set filtered-set-1
+				       set-2)))))
