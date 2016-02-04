@@ -36,15 +36,20 @@
 
 ;; exercise 2.60 - sets with duplicates
 
+;; same efficiency
 (defun duplicate-element-of-set? (x set)
   (element-of-set? x set))
 
+;; efficiency: O(1)
 (defun duplicate-adjoin-set (x set)
-  (adjoin-set x set))
+  (cons x set))
 
-;; here we deviate, we filter out multple elements from the
-;; set-1 so we don't have to check an element then already passed or failed
+;; here we deviate, we filter out multiple elements from the
+;; set-1 so we don't have to check an element which already passed or failed
 ;; the COND tests
+;; efficiency: the filter adds n more predicate tests where n is the length of the set-1
+;; while this has to be filtered anew on each recursion down the set-1 so we added n*n
+;; time, ergo O(n²)
 (defun duplicate-intersection-set (set-1 set-2)
   (let ((filtered-set-1
 	 (filter #'(lambda (x) (not (equal? x (car set-1))))
@@ -58,3 +63,8 @@
 	  (t
 	   (duplicate-intersection-set filtered-set-1
 				       set-2)))))
+
+;; efficiency: doesn't use any predicates and only conses two lists together
+;;             which is negligible or at most O(n)
+(defun duplicate-union-set (set-1 set-2)
+  (append set-1 set-2))
