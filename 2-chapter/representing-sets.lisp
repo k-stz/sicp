@@ -49,7 +49,7 @@
 ;; the COND tests
 ;; efficiency: the filter adds n more predicate tests where n is the length of the set-1
 ;; while this has to be filtered anew on each recursion down the set-1 so we added n*n
-;; time, ergo O(n²)
+;; time, ergo: O(n²)
 (defun duplicate-intersection-set (set-1 set-2)
   (let ((filtered-set-1
 	 (filter #'(lambda (x) (not (equal? x (car set-1))))
@@ -68,3 +68,20 @@
 ;;             which is negligible or at most O(n)
 (defun duplicate-union-set (set-1 set-2)
   (append set-1 set-2))
+
+
+;; sets as ordered lists?
+;; by doing that we will gain efficiency on some operations
+
+;; Careful, now only works on sets of numbers. We'd need to add a rule
+;; of how to order any symbols (lexicographically or a unique representation
+;; like the reference addresss).
+(defun ordered-element-of-set? (x set)
+  "Is x an element of the set? Operates on a set with an ordered representation."
+  (cond ((null set) nil)
+	((= x (car set)) t)
+	;; we can stop the recursion knowing that subsequent
+	;; elements will be all bigger than the one we're looking for
+	((< x (car set)) nil)
+	(t (ordered-element-of-set? x
+				    (rest set))))))
