@@ -84,4 +84,34 @@
 	;; elements will be all bigger than the one we're looking for
 	((< x (car set)) nil)
 	(t (ordered-element-of-set? x
-				    (rest set))))))
+				    (rest set)))))
+
+;; though on average we save n/2 steps, that is on best case the first item is
+;; the one we're looking for, in worst case the last. In landau-notation, order
+;; of growth, that is still O(n), but on average it is better than the unordered
+;; representation
+
+(defun ordered-intersection-set (set-1 set-2)
+  (if (or (null set-1) (null set-2))
+      '()
+    (let ((x1 (first set-1)) (x2 (first set-1)))
+      (cond ((= x1 x2)
+	     (cons x1
+		   (intersection-set (rest set-1)
+				     (rest set-2))))
+	    ((< x1 x2)
+	     ;; x1 can't be a member of set-2 cause x2 is the
+	     ;; smallest element in set-2, that's why we take the next
+	     ;; element in set-1:
+	     (intersection-set (cdr set-1) set-2))
+	    ((< x2 x1)
+	     ;; analog for x2 in set-2
+	     (intersection set-1 (cdr set-2)))))))
+
+;; efficiency of ORDERED-INTERSECTION-SET:
+;; we recurse down the two sets, and each of the brances either recurses down both or one
+;; of the lists. That means that the time is at worst the sum of the (+ (length set-1)
+;; (length set-2)) and at best, recursing down both, the half of it - a linear complexity:
+;; O(n)
+;; A tremendous improvement over the unordered operatation with O(n²) which scanned one set
+;; with each element of the other set, that is n*n-times
