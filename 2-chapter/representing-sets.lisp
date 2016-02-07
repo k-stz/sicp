@@ -115,3 +115,13 @@
 ;; O(n)
 ;; A tremendous improvement over the unordered operatation with O(n²) which scanned one set
 ;; with each element of the other set, that is n*n-times
+
+;; exercise 2.61 - implementing ADJOIN-SET on ordered sets, which requires on average
+;;                 half the steps as opposed to the unordered set operation
+
+(defun ordered-adjoin-set (x set)
+  "ADJOIN-SET, expects an ordered set as input, and only numerical elements."
+  (cond ((null set) nil)
+	((= x (car set)) nil)
+	((> x (car set)) (cons (car set) (ordered-adjoin-set x (rest set))))
+	((< x (car set)) (cons x set))))
