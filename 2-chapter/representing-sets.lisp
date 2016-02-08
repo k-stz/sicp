@@ -125,3 +125,22 @@
 	((= x (car set)) nil)
 	((> x (car set)) (cons (car set) (ordered-adjoin-set x (rest set))))
 	((< x (car set)) (cons x set))))
+
+
+;; two parallel finite lines represent the two sets you run across one and jump over to
+;; the other when it contains smaller elements - linear growth
+(defun ordered-union-set (set-1 set-2)
+  (let ((s1 (car set-1))
+	(s2 (car set-2)))
+    (cond ((null set-1) set-2)
+	  ((null set-2) set-1)
+	  ((= s1 s2)
+	   (cons s1
+		 (ordered-union-set (rest set-1)
+				    (rest set-2))))
+	  ((< s1 s2)
+	   (cons s1 (ordered-union-set (rest set-1)
+				       set-2)))
+	  ((> s1 s2)
+	   (cons s2 (ordered-union-set set-1
+				       (rest set-2)))))))
