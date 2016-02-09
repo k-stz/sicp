@@ -127,6 +127,8 @@
 	((< x (car set)) (cons x set))))
 
 
+
+;; exercise 2.62
 ;; two parallel finite lines represent the two sets you run across one and jump over to
 ;; the other when it contains smaller elements - linear growth
 (defun ordered-union-set (set-1 set-2)
@@ -144,3 +146,38 @@
 	  ((> s1 s2)
 	   (cons s2 (ordered-union-set set-1
 				       (rest set-2)))))))
+
+
+;;; Sets as binary trees
+;; we can get even more efficient by representing the set with a binary
+;; tree, where the left subtree only contains elements smaller than its
+;; node and the right subtree larger once.
+;; As we move down the tree, in search, we half the problem size (with
+;; balanced tree) - a distinguishing characteristic of logarithmic growth
+;; Θ(log n)
+
+;; implementation of binary trees:
+;; a tree shall be represented by a three element list, the first element
+;; is the node the 2nd the left subtree the 3rd the right one.
+;; a nil in any subtree field represents that there is none connected there.
+
+(defun make-tree (entry left right)
+  (list entry left right))
+
+(defun entry (tree)
+  (first tree))
+
+(defun left-branch (tree)
+  (second tree))
+
+(defun right-branch (tree)
+  (third tree))
+
+
+(defun tree-element-of-set? (x set)
+  (cond ((null set) nil)
+	((= x (entry set)) t)
+	((< x (entry set))
+	 (tree-element-of-set? x (left-branch set)))
+	((> x (entry set))
+	 (tree-element-of-set? x (right-branch set)))))
