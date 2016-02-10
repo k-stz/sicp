@@ -181,3 +181,18 @@
 	 (tree-element-of-set? x (left-branch set)))
 	((> x (entry set))
 	 (tree-element-of-set? x (right-branch set)))))
+
+;; again a Θ(log n) operation
+(defun tree-adjoin-set (x set)
+  (cond ((null set) (make-tree x '() '()))
+	((= x (entry set)) set)
+	((< x (entry set))
+	 ;; wow that's new, we recurse down the tree - cutting it down -
+	 ;; and growing it anew behind us!
+	 (make-tree (entry set)
+		    (tree-adjoin-set x (left-branch set))
+		    (right-branch set)))
+	((> x (entry set))
+	 (make-tree (entry set)
+		    (left-branch set)
+		    (tree-adjoin-set x (right-branch set))))))
