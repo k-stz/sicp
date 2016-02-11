@@ -196,3 +196,15 @@
 	 (make-tree (entry set)
 		    (left-branch set)
 		    (tree-adjoin-set x (right-branch set))))))
+
+
+;; the advantage of the binary tree rest on the property of it staying
+;; balanced. Imagine adding the elements 1 through 7 to an empty tree,
+;; and you get a tree with no left branches, it would be a straigt
+;; line of nodes visually. We can plainly see that we lost the Θ(log n)
+;; in there.
+;; We can solve this problem by divising an operationg that transforms
+;; an unbalanced tree back into a balanced one, or we can use a
+;; datastructure with the O(log n) property (for insertion and searching
+;; elements) such as:
+;; B-Trees and red-black trees.
