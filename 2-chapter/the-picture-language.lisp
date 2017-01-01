@@ -34,8 +34,8 @@
 
 
 ;; We consider a picture language that lets us describe a pictures that is enclosed and
-;; transformed by a parallelogram --the "frame"-- to fit it. Then we draw more intricate
-;; pictures by dividing the frame in sub-frames and draw further pictures within them.
+;; transformed as a parallelogram --the "frame". Then we draw more intricate pictures by
+;; dividing the frame in sub-frames and draw further pictures within them.
 
 
 
@@ -59,7 +59,7 @@
 ;; which masked a great deal of complexity by creating new line-drawing painters in the
 ;; form of SEGMENTS->PAINTER, and the core function, FRAME-COORD-MAP, which, after
 ;; implementing TRANSFORM-PAINTER with it, allowed us to easily implement the core feature
-;; of: our picture language, the drawing of nested pictures.
+;; of our picture language: the drawing of nested pictures.
 
 
 
