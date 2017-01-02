@@ -208,3 +208,54 @@
 ;; datastructure with the O(log n) property (for insertion and searching
 ;; elements) such as:
 ;; B-Trees and red-black trees.
+
+
+;; exercise 2.63
+;; The following two procedures trasnlate a tree to a list, the question is
+;; whether they bove produce the same list every time.
+
+(defvar *tree-2.16-a*
+  (make-tree 7
+	     (make-tree 3
+			(make-tree 1 nil nil)
+			(make-tree 5 nil nil))
+	     (make-tree 9
+			nil
+			(make-tree 11 nil nil))))
+
+(defvar *tree-2.16-b*
+  (make-tree 3
+	     (make-tree 1 nil nil)
+	     (make-tree 7
+			(make-tree 5 nil nil)
+			(make-tree 9
+				   nil
+				   (make-tree 11 nil nil)))))
+
+(defvar *tree-2.16-c*
+  (make-tree 5
+	     (make-tree 3
+			(make-tree 1 nil nil)
+			nil)
+	     (make-tree 9
+			(make-tree 7 nil nil)
+			(make-tree 11 nil nil))))
+
+(defun tree->list-1 (tree)
+  "Take a tree and return a list of its leaves."
+  (if (null tree)
+      '()
+      (append (tree->list-1 (left-branch tree))
+	      (cons (entry tree)
+		    (tree->list-1 (right-branch tree))))))
+
+(defun tree->list-2 (tree)
+  "Take a tree and return a list of its leaves."
+  (labels ((copy-to-list (tree result-list)
+	     (if (null tree)
+		 result-list
+		 (copy-to-list (left-branch tree)
+			       (cons (entry tree)
+				     (copy-to-list (right-branch tree)
+						   result-list))))))
+    (copy-to-list tree '())))
