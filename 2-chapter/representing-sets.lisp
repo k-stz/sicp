@@ -243,6 +243,7 @@
 
 (defun tree->list-1 (tree)
   "Take a tree and return a list of its leaves."
+  (print (entry tree))
   (if (null tree)
       '()
       (append (tree->list-1 (left-branch tree))
@@ -252,6 +253,7 @@
 (defun tree->list-2 (tree)
   "Take a tree and return a list of its leaves."
   (labels ((copy-to-list (tree result-list)
+	     (print (entry tree))
 	     (if (null tree)
 		 result-list
 		 (copy-to-list (left-branch tree)
@@ -259,3 +261,23 @@
 				     (copy-to-list (right-branch tree)
 						   result-list))))))
     (copy-to-list tree '())))
+
+;; `tree->list-1' traverse the tree recursively, down the left-branch, until it hits a
+;; dead end, only then it recurses down the deferred chain of right-branches. In effect
+;; it either prepends (cons (entry tree)) of the left-branch entries in front of it,
+;; or appends (cons (entry (left-branch tree))) in front of it.
+
+;; `tree->list-2', on the other hand, recurses down the right-branch first. As the final
+;; `copy-to-list' call is performed on the (right-branch tree). The recursion terminates
+;; on first hitting a nil node in a right-branch. Then the `result-list' will be a chain
+;; of the right-branch (entry-tree nodes). Prepended to this is finally a (right-branch
+;; tree) recursion which looks like this (cons (entry (right-branch tree)) result-list).
+;; Now we can see that this procedure works the other way around.
+
+;; Complexity:
+
+;; `tree->list-1' visits every node once calling APPEND on it
+;;  given SICP's definition of APPEND it is a O(log n) operation
+;;  therefore the total order of growth of this function is O(n log n)
+
+;; `tree->list-2' visits every node once calling a CONS on it => O(n)
