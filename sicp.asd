@@ -4,6 +4,7 @@
   :description "SICP - exercises and notes"
   :author "k-stz"
   :license "MIT"
+  :depends-on (:picture-language-package)
   :serial t
   :components
   ((:file "package")

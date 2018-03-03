@@ -274,4 +274,3 @@
 ;;         entries of the left-branch to it. APPEND will have to linearly traverse the sublist
 ;;         and each list depending on the depth in the tree will be a certain half size, making
 ;;         it a log n operation. Paired with the visiting of each node, we get O(n log n)
-
