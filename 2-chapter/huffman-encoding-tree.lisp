@@ -137,3 +137,24 @@
       '()
       (append (encode-symbol (car message) tree)
 	      (encode (cdr message) tree))))
+
+;; exercise 2.69
+
+(defparameter *pairs* '((a 8) (b 3) (c 1) (d 1) (e 1) (f 1) (g 1) (h 1)))
+
+;; use `make-code-tree' to implement `successive-merge'
+;; use `make-leaf-set' to transform a list of pairs into an ordered set of leaves
+
+(defun successive-merge (leaf-set)
+  (if (<= (length leaf-set) 1)
+      (car leaf-set) ; end case
+      (successive-merge
+       (adjoin-set ; sort after merge
+	;; now first two elements always have smallest weight
+	(make-code-tree (first leaf-set)
+			(second leaf-set))
+	(cddr leaf-set)))))
+
+(defun generate-huffman-tree (pairs)
+  (successive-merge (make-leaf-set pairs)))
+
