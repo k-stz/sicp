@@ -116,3 +116,24 @@
 (defparameter *simple-message* '(0 1 1 0 0 1 0 1 0 1 1 1 0))
 ;; (decode *simple-message* *sample-tree*) ==> (A D A B B C A)
 
+;; exercise 2.68
+
+(defun encode-symbol (symbol tree)
+  (labels ((rec (tree code)
+	     (let ((left-branch (left-branch tree))
+		   (right-branch (right-branch tree)))
+	       (if (leaf? tree)
+		   code
+		   (if (element-of-set? symbol (symbols left-branch))
+		       (rec left-branch (cons 0 code))
+		       (rec right-branch (cons 1 code)))))))
+    ;; testing if symbol is even part of huffman-tree
+    (if (element-of-set? symbol (symbols tree))
+	(reverse (rec tree '()))
+	(error "The symbol ~a is not in the tree!" symbol))))
+
+(defun encode (message tree)
+  (if (null message)
+      '()
+      (append (encode-symbol (car message) tree)
+	      (encode (cdr message) tree))))
