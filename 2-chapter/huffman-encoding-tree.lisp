@@ -71,3 +71,24 @@
 	right
 	(append (symbols left) (symbols right))
 	(+ (weight left) (weight right))))
+
+(defun choose-branch (bit branch)
+  (cond ((= bit 0) (left-branch branch))
+	((= bit 1) (right-branch branch))
+	(t 
+	 (error "bad bit -- CHOOSE-BRANCH ~a" bit))))
+
+(defun decode (bits tree)
+  (labels ((decode-1 (bits current-branch)
+	     (if (null bits)
+		 '()
+		 (let ((next-branch (choose-branch (car bits) current-branch)))
+		   (if (leaf? next-branch)
+		       (cons (symbol-leaf next-branch)
+			     (decode-1 (cdr bits) tree))
+		       (decode-1 (cdr bits) next-branch))))))
+    (decode-1 bits tree)))
+
+;; adjoin-set will put new elements in the list in order of their `weight'
+
+
