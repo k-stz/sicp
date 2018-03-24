@@ -39,3 +39,35 @@
 ;; ((<symbol> <frequency>) ...)
 (defparameter *initial-leaves* '((A 8) (B 3) (C 1) (D 1) (E 1) (F 1) (G 1) (H 1)))
 
+
+;; Functions operating the data structures
+
+(defun make-leaf (symbol weight)
+  (list 'leaf symbol weight))
+
+(defun leaf? (object)
+  (eq (car object) 'leaf))
+
+(defun symbol-leaf (x) (cadr x))
+
+(defun weight-leaf (x) (caddr x))
+
+(defun left-branch (tree) (car tree))
+
+(defun right-branch (tree) (cadr tree))
+
+(defun symbols (tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+
+(defun weight (tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+
+(defun make-code-tree (left right)
+  (list left
+	right
+	(append (symbols left) (symbols right))
+	(+ (weight left) (weight right))))
