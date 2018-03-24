@@ -177,3 +177,22 @@
 ;; the eight-symbols of the rock alphabet in *rock-symbols*?
 ;; To distinguish 8 different symbols we need (log 8 2) => 3 Bits.
 ;; The song has 36 Words so we'd need: (* 3 36) ==> 108 Bits!
+
+;; exercise 2.71
+;; Make a huffman of n symbols, with frequencies 1,2,3...2^n. How many bits are needed
+;; to represent the least and most frequent symbol?
+;; Answer: Drawing smaller example of n=5 or n=10 one can see that the huffman tree is
+;; highly unbalanced. That's because the generation algorithm mandates that we always
+;; join the least frequent one first, adding them into a node and continuing with their
+;; weights summed.
+;; For the first two we get 1 + 2 = 3, The next element is 4, and because 3 < 4, we
+;; have to join those to 7, but the next is 8 so we have to continue like this.
+;; We never only get to join the first two free leaves and from then on add to them
+;; the element because the weight of the other elements is always bigger then the
+;; sum of the two previous: 2^n > (2^(n-1) + 2^(n-2)).
+
+;; Thus the _least frequent symbol_ is at the end of the unbalanced tree with a depth
+;; of n-1, and thus needs n-1 Bits.
+
+;; While the most frequent symbol is, being the last one merged with the tree is the
+;; first left-branch of the root of the tree and thus needs only 1 bit.
