@@ -196,3 +196,12 @@
 
 ;; While the most frequent symbol is, being the last one merged with the tree is the
 ;; first left-branch of the root of the tree and thus needs only 1 bit.
+
+;; exercise 2.72
+;; What's the order of growth of the `encode' procedure?
+;; If we consider the case of exercise 2.71, a huffman tree given n symbols can
+;; have at most a depth of n-1.
+;; Since encode on each node has to loop over the symbol list to know which
+;; branch to take down to the symbol its looking for we need to ascend n-1
+;; steps and look up n-1 symbols at each step. So (n-1)^2, (n²-2n+1) steps or in Big-O
+;; notation: O(n²)
