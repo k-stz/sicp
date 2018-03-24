@@ -91,4 +91,28 @@
 
 ;; adjoin-set will put new elements in the list in order of their `weight'
 
+(defun adjoin-set (x set)
+  (cond ((null set) (list x))
+	((< (weight x) (weight (car set))) (cons x set))
+	(t (cons (car set)
+		 (adjoin-set x (cdr set))))))
+
+(defun make-leaf-set (pairs)
+  (if (null pairs)
+      '()
+      (let ((pair (car pairs)))
+	(adjoin-set (make-leaf (car pair)  ;symbol
+			       (cadr pair));frequency
+		    (make-leaf-set (cdr pairs))))))
+
+;; exercise 2.67
+(defparameter *sample-tree*
+  (make-code-tree (make-leaf 'a 4)
+		  (make-code-tree
+		   (make-leaf 'b 2)
+		   (make-code-tree (make-leaf 'd 1)
+				   (make-leaf 'c 1)))))
+
+(defparameter *simple-message* '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+;; (decode *simple-message* *sample-tree*) ==> (A D A B B C A)
 
