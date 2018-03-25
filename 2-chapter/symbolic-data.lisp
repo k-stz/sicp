@@ -262,11 +262,11 @@ if the two elements are not lists but are EQ elements."
 ;;                 expression of the form (** x 2) denote x²
 
 (defun exponentiation? (expression)
-  (eq (first expression) '**))
+  (eq (second expression) '**))
 
 (defun base (power-expression)
   "Return the base of a power-expression. base^exponent=power."
-  (second power-expression))
+  (first power-expression))
 
 (defun exponent (power-expression)
   "Return the exponent of a power-expression. base^exponent=power"

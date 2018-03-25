@@ -40,38 +40,60 @@
 
 ;; a) Why can't we use data driven-dispatch for the `deriv' of cases `number?' and `same-variable?'
 ;; Answer: Because the implementation of operator and operands uses list operations car and cdr,
-;;         to get the data. But number and a single variable are atoms.
+;;         to get the data. But number and a single variable are atoms. Also we use the objects
+;;         as keys to index the operator table. Now we can't dispatch on any variable name or
+;;         a particular number.
 
 ;; b) deriv table implementation and adding rules for sums and product
 
 (defparameter *op-table*
-  '((+ (deriv deriv-sum))
-    (* (deriv deriv-product))))
+  '((deriv (+ deriv-sum))))
 
 (defmacro get-entry (op type)
-  `(assoc ,type (get-type-table ,op)))
+  `(assoc ,type (get-types-table ,op)))
+(defmacro get-types-table (op)
+  `(rest (assoc ,op *op-table*)))
 
-(defun put-entry (op type item)
-  (macrolet ((get-type-table (op)
-	       `(rest (assoc ,op *op-table*))))
-    (let ((new-entry (list type item)))
-      (cond ((null (get-type-table op))
-	     ;; new operation entry
-	     (setf
-	      *op-table*
-	      (cons (list op new-entry) *op-table*)))
-	    ((null (get-entry op type))
-	     ;; new type entry under operation
-	     (push
-	      new-entry (get-type-table op)))
-	    (t  
-	     (warn "overwriting op:~a type:~a entry" op type)
-	     (setf (second (get-entry op type))
-		   item)))
-      *op-table*)))
+(defun get-op (op type)
+  (second (get-entry op type)))
 
-;; (defun deriv (exp var)
-;;   (cond ((sicp::number? exp) 0)
-;; 	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
-;; 	(t
-;; 	 )))
+(defun put-op (op type item)
+  (let ((new-entry (list type item)))
+    (cond ((null (get-types-table op))
+	   ;; new operation entry
+	   (setf
+	    *op-table*
+	    (cons (list op new-entry) *op-table*)))
+	  ((null (get-entry op type))
+	   ;; new type entry under operation
+	   (push
+	    new-entry (get-types-table op)))
+	  (t  
+	   (warn "overwriting op:~a type:~a entry" op type)
+	   (setf (second (get-entry op type))
+		 item)))
+    *op-table*))
+
+;; We will use sicp::deriv expects infix notation (arg-1 op arg-2)
+;; the operations are slightly altered
+(defun operator (exp) (second exp))
+
+(defun operands (exp) (list (car exp) (caddr exp)))
+
+;; NEXT-TODO continue with the selectors, and how to implement the data-driven
+;; approach with the scheme (install-package-...) 
+
+(defun addend (exp) (car exp))
+(defun augend (exp) (cadr exp))
+
+(defun deriv-sum (exp var)
+  (sicp::make-sum (print (deriv (sicp::addend exp) var))
+		  (print (deriv (sicp::augend exp) var))))
+
+(defun deriv (exp var)
+  (cond ((sicp::number? exp) 0)
+	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
+	(t
+	 (funcall (get-op 'deriv (operator exp))
+		  (operands exp)
+		  var))))
