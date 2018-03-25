@@ -166,9 +166,9 @@
 ;; 	  Wah yip yip yip yip yip yip yip yip yip
 ;; 	  sha boom)
 ;; 	(generate-huffman-tree *rock-symbols*))
-==> (1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 0 0 1 1 1 1
-   0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1
-   0 1 1 0 1 1)
+;; ==> (1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 0 0 1 1 1 1
+;;    0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1
+;;    0 1 1 0 1 1)
 ;; Bits needed (length *) ==> 84
 ;; What would be the smallest number of bits needed if we used fixed-length code to encode
 ;; the eight-symbols of the rock alphabet in *rock-symbols*?
@@ -202,3 +202,5 @@
 ;; branch to take down to the symbol its looking for we need to ascend n-1
 ;; steps and look up n-1 symbols at each step. So (n-1)^2, (n²-2n+1) steps or in Big-O
 ;; notation: O(n²)
+
+

@@ -1,4 +1,4 @@
-(in-package :sicp)
+(in-package :2-4-sicp)
 
 ;; sometimes we want to use more than one underlying representation for particular
 ;; data. For example for Complex numbers a rectangle and a polar representation.
@@ -35,3 +35,43 @@
 ;; Now using a (apply-generic 'operation-name typed-argument) will lookup the
 ;; method to be called, and dispatch them.
 ;; (2) We create packages.
+
+;; exercise 2.73 - derivative example
+
+;; a) Why can't we use data driven-dispatch for the `deriv' of cases `number?' and `same-variable?'
+;; Answer: Because the implementation of operator and operands uses list operations car and cdr,
+;;         to get the data. But number and a single variable are atoms.
+
+;; b) deriv table implementation and adding rules for sums and product
+
+(defparameter *op-table*
+  '((+ (deriv deriv-sum))
+    (* (deriv deriv-product))))
+
+(defmacro get-entry (op type)
+  `(assoc ,type (get-type-table ,op)))
+
+(defun put-entry (op type item)
+  (macrolet ((get-type-table (op)
+	       `(rest (assoc ,op *op-table*))))
+    (let ((new-entry (list type item)))
+      (cond ((null (get-type-table op))
+	     ;; new operation entry
+	     (setf
+	      *op-table*
+	      (cons (list op new-entry) *op-table*)))
+	    ((null (get-entry op type))
+	     ;; new type entry under operation
+	     (push
+	      new-entry (get-type-table op)))
+	    (t  
+	     (warn "overwriting op:~a type:~a entry" op type)
+	     (setf (second (get-entry op type))
+		   item)))
+      *op-table*)))
+
+;; (defun deriv (exp var)
+;;   (cond ((sicp::number? exp) 0)
+;; 	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
+;; 	(t
+;; 	 )))
