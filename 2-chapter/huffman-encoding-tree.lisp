@@ -11,9 +11,9 @@
 ;; have a unique symbol at hand. The advantage of variable length code is that it is
 ;; significantly more space efficient. (smaller storage size, faster transfer etc.)
 
-;; How to construe variable size code? The best approach is to give symbols that are
-;; used most frequently the smallest size. Just like in Morse-Code, the letter 'E' is
-;; just a single dot.
+;; How to construe variable size code? The best approach is to give symbols that are used
+;; most frequently the smallest size. Like with Morse-Code, the letter 'E' is just a
+;; single dot.
 
 ;; Huffmann encoding tree,
 ;; At its nodes it holds a particular symbol and its relative frequency (tree height =
@@ -26,15 +26,12 @@
 ;; also generates prefix-code!
 
 ;; Generating Huffmann Trees,
-;; given this marvelous trick Davin Huffman braught to computer science, how can we generate trees
+;; given this marvelous trick David Huffman braught to computer science, how can we generate trees
 ;; for any given "alphabet" of sybols?
 
-;; David Huffman provided an algorithm and also showed that it also generates optimal
-;; variable length prefix-code, with regards to length and relative frequency of the
-;; symbols of a given alphabet
-
-
-;; TODO implement huffman tree generating algorithm given
+;; David Huffman provided an algorithm and also showed that it generates optimal variable
+;; length prefix-code in regards to length and relative frequency of the symbols of a
+;; given alphabet
 
 ;; ((<symbol> <frequency>) ...)
 (defparameter *initial-leaves* '((A 8) (B 3) (C 1) (D 1) (E 1) (F 1) (G 1) (H 1)))
