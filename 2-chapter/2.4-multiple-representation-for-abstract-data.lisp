@@ -55,7 +55,10 @@
   `(rest (assoc ,op *op-table*)))
 
 (defun get-op (op type)
-  (second (get-entry op type)))
+  (let ((entry (second (get-entry op type))))
+    (if entry
+	entry
+	(error "No op: ~a of type: ~a in *op-table*!" op type))))
 
 (defun put-op (op type item)
   (let ((new-entry (list type item)))
@@ -95,20 +98,7 @@
 	(error "No method for these types -- APPLY-GENERIC ~a"
 	       (list op type-tags)))))
 
-;; We will use sicp::deriv expects infix notation (arg-1 op arg-2)
-;; the operations are slightly altered
-(defun operator (exp) (second exp))
-
-(defun operands (exp) (list (car exp) (caddr exp)))
-
-(defun deriv (exp var)
-  (cond ((sicp::number? exp) 0)
-	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
-	(t
-	 (funcall (get-op 'deriv (operator exp))
-		  (operands exp)
-		  var))))
-
+;; this ultimately fills *op-table* with the deriv-sum, deriv-product function
 (defun install-deriv-package ()
   (labels (;; "internal procedures"
 	   ;; addition
@@ -116,8 +106,8 @@
 	   (addend (exp) (car exp))
 	   (augend (exp) (cadr exp))
 	   (make-sum (a1 a2)
-	     (cond ((sicp::=number? a1 0) a1)
-		   ((sicp::=number? a2 0) a2)
+	     (cond ((sicp::=number? a1 0) a2)
+		   ((sicp::=number? a2 0) a1)
 		   ((and (numberp a1)
 			 (numberp a2))
 		    (+ a1 a2))
@@ -143,8 +133,54 @@
 	      (make-product (multiplier exp)
 			    (deriv (multiplicand exp) var))
 	      (make-product (deriv (multiplier exp) var)
-			    (multiplicand exp)))))
+			    (multiplicand exp))))
+	   ;;c) adding exponentiation
+	   (tag** (x) (attach-tag '** x))
+	   (base (exp) (car exp))
+	   (exponent (exp) (cadr exp))
+	   (make-exponentiation (base exponent)
+	     (cond ((sicp::=number? exponent 0) 1)
+		   ((sicp::=number? exponent 1) base)
+		   ((and (sicp::number? base) (sicp::number? exponent))
+		    (expt base exponent))
+		   (t ;; else
+		    (tag** (list base exponent)))))
+	   (deriv-expt (exp var)
+	     (make-product
+	      (make-exponentiation (make-product (exponent exp) (base exp))
+				     (make-sum (exponent exp) -1))
+	      (deriv (base exp) var))))
     ;; interface to the rest of the system
     (put-op 'deriv '+ #'deriv-sum)
-    (put-op 'deriv '* #'deriv-product))
+    (put-op 'deriv '* #'deriv-product)
+    (put-op 'deriv '** #'deriv-expt))
   'done)
+
+(defun operator (exp) (car exp))
+
+(defun operands (exp) (cdr exp))
+
+;; after calling (install-deriv-package) the following function works!
+;; (deriv '(* (** x 44) 2) 'x) ==> (* (** (* 44 X) 43) 2)
+(defun deriv (exp var)
+  (cond ((sicp::number? exp) 0)
+	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
+	(t
+	 (funcall (get-op 'deriv (operator exp))
+	 	  (operands exp)
+	 	  var))))
+
+;; d) What would we have to change if instead of using the operator of an expression as
+;; the index, we'd use the opposite (get-op (operator exp) 'deriv)?
+
+;; Answer: Since we just switched the operation and the type when we index what operation to
+;; use in the *op-table*, all we have to do is also put the entries in that form in the package:
+;; (put-op '+ 'deriv #'deriv-sum) ..
+
+;; To explain what is happening: Previously we called the 'derivative' function of the
+;; type '+ Now we call the '+ function of the type 'derivative'. It's sematics, how we
+;; view the problem, but I'd argue the former seems more intuitive. After all do we want
+;; to say that the derivative of a sum is just a generic '+ procedure?
+;; Or that the derivative of a sum is a generic derivative procedure, that dispatches the
+;; proper specialized derivative procedure for sums?
+
