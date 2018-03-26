@@ -74,21 +74,32 @@
 		 item)))
     *op-table*))
 
+(defun attach-tag (type datum)
+  (cons type datum))
+
+(defun type-tag (datum)
+  (if (consp datum)
+      (car datum)
+      (error "~a : Bad tagged datum -- TYPE-TAG " datum)))
+
+(defun contents (datum)
+  (if (consp datum)
+      (cdr datum)
+      (error "~a : Bad tagged datum -- CONTENTS " datum)))
+
+(defun apply-generic (op &rest args)
+  (let* ((type-tags (mapcar #'type-tag args))
+	 (proc (get-op op type-tags)))
+    (if proc
+	(apply proc (mapcar #'contents args))
+	(error "No method for these types -- APPLY-GENERIC ~a"
+	       (list op type-tags)))))
+
 ;; We will use sicp::deriv expects infix notation (arg-1 op arg-2)
 ;; the operations are slightly altered
 (defun operator (exp) (second exp))
 
 (defun operands (exp) (list (car exp) (caddr exp)))
-
-;; NEXT-TODO continue with the selectors, and how to implement the data-driven
-;; approach with the scheme (install-package-...) 
-
-(defun addend (exp) (car exp))
-(defun augend (exp) (cadr exp))
-
-(defun deriv-sum (exp var)
-  (sicp::make-sum (print (deriv (sicp::addend exp) var))
-		  (print (deriv (sicp::augend exp) var))))
 
 (defun deriv (exp var)
   (cond ((sicp::number? exp) 0)
@@ -97,3 +108,43 @@
 	 (funcall (get-op 'deriv (operator exp))
 		  (operands exp)
 		  var))))
+
+(defun install-deriv-package ()
+  (labels (;; "internal procedures"
+	   ;; addition
+      	   (tag+ (x) (attach-tag '+ x))
+	   (addend (exp) (car exp))
+	   (augend (exp) (cadr exp))
+	   (make-sum (a1 a2)
+	     (cond ((sicp::=number? a1 0) a1)
+		   ((sicp::=number? a2 0) a2)
+		   ((and (numberp a1)
+			 (numberp a2))
+		    (+ a1 a2))
+		   (t
+		    (tag+ (list a1 a2)))))
+	   (deriv-sum (exp var)
+	     (make-sum (deriv (addend exp) var)
+		       (deriv (augend exp) var)))
+	   ;; multiplication
+	   (tag* (x) (attach-tag '* x))
+	   (multiplier (exp) (car exp))
+	   (multiplicand (exp) (cadr exp))
+	   (make-product (m1 m2)
+	     (cond ((or (sicp::=number? m1 0)
+			(sicp::=number? m2 0)) 0)
+		   ((sicp::=number? m1 1) m2)
+		   ((sicp::=number? m2 1) m1)
+		   ((and (sicp::number? m1) (sicp::number? m2)) (* m1 m2))
+		   (t ;;else
+		    (tag* (list m1 m2)))))
+	   (deriv-product (exp var)
+	     (make-sum
+	      (make-product (multiplier exp)
+			    (deriv (multiplicand exp) var))
+	      (make-product (deriv (multiplier exp) var)
+			    (multiplicand exp)))))
+    ;; interface to the rest of the system
+    (put-op 'deriv '+ #'deriv-sum)
+    (put-op 'deriv '* #'deriv-product))
+  'done)
