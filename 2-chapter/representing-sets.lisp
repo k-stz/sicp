@@ -211,8 +211,8 @@
 
 
 ;; exercise 2.63
-;; The following two procedures trasnlate a tree to a list, the question is
-;; whether they bove produce the same list every time.
+;; The following two procedures translate a tree to a list, the question is
+;; whether they both produce the same list every time.
 
 (defvar *tree-2.16-a*
   (make-tree 7
@@ -242,8 +242,7 @@
 			(make-tree 11 nil nil))))
 
 (defun tree->list-1 (tree)
-  "Take a tree and return a list of its leaves."
-  (print (entry tree))
+  "Take a tree and return a list of its entries (each node has an entry)."
   (if (null tree)
       '()
       (append (tree->list-1 (left-branch tree))
@@ -251,7 +250,7 @@
 		    (tree->list-1 (right-branch tree))))))
 
 (defun tree->list-2 (tree)
-  "Take a tree and return a list of its leaves."
+  "Take a tree and return a list of its entries (each node has an entry)."
   (labels ((copy-to-list (tree result-list)
 	     (print (entry tree))
 	     (if (null tree)
@@ -262,6 +261,7 @@
 						   result-list))))))
     (copy-to-list tree '())))
 
+<<<<<<< HEAD
 ;; `tree->list-1' traverse the tree recursively, down the left-branch, until it hits a
 ;; dead end, only then it recurses down the deferred chain of right-branches. In effect
 ;; it either prepends (cons (entry tree)) of the left-branch entries in front of it,
@@ -281,3 +281,19 @@
 ;;  therefore the total order of growth of this function is O(n log n)
 
 ;; `tree->list-2' visits every node once calling a CONS on it => O(n)
+=======
+;; a) For the procedures tree->list-1 and tree->list-2 what is the result of when
+;; applied on the trees from exercise 2.16, and if not how do they differ?
+
+;; Answer: Both functions have the same output for all the tree: *tree-2.16-a*, *tree-2.16-b* and
+;; *tree-2.16-c*
+
+;; b) Do they have the same order of growth? If not which one grows more slowly?
+
+;; Answer: tree->list-2 visits each node exactly once, recursively while calling CONS on it
+;;         giving it the complexity O(n)
+;;         tree->list-1 while returning from its recursion to any root node, always APPENDs the
+;;         entries of the left-branch to it. APPEND will have to linearly traverse the sublist
+;;         and each list depending on the depth in the tree will be a certain half size, making
+;;         it a log n operation. Paired with the visiting of each node, we get O(n log n)
+>>>>>>> f250d1204c7604a2927eefa17a35de93396df102
