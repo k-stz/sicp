@@ -166,6 +166,7 @@
   (cond ((sicp::number? exp) 0)
 	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
 	(t
+	 ;; (apply-generic 'deriv)
 	 (funcall (get-op 'deriv (operator exp))
 	 	  (operands exp)
 	 	  var))))
@@ -184,3 +185,40 @@
 ;; Or that the derivative of a sum is a generic derivative procedure, that dispatches the
 ;; proper specialized derivative procedure for sums?
 
+
+;; exercise 2.74
+
+;; Answer: The divisions need to implement a package with public interface ("interface to
+;; the rest of the system") for a selector for a file, employee (with name-key as
+;; argument) and, arguably, others that operate on the employee data such as get-salary etc.
+
+;; The records datastrucutre of a division must have a type attached to it (for example
+;; the division name).  The generic function that fetches the record then dispatches on
+;; its type (which was tagged the record by the division) the approriate selector that
+;; the devisions have installed in a central *table*. Inside the body of a
+;; `install-<division>-package' a call like: (put 'generic-get-record 'division-name
+;; division-get-record) is to be found.
+
+;; `get-record' would then not simply select the record but translate it to a common
+;; representation that can be shared among all division. Arguably the translation to a
+;; common representation might not be wanted, that's when we'd like to have public
+;; interface selectors for the other elements like salaray etc.
+
+;; subsequent generic procedure selectors might then either not be necessary, because the
+;; record can be dealt with a "common representation" selectors (that operate on the
+;; translated record representation, generated from the division's `get-record' method), but
+;; internally selectors for the specific division should still be needed to build the
+;; `get-record' form.
+
+;; a)
+;; (defun get-record (division file employee-name)
+;;   (funcall (get-op 'get-record division) file employee-name))
+
+;; b) Selector like get-record, and a way to iterate over all entries. For example all
+;; the records could be organized in a list, and CDRed through.
+
+;; c) Like in b), CDR through all the records in a file.
+
+;; d) A new division must implement its own install-division-package, provide a get-record
+;; selector etc. just like the other divions. So we see an advantage the exisiting, divisions
+;; don't need to be changed in this regard
