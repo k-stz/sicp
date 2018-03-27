@@ -228,3 +228,18 @@
 ;; d) A new division must implement its own install-division-package, provide a get-record
 ;; selector etc. just like the other divisions. So we see an advantage the existing, divisions
 ;; don't need to be changed in this regard
+
+
+;; exericise 2.75
+
+;; implementation of a message-passing style constructor, that constructs a closure that
+;; we'll pass operations - the messages - and it will deal with it by calling the
+;; coresponding "method" that it knows.
+(defun make-from-mag-ang (magnitude angle)
+  (flet ((dispatch (op)
+	   (cond ((eq op 'real-part) (* magnitude (cos angle)))
+		 ((eq op 'imag-part) (* magnitude (sin angle)))
+		 ((eq op 'magnitude) magnitude)
+		 ((eq op 'angle) angle)
+		 (t (error "Unknown op: ~a -- MAKE_FROM_REAL_IMG" op)))))
+    #'dispatch))
