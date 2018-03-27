@@ -243,3 +243,53 @@
 		 ((eq op 'angle) angle)
 		 (t (error "Unknown op: ~a -- MAKE_FROM_REAL_IMG" op)))))
     #'dispatch))
+
+;; exercise 2.76
+
+;; Consider adding new operations or types to a system. How do /generic procedures/,
+;; /data directed style/ and /message-passing-style/ fare regarding those problems?
+
+;; Generic procedures,
+;; adding a new type: need to find all the generic procedures and add a new condition
+;; entry to deal with the new type
+;;
+;; adding new operation: The implementation must implement a condition branch and
+;; corresponding code for each type. The implementor must have knowledge about
+;; each type in the system, not least to test the implementation
+
+;; data-directed style,
+;; adding new type: Either a new package, or within an existing package new selectors,
+;; setters and constructors, and type tag must be added, depenging on how existing types
+;; have been organized. As in the deriv example, adding the exponetiation type was
+;; possible within the same package, as the data itself was similar in its contents (two
+;; arguments).  Finally the public interface must add the constructor and possibly
+;; selectors (function to be dispatched upon by a generic function call) .to a global
+;; table with index/operation indexing
+;;
+;; adding new operation:
+;; have to implementing it in each package installtion and then putting it into the table of
+;; operations for each type
+
+;; message-passing style,
+;; adding new type: must implement a new constructor that returns a dispatch procedure (in
+;; common lisp closure). In the body of the dispatch impelent the selectors,getters,etc.
+;;
+;; adding new operation: we need to add the operation to all dispatcher constructors
+;; so we have a comparable effort as with adding a new type to generic procedures
+
+;; Which organization is most appropriate for a system in which new types must be often
+;; added?
+;;
+;; Answer: The message-passing style makes it easy and clean in their own constructed
+;; dispatcher with no external table to keep book off, its all in the intelligent data - the
+;; dispatcher closure.
+;; There is no difference to the data-driven approach, as the latter just requires us to
+;; install a new package. The difference is the dispatching: either from a global table or
+;; like in message-passing from the "table" (cloure) of each object. That makes no
+;; difference, for the calling code. Maybe data-driven is more cumbersome because of the
+;; external operations table, and the tagging of data.
+;;
+;; Which organization is best for adding new operations?
+;; Answer: the generic procedure can be added additively, as adding a new one doesn't require changing
+;; any other generic procedures. But overall the modularization advantage of message-passing and the
+;; data-driven approach should probably outweigh generic procedures.
