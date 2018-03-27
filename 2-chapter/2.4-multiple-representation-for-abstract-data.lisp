@@ -4,36 +4,42 @@
 ;; data. For example for Complex numbers a rectangle and a polar representation.
 ;; Or when writing a huge system with many programmers it might not be possible
 ;; to agree early on what representation to use, or even what kind of data to
-;; combine or keep seperate. That's why different parts of a program have to
-;; deal with different representation.
+;; combine or keep separate. That's why different parts of a program have to
+;; deal with different representations.
 
-;; This can be implemented using type tags and generic operation
-;; (think data types and clos generic functions?)
+;; This can be implemented using type tags and generic operations
+;; (think data types and clos generic functions)
 
 ;; /generic procedures/ can operate on data that can be represented in more than
-;; one way. Think like in the huffmann tree example where `symbols' could operate
-;; on leafs and partial trees/branches, where it would check the type using
-;; the "leaf" element as a "type tag", dispatch the appropirate code.
+;; one way. As in the Huffman tree example where `symbols' could operate
+;; on leafs and partial trees/branches. Where it would check the type using
+;; the "leaf" element as a "type tag" to dispatch the appropriate code.
 
 ;; /dispatching on type/, is what we speak of when we first check the type of
 ;; an object and then decide what procedure to call on it. So just like with
-;; CLOS and generic functions where depending on the argument types a particular
+;; CLOS and generic functions, where depending on the argument types a particular
 ;; defined method is called, or rather dispatched!
 
+
 ;; What are weaknesses of the generic procedure interface?
+
 ;; (1) It is not /additive/ - whenever we want to add a new data representation
 ;; we, the implementors, must change all the generic procedures that use
 ;; the data, and we need to know all the generic functions in a large-scale
 ;; system in order to modify all the generic functions involved. A source
 ;; of inconvenience and error.
-;; (2) The people interface with the individual representation must also look out not to
-;; run into naming conflicts by using our code.
+
+;; (2) The people who interface with the individual representation must also look out not
+;; to run into naming conflicts by using our code.
 
 ;; Solution to the the two problems:
-;; (1) the dispatch mechanism gets removed from the generic procedure into a table
-;; with a operation argument-type(s) as index and appropriate method as entry.
-;; Now using a (apply-generic 'operation-name typed-argument) will lookup the
-;; method to be called, and dispatch them.
+
+;; (1) the dispatch mechanism gets moved from the generic procedure into a table where the
+;; operation + argument-type(s) is the index and appropriate method as entry.  (see
+;; `put-op'), or rather how `*op-table*' looks like after `install-deriv-package' has been
+;; called to fill its entries.  Now using a (apply-generic 'operation-name typed-argument)
+;; will lookup the method to be called, and dispatch them.
+
 ;; (2) We create packages.
 
 ;; exercise 2.73 - derivative example
@@ -179,7 +185,7 @@
 ;; (put-op '+ 'deriv #'deriv-sum) ..
 
 ;; To explain what is happening: Previously we called the 'derivative' function of the
-;; type '+ Now we call the '+ function of the type 'derivative'. It's sematics, how we
+;; type '+ Now we call the '+ function of the type 'derivative'. It's semantics, how we
 ;; view the problem, but I'd argue the former seems more intuitive. After all do we want
 ;; to say that the derivative of a sum is just a generic '+ procedure?
 ;; Or that the derivative of a sum is a generic derivative procedure, that dispatches the
@@ -192,17 +198,17 @@
 ;; the rest of the system") for a selector for a file, employee (with name-key as
 ;; argument) and, arguably, others that operate on the employee data such as get-salary etc.
 
-;; The records datastrucutre of a division must have a type attached to it (for example
+;; The records data structure of a division must have a type attached to it (for example
 ;; the division name).  The generic function that fetches the record then dispatches on
-;; its type (which was tagged the record by the division) the approriate selector that
-;; the devisions have installed in a central *table*. Inside the body of a
+;; its type (which was tagged the record by the division) the appropriate selector that
+;; the divisions have installed in a central *table*. Inside the body of a
 ;; `install-<division>-package' a call like: (put 'generic-get-record 'division-name
 ;; division-get-record) is to be found.
 
 ;; `get-record' would then not simply select the record but translate it to a common
 ;; representation that can be shared among all division. Arguably the translation to a
 ;; common representation might not be wanted, that's when we'd like to have public
-;; interface selectors for the other elements like salaray etc.
+;; interface selectors for the other elements like salary etc.
 
 ;; subsequent generic procedure selectors might then either not be necessary, because the
 ;; record can be dealt with a "common representation" selectors (that operate on the
@@ -220,5 +226,5 @@
 ;; c) Like in b), CDR through all the records in a file.
 
 ;; d) A new division must implement its own install-division-package, provide a get-record
-;; selector etc. just like the other divions. So we see an advantage the exisiting, divisions
+;; selector etc. just like the other divisions. So we see an advantage the existing, divisions
 ;; don't need to be changed in this regard
