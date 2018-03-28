@@ -19,4 +19,5 @@
 			 (:file "symbolic-data")
 			 (:file "representing-sets")
 			 (:file "huffman-encoding-tree")
-			 (:file "2.4-multiple-representation-for-abstract-data")))))
+			 (:file "2.4-multiple-representation-for-abstract-data")
+			 (:file "2.5-systems-with-generic-operations")))))

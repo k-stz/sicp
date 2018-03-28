@@ -278,7 +278,7 @@ if the two elements are not lists but are EQ elements."
 	((and (number? base) (number? exponent))
 	 (expt base exponent))
 	(t ;; else
-	 `(** ,base ,exponent))))
+	 `(,base ** ,exponent))))
 
 
 ;; exercise 2.58 - infix algebraic expression.
