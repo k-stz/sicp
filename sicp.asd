@@ -4,7 +4,7 @@
   :description "SICP - exercises and notes"
   :author "k-stz"
   :license "MIT"
-  :depends-on (:picture-language-package)
+  ;; :depends-on (:picture-language-package)
   :serial t
   :components
   ((:file "package")
@@ -15,7 +15,7 @@
 	    :components ((:file "line-segments")
 			 (:file "closure")
 			 (:file "sequences-as-conventional-interfaces")
-			 (:file "the-picture-language")
+			 ;(:file "the-picture-language")
 			 (:file "symbolic-data")
 			 (:file "representing-sets")
 			 (:file "huffman-encoding-tree")

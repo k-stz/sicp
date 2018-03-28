@@ -52,8 +52,11 @@
 
 ;; b) deriv table implementation and adding rules for sums and product
 
+;; Filled with (install-package* ..) forms
 (defparameter *op-table*
-  '((deriv (+ deriv-sum))))
+  ;; '((deriv (+ deriv-sum)))
+  nil
+  )
 
 (defmacro get-entry (op type)
   `(assoc ,type (get-types-table ,op)))
@@ -103,6 +106,7 @@
 	(apply proc (mapcar #'contents args))
 	(error "No method for these types -- APPLY-GENERIC ~a"
 	       (list op type-tags)))))
+
 
 ;; this ultimately fills *op-table* with the deriv-sum, deriv-product function
 (defun install-deriv-package ()
@@ -168,6 +172,7 @@
 
 ;; after calling (install-deriv-package) the following function works!
 ;; (deriv '(* (** x 44) 2) 'x) ==> (* (** (* 44 X) 43) 2)
+(install-deriv-package)
 (defun deriv (exp var)
   (cond ((sicp::number? exp) 0)
 	((sicp::variable? exp) (if (sicp::same-variable? exp var) 1 0))
