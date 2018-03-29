@@ -28,19 +28,21 @@
 
 (defun install-cl-number-package ()
   (labels ((tag (x)
-	     (attach-tag 'cl-number x)))    
-    (put-op 'add '(cl-number cl-number)
+	     (attach-tag :cl-number x)))    
+    (put-op 'add '(:cl-number :cl-number)
 	    (lambda (x y) (tag (+ x y))))
-    (put-op 'sub '(cl-number cl-number)
+    (put-op 'sub '(:cl-number :cl-number)
 	    (lambda (x y) (tag (- x y))))
-    (put-op 'mul '(cl-number cl-number)
+    (put-op 'mul '(:cl-number :cl-number)
 	    (lambda (x y) (tag (* x y))))
-    (put-op 'div '(cl-number cl-number)
+    (put-op 'div '(:cl-number :cl-number)
 	    (lambda (x y) (tag (/ x y))))
-    (put-op 'make 'cl-number
+    (put-op 'make :cl-number
 	    (lambda (x) (tag x))))
   'done)
 
+(defun make-cl-number (n)
+  (funcall (get-op 'make :cl-number) n))
 
 
 ;; rational package
@@ -98,13 +100,13 @@
 	     (cons (* r (cos a)) (* r (sin a))))
 	   ;; interface to the rest of the system
 	   (tag (x) (attach-tag 'rectangular x)))
-    (put 'real-part '(rectangular) #'real-part)
-    (put 'imag-part '(rectangular) #'imag-part)
-    (put 'magnitude '(rectangular) #'magnitude)
-    (put 'angle '(rectangular) #'angle)
-    (put 'make-from-real-imag 'rectangular 
+    (put-op 'real-part '(rectangular) #'real-part)
+    (put-op 'imag-part '(rectangular) #'imag-part)
+    (put-op 'magnitude '(rectangular) #'magnitude)
+    (put-op 'angle '(rectangular) #'angle)
+    (put-op 'make-from-real-imag 'rectangular 
 	 (lambda (x y) (tag (make-from-real-imag x y))))
-    (put 'make-from-mag-ang 'rectangular 
+    (put-op 'make-from-mag-ang 'rectangular 
 	 (lambda (r a) (tag (make-from-mag-ang r a)))))
   'done)
 ;; complex - polar
@@ -127,9 +129,9 @@
     (put-op 'imag-part '(polar) #'imag-part)
     (put-op 'magnitude '(polar) #'magnitude)
     (put-op 'angle '(polar) #'angle)
-    (put 'make-from-real-imag 'polar
+    (put-op 'make-from-real-imag 'polar
 	 (lambda (x y) (tag (make-from-real-imag x y))))
-    (put 'make-from-mag-ang 'polar 
+    (put-op 'make-from-mag-ang 'polar 
 	 (lambda (r a) (tag (make-from-mag-ang r a)))))
   'done)
 
@@ -161,18 +163,23 @@
 			    (- (angle z1) (angle z2))))
        ;; interface to rest of the system
        (tag (z) (attach-tag 'complex z)))
-    (put 'add '(complex complex)
+    (put-op 'add '(complex complex)
 	 (lambda (z1 z2) (tag (add-complex z1 z2))))
-    (put 'sub '(complex complex)
+    (put-op 'sub '(complex complex)
 	 (lambda (z1 z2) (tag (sub-complex z1 z2))))
-    (put 'mul '(complex complex)
+    (put-op 'mul '(complex complex)
 	 (lambda (z1 z2) (tag (mul-complex z1 z2))))
-    (put 'div '(complex complex)
+    (put-op 'div '(complex complex)
 	 (lambda (z1 z2) (tag (div-complex z1 z2))))
-    (put 'make-from-real-imag 'complex
+    (put-op 'make-from-real-imag 'complex
 	 (lambda (x y) (tag (make-from-real-imag x y))))
-    (put 'make-from-mag-ang 'complex
-	 (lambda (r a) (tag (make-from-mag-ang r a)))))
+    (put-op 'make-from-mag-ang 'complex
+	 (lambda (r a) (tag (make-from-mag-ang r a))))
+    ;; from exercise 2.77
+    (put-op 'real-part '(complex) #'real-part)
+    (put-op 'imag-part '(complex) #'imag-part)
+    (put-op 'magnitude '(complex) #'magnitude)
+    (put-op 'angle '(complex) #'angle))
   'done)
 
 (defun make-complex-from-real-imag (x y)
@@ -188,4 +195,11 @@
   (install-complex-package))
 
 
-;; NEXT TODO add the apply-generic from the exercises, and onther one somewhere in chapter 2.5
+;; exercise 2.78
+;; Using Common Lisp native numbers and their type checks with numberp (sicp::number?),
+;; without using our taging system. Implementation was realized by checking for the
+;; type with sicp::number? and then either not add a tag (attach-tag ..) or return
+;; the type :cl-number with (type-tag ...)
+;; finally in the cl-number-package (tag x) doesn't do anything to the number, as
+;; it may call (attach-to :cl-number on-number), but since attach-to simply returns
+;; the number unaltered when testing for sicp::number? no tag gets attached.

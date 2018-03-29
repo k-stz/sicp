@@ -95,17 +95,21 @@
     *op-table*))
 
 (defun attach-tag (type datum)
-  (cons type datum))
+  (if (eq type :cl-number)
+      datum ;; don't attach anything, cl-numbers are natively typed by lisp itself
+      (cons type datum)))
 
 (defun type-tag (datum)
-  (if (consp datum)
-      (car datum)
-      (error "~a : Bad tagged datum -- TYPE-TAG " datum)))
+  (cond ((consp datum) (car datum))
+	((sicp::number? datum) :cl-number)
+	(t
+	 (error "~a : Bad tagged datum -- TYPE-TAG " datum))))
 
 (defun contents (datum)
-  (if (consp datum)
-      (cdr datum)
-      (error "~a : Bad tagged datum -- CONTENTS " datum)))
+  (cond ((consp datum) (cdr datum))
+	((sicp::number? datum) datum)
+	(t
+	 (error "~a : Bad tagged datum -- CONTENTS " datum))))
 
 (defun apply-generic (op &rest args)
   (let* ((type-tags (mapcar #'type-tag args))
