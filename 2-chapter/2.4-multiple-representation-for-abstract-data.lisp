@@ -53,15 +53,23 @@
 ;; b) deriv table implementation and adding rules for sums and product
 
 ;; Filled with (install-package* ..) forms
-(defparameter *op-table*
+(defvar *op-table*
   ;; '((deriv (+ deriv-sum)))
   nil
   )
 
-(defmacro get-entry (op type)
-  `(assoc ,type (get-types-table ,op)))
 (defmacro get-types-table (op)
   `(rest (assoc ,op *op-table*)))
+
+(defun get-entry (op type)
+  (let ((types-table (get-types-table op)))
+    (loop for entry in types-table
+       ;; equal is true for lists of equal symbols
+       ;; (equal (cons 'a 'b) (cons 'a 'b)) ==> t
+       :when
+	 (equal (first entry)
+		type)
+       :return entry)))
 
 (defun get-op (op type)
   (let ((entry (second (get-entry op type))))
