@@ -39,6 +39,8 @@
 	    (lambda (x y) (tag (/ x y))))
     (put-op 'equ? '(:cl-number :cl-number)
 	    (lambda (x y) (= x y)))
+    (put-op '=zero? '(:cl-number)
+	    (lambda (x) (= x 0)))
     (put-op 'make :cl-number
 	    (lambda (x) (tag x))))
   'done)
@@ -82,6 +84,8 @@
       (put-op 'equ? '(rational rational)
 	      (lambda (x y) (and (= (numer x) (numer y))
 				 (= (denom x) (denom y)))))
+      (put-op '=zero? '(rational)
+	      (lambda (x) (= (numer x) 0)))
       (put-op 'make 'rational
 	      (lambda (n d) (tag (make-rat n d)))))
   'done)
@@ -186,6 +190,8 @@
 	    (lambda (x y)
 	      (and (= (apply-generic 'real-part x) (apply-generic 'real-part y))
 		   (= (apply-generic 'imag-part x) (apply-generic 'imag-part y)))))
+    (put-op '=zero? '(complex)
+	    (lambda (x) (= 0 (apply-generic 'real-part x) (apply-generic 'imag-part x))))
     (put-op 'make-from-real-imag 'complex
 	 (lambda (x y) (tag (make-from-real-imag x y))))
     (put-op 'make-from-mag-ang 'complex
@@ -222,3 +228,6 @@
 ;; exercise 2.79
 ;; adding `equ?' and equality operator to the generic-arithmetic package, done by
 ;; adding the functions to the packages and exporting them with put-op to the *table-op*
+
+;; exercise 2.80
+;; adding =zero?, that tests if its argument is zero to every arithmetic package
