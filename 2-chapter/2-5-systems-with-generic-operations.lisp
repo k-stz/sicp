@@ -136,9 +136,6 @@
     (put-op 'imag-part '(polar) #'imag-part)
     (put-op 'magnitude '(polar) #'magnitude)
     (put-op 'angle '(polar) #'angle)
-    (put-op 'equ? '(polar)
-	    (lambda (x y) (and (= (magnitude x) (magnitude y))
-			       (= (angle x) (angle y)))))
     (put-op 'make-from-real-imag 'polar
 	 (lambda (x y) (tag (make-from-real-imag x y))))
     (put-op 'make-from-mag-ang 'polar 
@@ -181,10 +178,14 @@
 	 (lambda (z1 z2) (tag (mul-complex z1 z2))))
     (put-op 'div '(complex complex)
 	    (lambda (z1 z2) (tag (div-complex z1 z2))))
+    ;; implementing equ? in here suffices, also we choose the rectangluar
+    ;; representation to make the comparison because the polar form has
+    ;; some peculiarities where a certain modulo of an angle is considered
+    ;; the same
     (put-op 'equ? '(complex complex)
 	    (lambda (x y)
-	      (and (= (apply-generic 'magnitude x) (apply-generic 'magnitude y))
-		   (= (apply-generic 'angle x) (apply-generic 'angle y)))))
+	      (and (= (apply-generic 'real-part x) (apply-generic 'real-part y))
+		   (= (apply-generic 'imag-part x) (apply-generic 'imag-part y)))))
     (put-op 'make-from-real-imag 'complex
 	 (lambda (x y) (tag (make-from-real-imag x y))))
     (put-op 'make-from-mag-ang 'complex
