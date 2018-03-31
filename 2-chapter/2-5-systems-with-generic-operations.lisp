@@ -239,7 +239,7 @@
   `(rest (assoc ,op *coercion-table*)))
 
 (defun get-coercion-entry (from-type to-type)
-  (let ((types-table (get-coercion-type-table from-type)))
+  (let ((types-table (get-coercion-types-table from-type)))
     (loop for entry in types-table
        ;; equal is true for lists of equal symbols
        ;; (equal (cons 'a 'b) (cons 'a 'b)) ==> t
@@ -284,7 +284,9 @@
 		  (a2 (cadr args)))
 	      (let ((t1->t2 (get-coercion type1 type2))
 		    (t2->t1 (get-coercion type2 type1)))
-		(cond (t1->t2
+		(cond ((eq type1 type2)
+		       (error "No method for these types ~a ~a. Can't coerce arguments further!" type1 type2))
+		      (t1->t2
 		       (apply-generic op (funcall t1->t2 a1) a2))
 		      (t2->t1
 		       (apply-generic op a1 (funcall t2->t1 a2)))
@@ -299,3 +301,30 @@
 
 
 (put-coercion :cl-number 'complex #'cl-number->complex)
+
+
+;; exercise 2.81
+;; a) If an operation isn't defined for a type, apply-generic will search for coercions.
+;; To coerce from one type to the other. But If an coercion of a type to itself dosn't exist
+;; (that is t1->t2 and t2->t1 will be empty, we get to the error that there is no method.
+;; By adding a same type coercion will simply call apply-generic again, but with two
+;; same types.
+;; But that's where the problem starts, because in the case of the 'exp operation, there
+;; is no operaation for '(complex complex) so that apply-generic will try to coerce again,
+;; complex->complex, which Louis implemented, and hence call apply-generic again..
+;; causing a recursive endless loop.
+;; From this we learn that coercion to the same type breaks our apply-generic, and this
+;; base case should be implemented as a dispatched upon function in the package.
+;; So to handle (exp '(complex complex) ...) we have to put it in the complex-package.
+
+;; b) So Louis is right about apply-generic trying to coerce argument of the same type,
+;; but only if we acutlly put such an entry in the *coercion-table*. Our coercion approach
+;; builds on trying to coerce one argument to the others type but in the hope that the
+;; operation we consider to apply works on a pair of the type we coerce to.
+;; We should thus for safty: forbid coercion of same types.
+;; We can't simply cull out the case when both types are already the same, because
+;; there can be cases where we are ok of applying the operation on the arguments super
+;; types.
+
+;; c) regardless we must implement what I just tried to argue against in b). The change
+;; was made to apply-generic above
