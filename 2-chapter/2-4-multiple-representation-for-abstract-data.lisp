@@ -75,7 +75,7 @@
   (let ((entry (second (get-entry op type))))
     (if entry
 	entry
-	(error "No op: ~a of type: ~a in *op-table*!" op type))))
+	nil)))
 
 (defun put-op (op type item)
   (let ((new-entry (list type item)))

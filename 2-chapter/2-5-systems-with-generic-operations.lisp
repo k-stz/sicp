@@ -231,3 +231,71 @@
 
 ;; exercise 2.80
 ;; adding =zero?, that tests if its argument is zero to every arithmetic package
+
+;; coercion facility
+;; to work with coercion
+(defvar *coercion-table* '())
+(defmacro get-coercion-types-table (op)
+  `(rest (assoc ,op *coercion-table*)))
+
+(defun get-coercion-entry (from-type to-type)
+  (let ((types-table (get-coercion-type-table from-type)))
+    (loop for entry in types-table
+       ;; equal is true for lists of equal symbols
+       ;; (equal (cons 'a 'b) (cons 'a 'b)) ==> t
+       :when
+	 (equal (first entry)
+		to-type)
+       :return entry)))
+
+(defun get-coercion (from-type to-type)
+  (let ((entry (second (get-coercion-entry from-type to-type))))
+    (if entry
+	entry
+	nil)))
+
+(defun put-coercion (from-type to-type item)
+  (let ((new-entry (list to-type item)))
+    (cond ((null (get-coercion-types-table from-type))
+	   ;; new operation entry
+	   (setf
+	    *coercion-table*
+	    (cons (list from-type new-entry) *coercion-table*)))
+	  ((null (get-coercion-entry from-type to-type))
+	   ;; new type entry under operation
+	   (push
+	    new-entry (get-coercion-types-table from-type)))
+	  (t  
+	   (warn "overwriting coercion ~a -> ~a" from-type to-type)
+	   (setf (second (get-coercion-entry from-type to-type))
+		 item)))
+    *coercion-table*))
+
+
+(defun apply-generic (op &rest args)
+  (let* ((type-tags (mapcar #'type-tag args))
+	 (proc (get-op op type-tags)))
+    (if proc
+	(apply proc (mapcar #'contents args))
+	(if (= (length args) 2)
+	    (let ((type1 (car type-tags))
+		  (type2 (cadr type-tags))
+		  (a1 (car args))
+		  (a2 (cadr args)))
+	      (let ((t1->t2 (get-coercion type1 type2))
+		    (t2->t1 (get-coercion type2 type1)))
+		(cond (t1->t2
+		       (apply-generic op (funcall t1->t2 a1) a2))
+		      (t2->t1
+		       (apply-generic op a1 (funcall t2->t1 a2)))
+		      (t
+		       (error "No method for these types ~a"
+			      (list op type-tags))))))
+	    (error "No method for these types ~a"
+		   (list op type-tags))))))
+
+(defun cl-number->complex (n)
+  (make-complex-from-real-imag (contents n) 0))
+
+
+(put-coercion :cl-number 'complex #'cl-number->complex)
