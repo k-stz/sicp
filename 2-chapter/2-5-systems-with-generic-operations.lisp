@@ -220,6 +220,7 @@
   (install-cl-number-package)
   (install-integer-package)
   (install-rational-package)
+  (install-real-package)
   (install-rectangular-package)
   (install-polar-package)
   (install-complex-package))
@@ -383,12 +384,27 @@
 					    rational))))
     (put-op 'equ? '(integer integer) (lambda (x y) (= x y)))
     (put-op '=zero? '(integer) (lambda (x) (= x 0)))
-    (put-op 'make '(integer) (lambda (x) (print (tag x)))))
+    (put-op 'make '(integer) (lambda (x) (tag x))))
   'done)
 
 (defun make-integer (n)
   (funcall (get-op 'make '(integer)) n))
 
+(defun install-real-package ()
+  (labels
+      ((tag (x)
+	 (attach-tag 'real x)))
+    (put-op 'add '(real real) (lambda (x y) (tag (+ x y))))
+    (put-op 'sub '(real real) (lambda (x y) (tag (- x y))))
+    (put-op 'mul '(real real) (lambda (x y) (tag (* x y))))
+    (put-op 'div '(real real) (lambda (x y) (tag (/ x y))))
+    (put-op 'equ? '(real real) (lambda (x y) (= x y)))
+    (put-op '=zero? '(real) (lambda (x) (= x 0)))
+    (put-op 'make '(real) (lambda (x) (tag x))))
+  'done)
+
+(defun make-real (n)
+  (funcall (get-op 'make '(real)) n))
 
 (defun install-raise-package ()
   (labels
