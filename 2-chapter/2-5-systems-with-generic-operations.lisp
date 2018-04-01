@@ -81,6 +81,10 @@
 	      (lambda (x y) (tag (mul-rat x y))))
       (put-op 'div '(rational rational)
 	      (lambda (x y) (tag (div-rat x y))))
+      (put-op 'numer '(rational)
+	      (lambda (x) (numer x)))
+      (put-op 'denom '(rational)
+	      (lambda (x) (denom x)))
       (put-op 'equ? '(rational rational)
 	      (lambda (x y) (and (= (numer x) (numer y))
 				 (= (denom x) (denom y)))))
@@ -88,7 +92,11 @@
 	      (lambda (x) (= (numer x) 0)))
       (put-op 'make 'rational
 	      (lambda (n d) (tag (make-rat n d)))))
-  'done)
+    'done)
+
+(defun numer (z) (apply-generic 'numer z))
+(defun denom (z) (apply-generic 'denom z))
+
 
 (defun make-rational (n d)
     (funcall (get-op 'make 'rational) n d))
@@ -210,6 +218,7 @@
 
 (defun install-generic-arithmetic-package ()
   (install-cl-number-package)
+  (install-integer-package)
   (install-rational-package)
   (install-rectangular-package)
   (install-polar-package)
@@ -354,3 +363,47 @@
 ;; polygon tree like a parallelogram.  At this point a solution would be to keep on
 ;; raising the types step by step, till we reach the most common ancestor or a procedure
 ;; that applies is found. (in this example 'polygon')
+
+
+;; exercise 2.83
+;; implementing a generic `raise' operation on a tower of types, such as: integer, rational,
+;; real, complex. Right after we added packages for the types "integer" and "real"
+
+(defun install-integer-package ()
+  (labels
+      ((tag (x)
+	 (attach-tag 'integer x)))
+    (put-op 'add '(integer integer) (lambda (x y) (tag (+ x y))))
+    (put-op 'sub '(integer integer) (lambda (x y) (tag (- x y))))
+    (put-op 'mul '(integer integer) (lambda (x y) (tag (* x y))))
+    (put-op 'div '(integer integer) (lambda (x y)
+				      (let ((rational (make-rational x y )))
+					(if (= 1 (denom rational)) ;; is integer?
+					    (denom rational)
+					    rational))))
+    (put-op 'equ? '(integer integer) (lambda (x y) (= x y)))
+    (put-op '=zero? '(integer) (lambda (x) (= x 0)))
+    (put-op 'make '(integer) (lambda (x) (print (tag x)))))
+  'done)
+
+(defun make-integer (n)
+  (funcall (get-op 'make '(integer)) n))
+
+
+(defun install-raise-package ()
+  (labels
+      ((integer->rational (n)
+	 (make-rational n 1))
+
+       (rational->real (n)
+	 (attach-tag 'real
+		     (/ (numer n)
+			(denom n))))
+
+       (real->complex (n)
+	 (make-complex-from-real-imag n 0)))
+    ;; here we implicitly express the type-tower:
+    ;; integer->rational->real->complex
+    (put-op 'raise 'integer #'integer->rational)
+    (put-op 'raise 'rational #'rational->real)
+    (put-op 'raise 'real #'real->complex)))
