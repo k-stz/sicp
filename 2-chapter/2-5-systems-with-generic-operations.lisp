@@ -328,3 +328,29 @@
 
 ;; c) regardless we must implement what I just tried to argue against in b). The change
 ;; was made to apply-generic above
+
+
+;; exercise 2.82
+;; apply-generic with 3 arguments. Consider a strategy where the 2nd and 3rd argument get
+;; coerced to the first argument, then to the second and so on, what could be the problem?
+;;
+;; Answer: If the first argument is a subtype of the remaining argument then a coercion
+;; won't exist in that way such as in (apply-generic 'op cl-number complex complex), this
+;; strategy also fails for two argument functions. Then on when we'd try to coerce a
+;; number to the 2nd arguments type we'd only have to change the cl-number to a complex.
+;; but what we lose here are the types in the tower hierarchy between cl-number and complex.
+;; Because we jump over them we try (apply-generic 'op complex complex complex) but never
+;; for the types between cl-number and complex (real and rational). Because for those
+;; mixed type we'd never dispatch on operations that might exist for mixed types.
+;; 
+;; Solution: Given a type hierarchy (like the tower: complex, real, rational and
+;; cl-number) we determine lowest type highest in the hierarchy and then raise it 
+;; to the next higher type. If there is still no dispatch found we keep on raising
+;; the lowerst types till we get 3 equal types.
+;;
+;; Now given a type hierarchy in the form of a tree like with the polygon example, the
+;; solution would search for a 'highest type' in the argument which doesn't always make
+;; sense when one argument is a triangle, while the other is in the right branch of the
+;; polygon tree like a parallelogram.  At this point a solution would be to keep on
+;; raising the types step by step, till we reach the most common ancestor or a procedure
+;; that applies is found. (in this example 'polygon')
