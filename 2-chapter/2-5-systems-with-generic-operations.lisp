@@ -71,6 +71,9 @@
 	     (div-rat (x y)
 	       (make-rat (* (numer x) (denom y))
 			 (* (denom x) (numer y))))
+	     (rational->real (n)
+	       (make-real (/ (numer n)
+			     (denom n))))
 	     ;; interface to rest of the system
 	     (tag (x) (attach-tag 'rational x)))
       (put-op 'add '(rational rational)
@@ -91,7 +94,13 @@
       (put-op '=zero? '(rational)
 	      (lambda (x) (= (numer x) 0)))
       (put-op 'make 'rational
-	      (lambda (n d) (tag (make-rat n d)))))
+	      (lambda (n d) (tag (make-rat n d))))
+      ;; we put the coercion here, because its easier
+      ;; for the package implementor to know how to translate 
+      ;; the type to another, and also the raise operation
+      ;; on rationals will be here
+      (put-coercion 'rational 'real #'rational->real)
+      (put-op 'raise '(rational) (get-coercion 'rational 'real)))
     'done)
 
 (defun numer (z) (apply-generic 'numer z))
@@ -373,7 +382,9 @@
 (defun install-integer-package ()
   (labels
       ((tag (x)
-	 (attach-tag 'integer x)))
+	 (attach-tag 'integer x))
+       (integer->rational (n)
+	 (make-rational n 1)))
     (put-op 'add '(integer integer) (lambda (x y) (tag (+ x y))))
     (put-op 'sub '(integer integer) (lambda (x y) (tag (- x y))))
     (put-op 'mul '(integer integer) (lambda (x y) (tag (* x y))))
@@ -384,7 +395,9 @@
 					    rational))))
     (put-op 'equ? '(integer integer) (lambda (x y) (= x y)))
     (put-op '=zero? '(integer) (lambda (x) (= x 0)))
-    (put-op 'make '(integer) (lambda (x) (tag x))))
+    (put-op 'make '(integer) (lambda (x) (tag x)))
+    (put-coercion 'integer 'rational #'integer->rational)
+    (put-op 'raise '(integer) (get-coercion 'integer 'rational)))
   'done)
 
 (defun make-integer (n)
@@ -393,33 +406,20 @@
 (defun install-real-package ()
   (labels
       ((tag (x)
-	 (attach-tag 'real x)))
+	 (attach-tag 'real x))
+       (real->complex (n)
+	 (make-complex-from-real-imag n 0)))
     (put-op 'add '(real real) (lambda (x y) (tag (+ x y))))
     (put-op 'sub '(real real) (lambda (x y) (tag (- x y))))
     (put-op 'mul '(real real) (lambda (x y) (tag (* x y))))
     (put-op 'div '(real real) (lambda (x y) (tag (/ x y))))
     (put-op 'equ? '(real real) (lambda (x y) (= x y)))
     (put-op '=zero? '(real) (lambda (x) (= x 0)))
-    (put-op 'make '(real) (lambda (x) (tag x))))
+    (put-op 'make '(real) (lambda (x) (tag x)))
+    (put-coercion 'real 'complex #'real->complex)
+    (put-op 'raise '(real) (get-coercion 'real 'complex)))
   'done)
 
 (defun make-real (n)
   (funcall (get-op 'make '(real)) n))
 
-(defun install-raise-package ()
-  (labels
-      ((integer->rational (n)
-	 (make-rational n 1))
-
-       (rational->real (n)
-	 (attach-tag 'real
-		     (/ (numer n)
-			(denom n))))
-
-       (real->complex (n)
-	 (make-complex-from-real-imag n 0)))
-    ;; here we implicitly express the type-tower:
-    ;; integer->rational->real->complex
-    (put-op 'raise 'integer #'integer->rational)
-    (put-op 'raise 'rational #'rational->real)
-    (put-op 'raise 'real #'real->complex)))
