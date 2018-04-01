@@ -28,7 +28,9 @@
 
 (defun install-cl-number-package ()
   (labels ((tag (x)
-	     (attach-tag :cl-number x)))    
+	     (attach-tag :cl-number x))
+	   (cl-number->complex (n)
+	     (make-complex-from-real-imag n 0)))    
     (put-op 'add '(:cl-number :cl-number)
 	    (lambda (x y) (tag (+ x y))))
     (put-op 'sub '(:cl-number :cl-number)
@@ -41,6 +43,8 @@
 	    (lambda (x y) (= x y)))
     (put-op '=zero? '(:cl-number)
 	    (lambda (x) (= x 0)))
+    (put-coercion :cl-number 'complex #'cl-number->complex)
+    (put-op 'raise '(:cl-number) (get-coercion :cl-number 'complex))
     (put-op 'make :cl-number
 	    (lambda (x) (tag x))))
   'done)
@@ -290,6 +294,28 @@
 		 item)))
     *coercion-table*))
 
+(defvar *type-tower* '(integer rational real :cl-number complex)
+  "List of the types aranged in a tower, where integer `complex' is the highest, and supertype of
+all the other types.")
+
+;; part of exercise 2.84 used for the raising types strategy in apply-generic
+(defun <type? (type1 type2)
+  "Returns true if type1 is lower in the type-tower than type2. The
+type-tower is defined in the variable `*type-tower*'"
+  ;; memq returns the part of the *type-tower* list where the found element
+  ;; is the head. Thus the longer the list, the further at the beginning and thus
+  ;; lower the type.
+  ;; That's why the higher offset (length of the list) is the lowest type in the tower.
+  ;; Finally if the type is not part of the *type-tower*, memq returns an empty list,
+  ;; that's where we raise an error signal that the type doesn't exist.
+  (let ((type1-offset (length (sicp::memq type1 *type-tower*)))
+	(type2-offset (length (sicp::memq type2 *type-tower*))))
+    (cond ((= type1-offset 0) (error "type: ~a is not defined in the type-tower!" type1))
+	  ((= type2-offset 0) (error "type: ~a is not defined in the type-tower!" type2))
+	  ((> type1-offset type2-offset)
+	   t)
+	  (t
+	   nil))))
 
 (defun apply-generic (op &rest args)
   (let* ((type-tags (mapcar #'type-tag args))
@@ -301,26 +327,14 @@
 		  (type2 (cadr type-tags))
 		  (a1 (car args))
 		  (a2 (cadr args)))
-	      (let ((t1->t2 (get-coercion type1 type2))
-		    (t2->t1 (get-coercion type2 type1)))
-		(cond ((eq type1 type2)
-		       (error "No method for these types ~a ~a. Can't coerce arguments further!" type1 type2))
-		      (t1->t2
-		       (apply-generic op (funcall t1->t2 a1) a2))
-		      (t2->t1
-		       (apply-generic op a1 (funcall t2->t1 a2)))
-		      (t
-		       (error "No method for these types ~a"
-			      (list op type-tags))))))
+	      (cond ((eq type1 type2)
+		     (error "No method for these types ~a ~a. Avoiding raising same types!" type1 type2))
+		    ((<type? type1 type2)
+		     (apply-generic op (apply-generic 'raise a1) a2))
+		    (t
+		     (apply-generic op a1 (apply-generic 'raise a2)))))
 	    (error "No method for these types ~a"
 		   (list op type-tags))))))
-
-(defun cl-number->complex (n)
-  (make-complex-from-real-imag (contents n) 0))
-
-
-(put-coercion :cl-number 'complex #'cl-number->complex)
-
 
 ;; exercise 2.81
 ;; a) If an operation isn't defined for a type, apply-generic will search for coercions.
@@ -407,8 +421,8 @@
   (labels
       ((tag (x)
 	 (attach-tag 'real x))
-       (real->complex (n)
-	 (make-complex-from-real-imag n 0)))
+       (real->cl-number (n)
+	 (make-cl-number n)))
     (put-op 'add '(real real) (lambda (x y) (tag (+ x y))))
     (put-op 'sub '(real real) (lambda (x y) (tag (- x y))))
     (put-op 'mul '(real real) (lambda (x y) (tag (* x y))))
@@ -416,10 +430,13 @@
     (put-op 'equ? '(real real) (lambda (x y) (= x y)))
     (put-op '=zero? '(real) (lambda (x) (= x 0)))
     (put-op 'make '(real) (lambda (x) (tag x)))
-    (put-coercion 'real 'complex #'real->complex)
-    (put-op 'raise '(real) (get-coercion 'real 'complex)))
+    (put-coercion 'real :cl-number #'real->cl-number)
+    (put-op 'raise '(real) (get-coercion 'real :cl-number)))
   'done)
 
 (defun make-real (n)
   (funcall (get-op 'make '(real)) n))
 
+;; exercise 2.83
+;; modifying apply-generic to use successive raising instead of direct
+;; coercion to one another. apply-generic changed accordingly
