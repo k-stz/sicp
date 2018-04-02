@@ -103,7 +103,7 @@
   (cond ((consp datum) (car datum))
 	((sicp::number? datum) :cl-number)
 	(t
-	 (error "~a : Bad tagged datum -- TYPE-TAG " datum))))
+	 nil)))
 
 (defun contents (datum)
   (cond ((consp datum) (cdr datum))

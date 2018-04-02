@@ -138,7 +138,7 @@
     (put-op 'imag-part '(rectangular) #'imag-part)
     (put-op 'magnitude '(rectangular) #'magnitude)
     (put-op 'angle '(rectangular) #'angle)
-    (put-op 'equ? '(rectangular)
+    (put-op 'equ? '(rectangular rectangular)
 	    (lambda (x y) (and (= (real-part x) (real-part y))
 			       (= (imag-part x) (imag-part y)))))
     (put-op 'make-from-real-imag 'rectangular 
@@ -344,6 +344,22 @@ type-tower is defined in the variable `*type-tower*'"
 		     (apply-generic op a1 (apply-generic 'raise a2)))))
 	    (error "No method for these types ~a"
 		   (list op type-tags))))))
+
+;; exercise 2.85
+(defun apply-generic-drop (op &rest args)
+  (let ((result (apply #'apply-generic (append (list op) args))))
+    (print result)
+    (if (and (type-tag result)
+	     ;; don't drop if raise or projection is used, even if the result is a number
+	     ;; because it is always possible to drop a raise, while we don't want to
+	     ;; drop a projection because we first want to test if it is raises to back to be the same number
+	     ;; precisely to see if it is dropable
+	     (case op
+	       (raise nil)
+	       (project nil)
+	       (t t)))
+	(drop result)
+	result)))
 
 ;; exercise 2.81
 ;; a) If an operation isn't defined for a type, apply-generic will search for coercions.
