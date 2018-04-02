@@ -39,6 +39,8 @@
 	    (lambda (x y) (tag (* x y))))
     (put-op 'div '(:cl-number :cl-number)
 	    (lambda (x y) (tag (/ x y))))
+    (put-op 'm-sqrt '(:cl-number)
+	    (lambda (x) (tag (sqrt x))))
     (put-op 'equ? '(:cl-number :cl-number)
 	    (lambda (x y) (= x y)))
     (put-op '=zero? '(:cl-number)
@@ -48,7 +50,11 @@
     (put-op 'make :cl-number
 	    (lambda (x) (tag x)))
     (put-op 'project '(:cl-number)
-	    (lambda (x) (make-real x))))
+	    (lambda (x) (make-real x)))
+    (put-op 'cos '(:cl-number) (lambda (n) (tag (cos n))))
+    (put-op 'sin '(:cl-number) (lambda (n) (tag (sin n))))
+    (put-op 'atan '(:cl-number :cl-number) (lambda (x y) (tag (atan x y))))
+    (put-op 'm-sqrt '(:cl-number) (lambda (n) (tag (sqrt n)))))
   'done)
 
 (defun make-cl-number (n)
@@ -109,7 +115,12 @@
       (put-op 'raise '(rational) (get-coercion 'rational 'real))
       (put-op 'project '(rational)
 	      (lambda (n)
-		(make-integer (truncate (numer n) (denom n))))))
+		(make-integer (truncate (numer n) (denom n)))))
+      (put-op 'atan '(rational rational)
+	      (lambda (x y) (make-real (atan (/ (numer x) (denom x))
+					     (/ (numer y) (denom y))))))
+      (put-op 'm-sqrt '(rational)
+	      (lambda (x) (make-real (sqrt (/ (numer x) (denom x)))))))
     'done)
 
 (defun numer (z) (apply-generic 'numer z))
@@ -125,13 +136,17 @@
   (labels ((real-part (z) (car z))
 	   (imag-part (z) (cdr z))
 	   (make-from-real-imag (x y) (cons x y))
+	   (square (z) (apply-generic 'mul z z))
+	   (m-sqrt (z) (apply-generic 'm-sqrt z))
 	   (magnitude (z)
-	     (sqrt (+ (sicp::square (real-part z))
-		      (sicp::square (imag-part z)))))
+	     (m-sqrt
+	      (apply-generic 'add
+	       (square (real-part z))
+	       (square (imag-part z)))))
 	   (angle (z)
-	     (atan (imag-part z) (real-part z)))
+	     (apply-generic 'atan (imag-part z) (real-part z)))
 	   (make-from-mag-ang (r a) 
-	     (cons (* r (cos a)) (* r (sin a))))
+	     (cons (* r (apply-generic 'cos a)) (* r (apply-generic 'sin a))))
 	   ;; interface to the rest of the system
 	   (tag (x) (attach-tag 'rectangular x)))
     (put-op 'real-part '(rectangular) #'real-part)
@@ -142,9 +157,9 @@
 	    (lambda (x y) (and (= (real-part x) (real-part y))
 			       (= (imag-part x) (imag-part y)))))
     (put-op 'make-from-real-imag 'rectangular 
-	 (lambda (x y) (tag (make-from-real-imag x y))))
+	    (lambda (x y) (tag (make-from-real-imag x y))))
     (put-op 'make-from-mag-ang 'rectangular 
-	 (lambda (r a) (tag (make-from-mag-ang r a)))))
+	    (lambda (r a) (tag (make-from-mag-ang r a)))))
   'done)
 ;; complex - polar
 
@@ -153,13 +168,14 @@
   (labels ((magnitude (z) (car z))
 	   (angle (z) (cdr z))
 	   (make-from-mag-ang (r a) (cons r a))
+	   (square (z) (apply-generic 'mul z z))
 	   (real-part (z)
-	     (* (magnitude z) (cos (angle z))))
+	     (apply-generic 'mul (magnitude z) (apply-generic 'cos (angle z))))
 	   (imag-part (z)
-	     (* (magnitude z) (sin (angle z))))
+	     (apply-generic 'mul (magnitude z) (apply-generic 'sin (angle z))))
 	   (make-from-real-imag (x y) 
-	     (cons (sqrt (+ (sicp::square x) (sicp::square y)))
-		   (atan y x)))
+	     (cons (apply-generic 'm-sqrt (+ (square x) (square y)))
+		   (apply-generic 'atan y x)))
 	   ;; interface to the rest of the system
 	   (tag (x) (attach-tag 'polar x)))
     (put-op 'real-part '(polar) #'real-part)
@@ -167,9 +183,9 @@
     (put-op 'magnitude '(polar) #'magnitude)
     (put-op 'angle '(polar) #'angle)
     (put-op 'make-from-real-imag 'polar
-	 (lambda (x y) (tag (make-from-real-imag x y))))
+	    (lambda (x y) (tag (make-from-real-imag x y))))
     (put-op 'make-from-mag-ang 'polar 
-	 (lambda (r a) (tag (make-from-mag-ang r a)))))
+	    (lambda (r a) (tag (make-from-mag-ang r a)))))
   'done)
 
 (defun real-part (z) (apply-generic 'real-part z))
@@ -440,7 +456,12 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op '=zero? '(integer) (lambda (x) (= x 0)))
     (put-op 'make '(integer) (lambda (x) (tag x)))
     (put-coercion 'integer 'rational #'integer->rational)
-    (put-op 'raise '(integer) (get-coercion 'integer 'rational)))
+    (put-op 'raise '(integer) (get-coercion 'integer 'rational))
+    ;; we make-real here, because we can always `drop' it later
+    ;; to integer, if it is one.
+    (put-op 'cos '(integer) (lambda (n) (make-real (cos n))))
+    (put-op 'sin '(integer) (lambda (n) (make-real (sin n))))
+    (put-op 'atan '(integer integer) (lambda (x y) (make-real (atan x y)))))
   'done)
 
 (defun make-integer (n)
@@ -465,7 +486,11 @@ type-tower is defined in the variable `*type-tower*'"
 	    (lambda (n)
 	      ;; no fancy tricks, just putting it in the numer, making
 	      ;; sure its truncated to an integer
-	      (make-rational (truncate n 1) 1))))
+	      (make-rational (truncate n 1) 1)))
+    (put-op 'cos '(real) (lambda (n) (tag (cos n))))
+    (put-op 'sin '(real) (lambda (n) (tag (sin n))))
+    (put-op 'atan '(real real) (lambda (x y) (tag (atan x y))))
+    (put-op 'm-sqrt '(real) (lambda (x) (tag (sqrt x)))))
   'done)
 
 (defun make-real (n)
@@ -494,3 +519,8 @@ type-tower is defined in the variable `*type-tower*'"
 	 (drop projection)
 	 number))
       number))
+
+
+;; exercise 2.86
+;; complex numbers real, imaginary, magnitude and angle parts should be
+;; representable by :cl-number, rational numbers or others numbers
