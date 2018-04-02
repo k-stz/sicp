@@ -46,7 +46,9 @@
     (put-coercion :cl-number 'complex #'cl-number->complex)
     (put-op 'raise '(:cl-number) (get-coercion :cl-number 'complex))
     (put-op 'make :cl-number
-	    (lambda (x) (tag x))))
+	    (lambda (x) (tag x)))
+    (put-op 'project '(:cl-number)
+	    (lambda (x) (make-real x))))
   'done)
 
 (defun make-cl-number (n)
@@ -104,7 +106,10 @@
       ;; the type to another, and also the raise operation
       ;; on rationals will be here
       (put-coercion 'rational 'real #'rational->real)
-      (put-op 'raise '(rational) (get-coercion 'rational 'real)))
+      (put-op 'raise '(rational) (get-coercion 'rational 'real))
+      (put-op 'project '(rational)
+	      (lambda (n)
+		(make-integer (truncate (numer n) (denom n))))))
     'done)
 
 (defun numer (z) (apply-generic 'numer z))
@@ -221,7 +226,11 @@
     (put-op 'real-part '(complex) #'real-part)
     (put-op 'imag-part '(complex) #'imag-part)
     (put-op 'magnitude '(complex) #'magnitude)
-    (put-op 'angle '(complex) #'angle))
+    (put-op 'angle '(complex) #'angle)
+    (put-op 'project '(complex) 
+	    ;; project complex number to :cl-number
+	    (lambda (n)
+	      (make-cl-number (real-part n)))))
   'done)
 
 (defun make-complex-from-real-imag (x y)
@@ -431,7 +440,12 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op '=zero? '(real) (lambda (x) (= x 0)))
     (put-op 'make '(real) (lambda (x) (tag x)))
     (put-coercion 'real :cl-number #'real->cl-number)
-    (put-op 'raise '(real) (get-coercion 'real :cl-number)))
+    (put-op 'raise '(real) (get-coercion 'real :cl-number))
+    (put-op 'project '(real)
+	    (lambda (n)
+	      ;; no fancy tricks, just putting it in the numer, making
+	      ;; sure its truncated to an integer
+	      (make-rational (truncate n 1) 1))))
   'done)
 
 (defun make-real (n)
@@ -440,3 +454,23 @@ type-tower is defined in the variable `*type-tower*'"
 ;; exercise 2.83
 ;; modifying apply-generic to use successive raising instead of direct
 ;; coercion to one another. apply-generic changed accordingly
+
+;; exercise 2.85
+;; we add `project' to every package which returns the number coerced to a lower type, then
+;; we raise the number to see if it is still equal. If so we can drop it, without losing
+;; data.
+;;
+;; The aim is to have apply-generic return the simplest type representation, after each
+;; operation. Such that the operation (3+4i)+(7-4i) will return the integer 10 instead of
+;; (10+0i)
+;; TODO-NEXT: figure out how to integrate this with apply-generic
+(defun drop (number)
+  (if (not (eq 'integer (type-tag number)))
+      (let ((projection (apply-generic 'project number)))
+	(if
+	 (apply-generic 'equ?
+			(apply-generic 'raise projection)
+			number)
+	 (drop projection)
+	 number))
+      number))
