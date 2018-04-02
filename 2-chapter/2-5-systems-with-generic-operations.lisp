@@ -346,6 +346,10 @@ type-tower is defined in the variable `*type-tower*'"
 		   (list op type-tags))))))
 
 ;; exercise 2.85
+;; can't figure out how to integrate this into the apply-generic
+;; itself. I get some weird bugs, my hunch is its trying to apply
+;; an operation on a type but it dropped under its feet. For now
+;; will leave it at that.
 (defun apply-generic-drop (op &rest args)
   (let ((result (apply #'apply-generic (append (list op) args))))
     (print result)
