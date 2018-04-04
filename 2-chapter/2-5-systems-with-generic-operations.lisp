@@ -261,7 +261,8 @@
   (install-real-package)
   (install-rectangular-package)
   (install-polar-package)
-  (install-complex-package))
+  (install-complex-package)
+  (install-polynomial-package))
 
 
 ;; exercise 2.78
@@ -508,7 +509,6 @@ type-tower is defined in the variable `*type-tower*'"
 ;; The aim is to have apply-generic return the simplest type representation, after each
 ;; operation. Such that the operation (3+4i)+(7-4i) will return the integer 10 instead of
 ;; (10+0i)
-;; TODO-NEXT: figure out how to integrate this with apply-generic
 (defun drop (number)
   (if (not (eq 'integer (type-tag number)))
       (let ((projection (apply-generic 'project number)))
@@ -524,3 +524,91 @@ type-tower is defined in the variable `*type-tower*'"
 ;; exercise 2.86
 ;; complex numbers real, imaginary, magnitude and angle parts should be
 ;; representable by :cl-number, rational numbers or others numbers
+
+
+;;;; 2.5.3 Example: Symbolic Algebra
+
+(defun install-polynomial-package ()
+  ;; internal procedures
+  ;; representation of poly
+  (labels ((make-poly (variable term-list)
+	     (cons variable term-list))
+	   (variable (p) (car p))
+	   (term-list (p) (cdr p))
+	   (variable? (p) (symbolp p))
+	   (same-variable? (x y)
+	     (and (variable? x) (variable? y)
+		  (eq x y)))
+	   ;; problem using apply-generic inside package? =zero? 
+	   (=zero? (x) (apply-generic '=zero? x))
+	   ;; representation of terms and term lists
+	   (adjoin-term (term term-list)
+	     (if (=zero? (coeff term))
+		 term-list
+		 (cons term term-list)))
+	   (the-empty-termlist() '())
+	   (first-term (term-list) (car term-list))
+	   (rest-terms (term-list) (cdr term-list))
+	   (empty-termlist? (term-list) (null term-list))
+	   (make-term (order coeff) (list order coeff))
+	   (order (term) (car term))
+	   (coeff (term) (cadr term))
+	   ;; 
+	   (add-poly (p1 p2)
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (add-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- ADD-POLY ~a"
+			(list p1 p2))))
+	   ;; <procedures used by add-poly>
+	   (add-terms (L1 L2)
+	     (cond ((empty-termlist? L1) L2)
+		   ((empty-termlist? L2) L1)
+		   (t
+		    (let ((t1 (first-term L1)) (t2 (first-term L2)))
+		      (cond ((> (order t1) (order t2))
+			     (adjoin-term
+			      t1 (add-terms (rest-terms L1) L2)))
+			    ((< (order t1) (order t2))
+			     (adjoin-term
+			      t2 (add-terms L1 (rest-terms L2))))
+			    (t
+			     (adjoin-term
+			      (make-term (order t1)
+					 (apply-generic 'add
+							(coeff t1) (coeff t2)))
+			      (add-terms (rest-terms L1)
+					 (rest-terms L2)))))))))
+	   (mul-poly (p1 p2)
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (mul-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- MUL-POLY ~a"
+			(list p1 p2))))
+	   (mul-terms (L1 L2)
+	     (if (empty-termlist? L1)
+		 (the-empty-termlist)
+		 (add-terms (mul-term-by-all-terms (first-term L1) L2)
+			    (mul-terms (rest-terms L1) L2))))
+	   (mul-term-by-all-terms (t1 L)
+	     (if (empty-termlist? L)
+		 (the-empty-termlist)
+		 (let ((t2 (first-term L)))
+		   (adjoin-term
+		    (make-term (+ (order t1) (order t2))
+			       (apply-generic 'mul (coeff t1) (coeff t2)))
+		    (mul-term-by-all-terms t1 (rest-terms L))))))
+	   ;; interface to rest of the system
+	   (tag (p) (attach-tag 'polynomial p)))
+    (put-op 'add '(polynomial polynomial) 
+	 (lambda (p1 p2) (tag (add-poly p1 p2))))
+    (put-op 'mul '(polynomial polynomial) 
+	 (lambda (p1 p2) (tag (mul-poly p1 p2))))
+    (put-op 'make '(polynomial)
+	 (lambda (var terms) (tag (make-poly var terms)))))
+  'done)
+
+(defun make-polynomial (var terms)
+  (funcall (get-op 'make '(polynomial)) var terms))
