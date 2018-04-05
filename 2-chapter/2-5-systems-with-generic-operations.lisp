@@ -369,7 +369,6 @@ type-tower is defined in the variable `*type-tower*'"
 ;; will leave it at that.
 (defun apply-generic-drop (op &rest args)
   (let ((result (apply #'apply-generic (append (list op) args))))
-    (print result)
     (if (and (type-tag result)
 	     ;; don't drop if raise or projection is used, even if the result is a number
 	     ;; because it is always possible to drop a raise, while we don't want to
@@ -565,6 +564,20 @@ type-tower is defined in the variable `*type-tower*'"
 				       (term-list p2)))
 		 (error "Polys not in same var -- ADD-POLY ~a"
 			(list p1 p2))))
+	   ;; exercise 2.88
+	   (negation (poly)
+	     (cons (variable poly)
+		   ;; negation by simply multiply all terms with -1,
+		   ;; borroing mul-term-by-all-terms from the
+		   ;; mul-poly algorithm
+		   (mul-term-by-all-terms (make-term 0 -1)
+					  (term-list poly))))
+	   (sub-poly (p1 p2)
+	     (let ((-p2 (negation p2)))
+	       (same-variable? (variable p1) (variable -p2))
+	       (make-poly (variable p1)
+			  (add-terms (term-list p1)
+				     (term-list -p2)))))
 	   ;; <procedures used by add-poly>
 	   (add-terms (L1 L2)
 	     (cond ((empty-termlist? L1) L2)
@@ -609,7 +622,13 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op 'add '(polynomial polynomial) 
 	 (lambda (p1 p2) (tag (add-poly p1 p2))))
     (put-op 'mul '(polynomial polynomial) 
-	 (lambda (p1 p2) (tag (mul-poly p1 p2))))
+	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
+    (put-op 'negation '(polynomial)
+	    (lambda (polynomial)
+	      (tag (negation polynomial))))
+    (put-op 'sub '(polynomial polynomial)
+	    (lambda (polynomial polynomiall)
+	      (tag (sub-poly polynomial polynomiall))))
     (put-op 'make '(polynomial)
 	    (lambda (var terms) (tag (make-poly var terms))))
     (put-op '=zero? '(polynomial)
