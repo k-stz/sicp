@@ -539,11 +539,15 @@ type-tower is defined in the variable `*type-tower*'"
 	   (same-variable? (x y)
 	     (and (variable? x) (variable? y)
 		  (eq x y)))
-	   ;; problem using apply-generic inside package? =zero? 
-	   (=zero? (x) (apply-generic '=zero? x))
+	   ;; exercise 2.87
+	   (=zero? (poly)
+	     (let ((coeff-list (mapcar #'coeff (term-list poly))))
+	       (notany #'null
+		       (mapcar #'(lambda (coeff)
+				   (apply-generic '=zero? coeff)) coeff-list))))
 	   ;; representation of terms and term lists
 	   (adjoin-term (term term-list)
-	     (if (=zero? (coeff term))
+	     (if (apply-generic '=zero? (coeff term))
 		 term-list
 		 (cons term term-list)))
 	   (the-empty-termlist() '())
@@ -607,8 +611,13 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op 'mul '(polynomial polynomial) 
 	 (lambda (p1 p2) (tag (mul-poly p1 p2))))
     (put-op 'make '(polynomial)
-	 (lambda (var terms) (tag (make-poly var terms)))))
+	    (lambda (var terms) (tag (make-poly var terms))))
+    (put-op '=zero? '(polynomial)
+	    #'=zero?))
   'done)
 
+;; terms are of the form '(<order> <coefficent>) for example 2x^10 would be '(10 2)
+;; and to create a polynomial like 2x^10 + x^8 it: (make-polynomial 'x '((10 2) (8 1)))
 (defun make-polynomial (var terms)
   (funcall (get-op 'make '(polynomial)) var terms))
+
