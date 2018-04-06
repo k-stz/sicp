@@ -262,7 +262,8 @@
   (install-rectangular-package)
   (install-polar-package)
   (install-complex-package)
-  (install-polynomial-package))
+  (install-polynomial-package)
+  (install-dense-polynomial-package))
 
 
 ;; exercise 2.78
@@ -568,7 +569,7 @@ type-tower is defined in the variable `*type-tower*'"
 	   (negation (poly)
 	     (cons (variable poly)
 		   ;; negation by simply multiply all terms with -1,
-		   ;; borroing mul-term-by-all-terms from the
+		   ;; borrowing mul-term-by-all-terms from the
 		   ;; mul-poly algorithm
 		   (mul-term-by-all-terms (make-term 0 -1)
 					  (term-list poly))))
@@ -640,3 +641,116 @@ type-tower is defined in the variable `*type-tower*'"
 (defun make-polynomial (var terms)
   (funcall (get-op 'make '(polynomial)) var terms))
 
+;; Exercise 2.89
+(defun install-dense-polynomial-package ()
+  ;; internal procedures
+  ;; representation of poly
+  (labels ((make-poly (variable term-list)
+	     (cons variable term-list))
+	   (variable (p) (car p))
+	   (term-list (p) (cdr p))
+	   (variable? (p) (symbolp p))
+	   (same-variable? (x y)
+	     (and (variable? x) (variable? y)
+		  (eq x y)))
+	   ;; Exercise 2.89
+	   (=zero? (poly)
+	     (let ((coeff-list (term-list poly)))
+	       (notany #'null
+		       (mapcar #'(lambda (coeff)
+				   (apply-generic '=zero? coeff)) coeff-list))))
+	   ;; exercise 2.89
+	   (adjoin-term (term term-list)
+	     (cons (coeff term) term-list))
+	   (the-empty-termlist() '())
+	   (first-term (term-list) (make-term (1- (length term-list)) (car term-list)))
+	   (rest-terms (term-list) (cdr term-list))
+	   (empty-termlist? (term-list) (null term-list))
+	   ;; exercise 2.89
+	   (make-term (order coeff)
+	     ;; for order 4, coeff 2 creates: (list 2 0 0 0 0)
+	     (if (>= order 0)
+		 (cons coeff (make-term (- order 1)
+					0))))
+	   ;; exercise 2.89
+	   (order (term) (1- (length term)))
+	   (coeff (term) (car term))
+	   ;; 
+	   (add-poly (p1 p2)
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (add-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- ADD-POLY ~a"
+			(list p1 p2))))
+	   ;; exercise 2.89
+	   (negation (poly)
+	     (cons (variable poly)
+		   ;; negation by simply multiply all terms with -1,
+		   ;; borrowing mul-term-by-all-terms from the
+		   ;; mul-poly algorithm
+		   (mul-term-by-all-terms (make-term 0 -1)
+					  (term-list poly))))
+	   (sub-poly (p1 p2)
+	     (let ((-p2 (negation p2)))
+	       (same-variable? (variable p1) (variable -p2))
+	       (make-poly (variable p1)
+			  (add-terms (term-list p1)
+				     (term-list -p2)))))
+	   ;; <procedures used by add-poly>
+	   (add-terms (L1 L2)
+	     (cond ((empty-termlist? L1) L2)
+		   ((empty-termlist? L2) L1)
+		   (t
+		    (let ((t1 (first-term L1)) (t2 (first-term L2)))
+		      (cond ((> (order l1) (order l2))
+			     (adjoin-term t1 (add-terms (rest-terms L1) L2)))
+			    ((< (order l1) (order l2))
+			     (adjoin-term t2 (add-terms L1 (rest-terms L2))))
+			    (t ;; same length
+			     (cons
+			      (apply-generic 'add (car l1) (car l2))
+			      (add-terms (rest-terms l1) (rest-terms l2)))))))))
+	   (mul-poly (p1 p2)
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (mul-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- MUL-POLY ~a"
+			(list p1 p2))))
+	   (mul-terms (L1 L2)
+	     (if (empty-termlist? L1)
+		 (the-empty-termlist)
+		 (print (add-terms (print (mul-term-by-all-terms (first-term L1) L2))
+				   (print (mul-terms (rest-terms L1) L2))))))
+	   (mul-term-by-all-terms (t1 L)
+	     (if (empty-termlist? L)
+		 (the-empty-termlist)
+		 (let ((t2 (first-term L)))
+		   (add-terms
+		    (make-term
+		     (+ (order t1) (order t2))
+		     (apply-generic 'mul (coeff t1) (coeff t2)))
+		    (mul-term-by-all-terms t1 (rest-terms L))))))
+	   ;; interface to rest of the system
+	   (tag (p) (attach-tag 'dense-polynomial p)))
+    (put-op 'add '(dense-polynomial dense-polynomial) 
+	 (lambda (p1 p2) (tag (add-poly p1 p2))))
+    (put-op 'mul '(dense-polynomial dense-polynomial) 
+	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
+    (put-op 'negation '(dense-polynomial)
+	    (lambda (dense-polynomial)
+	      (tag (negation dense-polynomial))))
+    (put-op 'sub '(dense-polynomial dense-polynomial)
+	    (lambda (dense-polynomial dense-polynomiall)
+	      (tag (sub-poly dense-polynomial dense-polynomiall))))
+    (put-op 'make '(dense-polynomial)
+	    (lambda (var terms) (tag (make-poly var terms))))
+    (put-op '=zero? '(dense-polynomial)
+	    #'=zero?))
+  'done)
+
+;; x^5 + 2x^4 + 3x^3 + 5x:
+;; new Form (make-dense-polynomial 'x '(1 2 3 0 5 0))
+(defun make-dense-polynomial (var terms)
+  (funcall (get-op 'make '(dense-polynomial)) var terms))
