@@ -53,8 +53,7 @@
 	    (lambda (x) (make-real x)))
     (put-op 'cos '(:cl-number) (lambda (n) (tag (cos n))))
     (put-op 'sin '(:cl-number) (lambda (n) (tag (sin n))))
-    (put-op 'atan '(:cl-number :cl-number) (lambda (x y) (tag (atan x y))))
-    (put-op 'm-sqrt '(:cl-number) (lambda (n) (tag (sqrt n)))))
+    (put-op 'atan '(:cl-number :cl-number) (lambda (x y) (tag (atan x y)))))
   'done)
 
 (defun make-cl-number (n)
@@ -249,10 +248,12 @@
 	      (make-cl-number (real-part n)))))
   'done)
 
+
 (defun make-complex-from-real-imag (x y)
   (funcall (get-op 'make-from-real-imag 'complex) x y))
 (defun make-complex-from-mag-ang (r a)
   (funcall (get-op 'make-from-mag-ang 'complex) r a))
+
 
 (defun install-generic-arithmetic-package ()
   (install-cl-number-package)
@@ -262,8 +263,9 @@
   (install-rectangular-package)
   (install-polar-package)
   (install-complex-package)
-  (install-polynomial-package)
-  (install-dense-polynomial-package))
+  (install-sparse-polynomial-package)
+  (install-dense-polynomial-package)
+  (install-polynomial-package))
 
 
 ;; exercise 2.78
@@ -528,13 +530,26 @@ type-tower is defined in the variable `*type-tower*'"
 
 ;;;; 2.5.3 Example: Symbolic Algebra
 
-(defun install-polynomial-package ()
+(defun install-sparse-polynomial-package ()
   ;; internal procedures
   ;; representation of poly
   (labels ((make-poly (variable term-list)
 	     (cons variable term-list))
 	   (variable (p) (car p))
 	   (term-list (p) (cdr p))
+	   ;; exercise 2.90 for generic polynomial package
+	   (dense-list (p)
+	     (let ((term-list (term-list p)))
+	       (reduce (get-op 'add-terms '(dense dense))
+		       ;; creates a list of dense terms while the reduce above adds them
+		       ;; together something like this: '(1 0 0 0) '(0 4 0 0) '(0 0 2 0)
+		       ;; ==> '(1 4 2 0)! Same approach is used with
+		       ;; 'mul-term-by-all-terms except we add together with recursion,
+		       ;; while here we do it with `reduce' directly
+		       (mapcar #'(lambda (order-coeff)
+				   (funcall (get-op 'make-term '(dense)) (first order-coeff)
+					    (second order-coeff)))
+			       term-list))))
 	   (variable? (p) (symbolp p))
 	   (same-variable? (x y)
 	     (and (variable? x) (variable? y)
@@ -619,27 +634,27 @@ type-tower is defined in the variable `*type-tower*'"
 			       (apply-generic 'mul (coeff t1) (coeff t2)))
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
 	   ;; interface to rest of the system
-	   (tag (p) (attach-tag 'polynomial p)))
-    (put-op 'add '(polynomial polynomial) 
+	   (tag (p) (attach-tag 'sparse p)))
+    (put-op 'add '(sparse sparse) 
 	 (lambda (p1 p2) (tag (add-poly p1 p2))))
-    (put-op 'mul '(polynomial polynomial) 
+    (put-op 'mul '(sparse sparse) 
 	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
-    (put-op 'negation '(polynomial)
-	    (lambda (polynomial)
-	      (tag (negation polynomial))))
-    (put-op 'sub '(polynomial polynomial)
-	    (lambda (polynomial polynomiall)
-	      (tag (sub-poly polynomial polynomiall))))
-    (put-op 'make '(polynomial)
+    (put-op 'negation '(sparse)
+	    (lambda (sparse)
+	      (tag (negation sparse))))
+    (put-op 'sub '(sparse sparse)
+	    (lambda (sparse sparsel)
+	      (tag (sub-poly sparse sparsel))))
+    (put-op 'make '(sparse)
 	    (lambda (var terms) (tag (make-poly var terms))))
-    (put-op '=zero? '(polynomial)
-	    #'=zero?))
+    (put-op '=zero? '(sparse) #'=zero?)
+    (put-op 'variable '(sparse) #'variable)
+    (put-op 'sparse-list '(sparse) #'term-list)
+    (put-op 'dense-list '(sparse) #'dense-list)
+    (put-op 'add-terms '(sparse sparse) #'add-terms)
+    (put-op 'mul-terms '(sparse sparse) #'mul-terms))
   'done)
 
-;; terms are of the form '(<order> <coefficent>) for example 2x^10 would be '(10 2)
-;; and to create a polynomial like 2x^10 + x^8 it: (make-polynomial 'x '((10 2) (8 1)))
-(defun make-polynomial (var terms)
-  (funcall (get-op 'make '(polynomial)) var terms))
 
 ;; Exercise 2.89
 (defun install-dense-polynomial-package ()
@@ -649,6 +664,14 @@ type-tower is defined in the variable `*type-tower*'"
 	     (cons variable term-list))
 	   (variable (p) (car p))
 	   (term-list (p) (cdr p))
+	   ;; for generic poly-package
+	   (sparse-list (p)
+	     (let* ((dense-term (term-list p))
+		    (max-order (order dense-term)))
+	       (loop for term in dense-term
+		  for order = max-order then (decf order)
+		  :if (not (= 0 term))
+		  :collect (list order term))))
 	   (variable? (p) (symbolp p))
 	   (same-variable? (x y)
 	     (and (variable? x) (variable? y)
@@ -721,8 +744,8 @@ type-tower is defined in the variable `*type-tower*'"
 	   (mul-terms (L1 L2)
 	     (if (empty-termlist? L1)
 		 (the-empty-termlist)
-		 (print (add-terms (print (mul-term-by-all-terms (first-term L1) L2))
-				   (print (mul-terms (rest-terms L1) L2))))))
+		 (add-terms (mul-term-by-all-terms (first-term L1) L2)
+			    (mul-terms (rest-terms L1) L2))))
 	   (mul-term-by-all-terms (t1 L)
 	     (if (empty-termlist? L)
 		 (the-empty-termlist)
@@ -733,24 +756,86 @@ type-tower is defined in the variable `*type-tower*'"
 		     (apply-generic 'mul (coeff t1) (coeff t2)))
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
 	   ;; interface to rest of the system
-	   (tag (p) (attach-tag 'dense-polynomial p)))
-    (put-op 'add '(dense-polynomial dense-polynomial) 
+	   (tag (p) (attach-tag 'dense p)))
+    (put-op 'add '(dense dense) 
 	 (lambda (p1 p2) (tag (add-poly p1 p2))))
-    (put-op 'mul '(dense-polynomial dense-polynomial) 
+    (put-op 'mul '(dense dense) 
 	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
-    (put-op 'negation '(dense-polynomial)
-	    (lambda (dense-polynomial)
-	      (tag (negation dense-polynomial))))
-    (put-op 'sub '(dense-polynomial dense-polynomial)
-	    (lambda (dense-polynomial dense-polynomiall)
-	      (tag (sub-poly dense-polynomial dense-polynomiall))))
-    (put-op 'make '(dense-polynomial)
+    (put-op 'negation '(dense)
+	    (lambda (dense)
+	      (tag (negation dense))))
+    (put-op 'sub '(dense dense)
+	    (lambda (dense densel)
+	      (tag (sub-poly dense densel))))
+    (put-op 'make '(dense)
 	    (lambda (var terms) (tag (make-poly var terms))))
-    (put-op '=zero? '(dense-polynomial)
-	    #'=zero?))
+    (put-op '=zero? '(dense)
+	    #'=zero?)
+    ;; for generic super polynomial package:
+    (put-op 'variable '(dense) #'variable)
+    (put-op 'term-list '(dense) #'term-list)
+    (put-op 'dense-list '(dense) #'term-list)
+    (put-op 'sparse-list '(dense) #'sparse-list)
+    (put-op 'make-term '(dense) #'make-term)
+    (put-op 'add-terms '(dense dense) #'add-terms))
+  
   'done)
 
+
+;; exercise 2.90
+;; making operations on the two types of term-list (sparse and dense) generic)
+
+(defun install-polynomial-package ()
+  ;; internal procedures
+  ;; representation of poly
+  (labels ((make-from-sparse (var sparse-term)
+	     (funcall (get-op 'make '(sparse)) var sparse-term))
+	   (make-from-dense (var dense-term)
+	     (funcall (get-op 'make '(dense)) var dense-term))
+	   (add-poly (p1 p2)
+	     (make-from-sparse (apply-generic 'variable p1)
+			       (funcall (get-op 'add-terms '(sparse sparse))
+					(apply-generic 'sparse-list p1)
+					(apply-generic 'sparse-list p2))))
+	   ;; exercise 2.89
+	   (negation (poly)
+	     (apply-generic 'negation poly))
+ 	   (sub-poly (p1 p2)
+	     (let ((-p2 (negation p2)))
+	       (add-poly p1 -p2)))
+	   ;; <procedures used by add-poly>
+	   (mul-poly (p1 p2)
+	     (make-from-sparse (apply-generic 'variable p1)
+			       (funcall (get-op 'mul-terms '(sparse sparse))
+					(apply-generic 'sparse-list p1)
+					(apply-generic 'sparse-list p2))))
+	   ;; interface to rest of the system
+	   (tag (p) (attach-tag 'polynomial p))
+	   (=zero? (p)
+	     (apply-generic '=zero? p)))
+    (put-op 'make-polynomial-from-sparse '(polynomial)
+	    (lambda (var sparse-term) (tag (make-from-sparse var sparse-term))))
+    (put-op 'make-polynomial-from-dense '(polynomial)
+	    (lambda (var dense-term) (tag (make-from-dense var dense-term))))
+    (put-op 'add '(polynomial polynomial) 
+	    (lambda (p1 p2) (tag (add-poly p1 p2))))
+    (put-op 'mul '(polynomial polynomial) 
+	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
+    (put-op 'negation '(polynomial)
+	    (lambda (polynomial)
+	      (tag (negation polynomial))))
+    (put-op 'sub '(polynomial polynomial)
+	    (lambda (polynomial polynomiall)
+	      (tag (sub-poly polynomial polynomiall))))
+    (put-op '=zero? '(polynomial) #'=zero?))
+   'done)
+
+;; terms are of the form '(<order> <coefficent>) for example 2x^10 would be '(10 2)
+;; and to create a polynomial like 2x^10 + x^8 it: (make-polynomial-from-sparse 'x '((10 2) (8 1)))
+(defun make-polynomial-from-sparse (var sparse-term)
+  (funcall (get-op 'make-polynomial-from-sparse '(polynomial)) var sparse-term))
+
 ;; x^5 + 2x^4 + 3x^3 + 5x:
-;; new Form (make-dense-polynomial 'x '(1 2 3 0 5 0))
-(defun make-dense-polynomial (var terms)
-  (funcall (get-op 'make '(dense-polynomial)) var terms))
+;; new Form (make-polynomial-from-dense 'x '(1 2 3 0 5 0))
+(defun make-polynomial-from-dense (var dense-term)
+  (funcall (get-op 'make-polynomial-from-dense '(polynomial)) var dense-term))
