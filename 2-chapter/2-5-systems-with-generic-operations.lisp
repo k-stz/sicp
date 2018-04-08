@@ -597,7 +597,10 @@ type-tower is defined in the variable `*type-tower*'"
 			(list p1 p2))))
 	   (sub-terms (t1 t2)
 	     (add-terms t1
-			(negation t2)))
+			;; because negation needs to operate on polynoms, we
+			;; make one and then break out the term-list after the negation
+			;; - a bit of a hack
+			(term-list (negation (make-poly 'x t2)))))
 	   ;; <procedures used by add-poly>
 	   (add-terms (L1 L2)
 	     (cond ((empty-termlist? L1) L2)
@@ -637,6 +640,7 @@ type-tower is defined in the variable `*type-tower*'"
 		    (make-term (+ (order t1) (order t2))
 			       (apply-generic 'mul (coeff t1) (coeff t2)))
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
+	   ;; exercise 2.91
 	   (div-poly (p1 p2)
 	     (if (same-variable? (variable p1) (variable p2))
 		 (let ((division-and-remainder
@@ -646,6 +650,7 @@ type-tower is defined in the variable `*type-tower*'"
 		    (make-poly (variable p1) (first division-and-remainder))
 		    (make-poly (variable p1) (second division-and-remainder))))
 		 (error "Polys not in same var -- DIV-POLY ~a" (list p1 p2))))
+	   ;; exercise 2.91, recursively passing the bucket
 	   (div-terms (L1 L2)
 	     (if (empty-termlist? L1)
 		 (list (the-empty-termlist) (the-empty-termlist))
@@ -653,16 +658,29 @@ type-tower is defined in the variable `*type-tower*'"
 		       (t2 (first-term L2)))
 		   (if (> (order t2) (order t1))
 		       (list (the-empty-termlist) L1)
-		       ;; 1. divide the highest order term by the higherst order divisor
+		       ;; 1. divide the highest order term by the highest order divisor
 		       (let ((new-c (/ (coeff t1) (coeff t2)))
 			     (new-o (- (order t1) (order t2))))
 			 (let ((rest-of-result
-				;; NEXT-TODO implement
-				;; <compute rest of result recursively
-))
-			   ;;
-			   ;;<form complete result>
-			   ))))))
+				(div-terms
+				 (sub-terms l1
+					    (mul-terms (list (make-term new-o new-c)) L2))
+				 L2)))
+			   ;; this is frankly very unreadable, gotta keep this in mind if this is
+			   ;; the right way forward, whether this is just nature of the solution for this
+			   ;; kind of problem or if its just the exercise forcing this solution.
+			   (list
+			    (adjoin-term
+			     ;; the 1st element of the list is either the terminating `the-empty-term-list' from
+			     ;; the if above: (list (the-emty-termlist) L1) or the result of the previous
+			     ;; call to (make-term new-o new-c)
+			     (make-term new-o new-c)
+			     (car rest-of-result))
+			    ;; with the cadr place the remainder in every step of the recursion back
+			    ;; as the second element of the list, this way it survives the "unwinding"!
+			    ;; we create a new list with the `list' here, and return it to the recursing callee
+			    ;; he again gets the remainder as a treat in a list with two elements.
+			    (cadr rest-of-result))))))))
 	   ;; interface to rest of the system
 	   (tag (p) (attach-tag 'sparse p)))
     (put-op 'add '(sparse sparse) 
@@ -677,7 +695,7 @@ type-tower is defined in the variable `*type-tower*'"
 	      (tag (sub-poly p1 p2))))
     (put-op 'div '(sparse sparse)
 	    (lambda (p1 p2)
-	      (tag (div-poly p1 p2))))
+	      (mapcar #'tag (div-poly p1 p2))))
     (put-op 'make '(sparse)
 	    (lambda (var terms) (tag (make-poly var terms))))
     (put-op '=zero? '(sparse) #'=zero?)
@@ -865,7 +883,7 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op 'mul '(polynomial polynomial) 
 	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
     (put-op 'div '(polynomial polynomial)
-	    (lambda (p1 p2) (tag (div-poly p1 p2))))
+	    (lambda (p1 p2) (mapcar #'tag (div-poly p1 p2))))
     (put-op 'negation '(polynomial)
 	    (lambda (polynomial)
 	      (tag (negation polynomial))))
