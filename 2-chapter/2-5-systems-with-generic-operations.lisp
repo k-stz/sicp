@@ -589,11 +589,15 @@ type-tower is defined in the variable `*type-tower*'"
 		   (mul-term-by-all-terms (make-term 0 -1)
 					  (term-list poly))))
 	   (sub-poly (p1 p2)
-	     (let ((-p2 (negation p2)))
-	       (same-variable? (variable p1) (variable -p2))
-	       (make-poly (variable p1)
-			  (add-terms (term-list p1)
-				     (term-list -p2)))))
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (sub-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- SUB-POLY ~a"
+			(list p1 p2))))
+	   (sub-terms (t1 t2)
+	     (add-terms t1
+			(negation t2)))
 	   ;; <procedures used by add-poly>
 	   (add-terms (L1 L2)
 	     (cond ((empty-termlist? L1) L2)
@@ -635,9 +639,12 @@ type-tower is defined in the variable `*type-tower*'"
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
 	   (div-poly (p1 p2)
 	     (if (same-variable? (variable p1) (variable p2))
-		 (make-poly (variable p1)
-			    (div-terms (term-list p1)
-				       (term-list p2)))
+		 (let ((division-and-remainder
+			(div-terms (term-list p1)
+				   (term-list p2))))
+		   (list
+		    (make-poly (variable p1) (first division-and-remainder))
+		    (make-poly (variable p1) (second division-and-remainder))))
 		 (error "Polys not in same var -- DIV-POLY ~a" (list p1 p2))))
 	   (div-terms (L1 L2)
 	     (if (empty-termlist? L1)
@@ -646,11 +653,14 @@ type-tower is defined in the variable `*type-tower*'"
 		       (t2 (first-term L2)))
 		   (if (> (order t2) (order t1))
 		       (list (the-empty-termlist) L1)
-		       (let ((new-c (apply-generic 'div (coeff t1) (coeff t2)))
+		       ;; 1. divide the highest order term by the higherst order divisor
+		       (let ((new-c (/ (coeff t1) (coeff t2)))
 			     (new-o (- (order t1) (order t2))))
 			 (let ((rest-of-result
-				;;<compute rest of result recursively>
-				))
+				;; NEXT-TODO implement
+				;; <compute rest of result recursively
+))
+			   ;;
 			   ;;<form complete result>
 			   ))))))
 	   ;; interface to rest of the system
