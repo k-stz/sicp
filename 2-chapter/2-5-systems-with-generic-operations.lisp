@@ -633,6 +633,26 @@ type-tower is defined in the variable `*type-tower*'"
 		    (make-term (+ (order t1) (order t2))
 			       (apply-generic 'mul (coeff t1) (coeff t2)))
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
+	   (div-poly (p1 p2)
+	     (if (same-variable? (variable p1) (variable p2))
+		 (make-poly (variable p1)
+			    (div-terms (term-list p1)
+				       (term-list p2)))
+		 (error "Polys not in same var -- DIV-POLY ~a" (list p1 p2))))
+	   (div-terms (L1 L2)
+	     (if (empty-termlist? L1)
+		 (list (the-empty-termlist) (the-empty-termlist))
+		 (let ((t1 (first-term L1))
+		       (t2 (first-term L2)))
+		   (if (> (order t2) (order t1))
+		       (list (the-empty-termlist) L1)
+		       (let ((new-c (apply-generic 'div (coeff t1) (coeff t2)))
+			     (new-o (- (order t1) (order t2))))
+			 (let ((rest-of-result
+				;;<compute rest of result recursively>
+				))
+			   ;;<form complete result>
+			   ))))))
 	   ;; interface to rest of the system
 	   (tag (p) (attach-tag 'sparse p)))
     (put-op 'add '(sparse sparse) 
@@ -643,8 +663,11 @@ type-tower is defined in the variable `*type-tower*'"
 	    (lambda (sparse)
 	      (tag (negation sparse))))
     (put-op 'sub '(sparse sparse)
-	    (lambda (sparse sparsel)
-	      (tag (sub-poly sparse sparsel))))
+	    (lambda (p1 p2)
+	      (tag (sub-poly p1 p2))))
+    (put-op 'div '(sparse sparse)
+	    (lambda (p1 p2)
+	      (tag (div-poly p1 p2))))
     (put-op 'make '(sparse)
 	    (lambda (var terms) (tag (make-poly var terms))))
     (put-op '=zero? '(sparse) #'=zero?)
@@ -757,8 +780,9 @@ type-tower is defined in the variable `*type-tower*'"
 		    (mul-term-by-all-terms t1 (rest-terms L))))))
 	   ;; interface to rest of the system
 	   (tag (p) (attach-tag 'dense p)))
+    (put-op 'variable '(dense) #'variable)
     (put-op 'add '(dense dense) 
-	 (lambda (p1 p2) (tag (add-poly p1 p2))))
+	    (lambda (p1 p2) (tag (add-poly p1 p2))))
     (put-op 'mul '(dense dense) 
 	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
     (put-op 'negation '(dense)
@@ -805,10 +829,19 @@ type-tower is defined in the variable `*type-tower*'"
 	       (add-poly p1 -p2)))
 	   ;; <procedures used by add-poly>
 	   (mul-poly (p1 p2)
-	     (make-from-sparse (apply-generic 'variable p1)
-			       (funcall (get-op 'mul-terms '(sparse sparse))
-					(apply-generic 'sparse-list p1)
-					(apply-generic 'sparse-list p2))))
+	     (apply-generic 'mul
+			    (make-from-sparse (apply-generic 'variable p1)
+					      (apply-generic 'sparse-list p1))
+			    (make-from-sparse (apply-generic 'variable p2)
+					      (apply-generic 'sparse-list p2))))
+	   ;; exercise 2.91 adding div-poly
+	   (div-poly (p1 p2)
+	     (apply-generic 'div
+			    (make-from-sparse (apply-generic 'variable p1)
+					      (apply-generic 'sparse-list p1))
+			    (make-from-sparse (apply-generic 'variable p2)
+					      (apply-generic 'sparse-list p2))))
+
 	   ;; interface to rest of the system
 	   (tag (p) (attach-tag 'polynomial p))
 	   (=zero? (p)
@@ -821,6 +854,8 @@ type-tower is defined in the variable `*type-tower*'"
 	    (lambda (p1 p2) (tag (add-poly p1 p2))))
     (put-op 'mul '(polynomial polynomial) 
 	    (lambda (p1 p2) (tag (mul-poly p1 p2))))
+    (put-op 'div '(polynomial polynomial)
+	    (lambda (p1 p2) (tag (div-poly p1 p2))))
     (put-op 'negation '(polynomial)
 	    (lambda (polynomial)
 	      (tag (negation polynomial))))
@@ -839,3 +874,7 @@ type-tower is defined in the variable `*type-tower*'"
 ;; new Form (make-polynomial-from-dense 'x '(1 2 3 0 5 0))
 (defun make-polynomial-from-dense (var dense-term)
   (funcall (get-op 'make-polynomial-from-dense '(polynomial)) var dense-term))
+
+
+;; exercise 2.91
+
