@@ -223,7 +223,7 @@
 	 (lambda (z1 z2) (tag (mul-complex z1 z2))))
     (put-op 'div '(complex complex)
 	    (lambda (z1 z2) (tag (div-complex z1 z2))))
-    ;; implementing equ? in here suffices, also we choose the rectangluar
+    ;; implementing equ? in here suffices, also we choose the rectangular
     ;; representation to make the comparison because the polar form has
     ;; some peculiarities where a certain modulo of an angle is considered
     ;; the same
@@ -270,7 +270,7 @@
 
 ;; exercise 2.78
 ;; Using Common Lisp native numbers and their type checks with numberp (sicp::number?),
-;; without using our taging system. Implementation was realized by checking for the
+;; without using our tagging system. Implementation was realized by checking for the
 ;; type with sicp::number? and then either not add a tag (attach-tag ..) or return
 ;; the type :cl-number with (type-tag ...)
 ;; finally in the cl-number-package (tag x) doesn't do anything to the number, as
@@ -324,7 +324,7 @@
     *coercion-table*))
 
 (defvar *type-tower* '(integer rational real :cl-number complex)
-  "List of the types aranged in a tower, where integer `complex' is the highest, and supertype of
+  "List of the types arranged in a tower, where integer `complex' is the highest, and super-type of
 all the other types.")
 
 ;; part of exercise 2.84 used for the raising types strategy in apply-generic
@@ -386,12 +386,12 @@ type-tower is defined in the variable `*type-tower*'"
 
 ;; exercise 2.81
 ;; a) If an operation isn't defined for a type, apply-generic will search for coercions.
-;; To coerce from one type to the other. But If an coercion of a type to itself dosn't exist
+;; To coerce from one type to the other. But If an coercion of a type to itself doesn't exist
 ;; (that is t1->t2 and t2->t1 will be empty, we get to the error that there is no method.
 ;; By adding a same type coercion will simply call apply-generic again, but with two
 ;; same types.
 ;; But that's where the problem starts, because in the case of the 'exp operation, there
-;; is no operaation for '(complex complex) so that apply-generic will try to coerce again,
+;; is no operation for '(complex complex) so that apply-generic will try to coerce again,
 ;; complex->complex, which Louis implemented, and hence call apply-generic again..
 ;; causing a recursive endless loop.
 ;; From this we learn that coercion to the same type breaks our apply-generic, and this
@@ -399,12 +399,12 @@ type-tower is defined in the variable `*type-tower*'"
 ;; So to handle (exp '(complex complex) ...) we have to put it in the complex-package.
 
 ;; b) So Louis is right about apply-generic trying to coerce argument of the same type,
-;; but only if we acutlly put such an entry in the *coercion-table*. Our coercion approach
+;; but only if we actually put such an entry in the *coercion-table*. Our coercion approach
 ;; builds on trying to coerce one argument to the others type but in the hope that the
 ;; operation we consider to apply works on a pair of the type we coerce to.
-;; We should thus for safty: forbid coercion of same types.
+;; We should thus for safety: forbid coercion of same types.
 ;; We can't simply cull out the case when both types are already the same, because
-;; there can be cases where we are ok of applying the operation on the arguments super
+;; there can be cases where we are ok with applying the operation on the arguments super
 ;; types.
 
 ;; c) regardless we must implement what I just tried to argue against in b). The change
@@ -427,7 +427,7 @@ type-tower is defined in the variable `*type-tower*'"
 ;; Solution: Given a type hierarchy (like the tower: complex, real, rational and
 ;; cl-number) we determine lowest type highest in the hierarchy and then raise it 
 ;; to the next higher type. If there is still no dispatch found we keep on raising
-;; the lowerst types till we get 3 equal types.
+;; the lowest types till we get 3 equal types.
 ;;
 ;; Now given a type hierarchy in the form of a tree like with the polygon example, the
 ;; solution would search for a 'highest type' in the argument which doesn't always make
@@ -599,9 +599,6 @@ type-tower is defined in the variable `*type-tower*'"
 			(list p1 p2))))
 	   (sub-terms (t1 t2)
 	     (add-terms t1
-			;; because negation needs to operate on polynoms, we
-			;; make one and then break out the term-list after the negation
-			;; - a bit of a hack
 			(negate-term t2)))
 	   (add-terms (L1 L2)
 	     (cond ((empty-termlist? L1) L2)
@@ -894,7 +891,7 @@ type-tower is defined in the variable `*type-tower*'"
     (put-op '=zero? '(polynomial) #'=zero?))
    'done)
 
-;; terms are of the form '(<order> <coefficent>) for example 2x^10 would be '(10 2)
+;; terms are of the form '(<order> <coefficient>) for example 2x^10 would be '(10 2)
 ;; and to create a polynomial like 2x^10 + x^8 it: (make-polynomial-from-sparse 'x '((10 2) (8 1)))
 (defun make-polynomial-from-sparse (var sparse-term)
   (funcall (get-op 'make-polynomial-from-sparse '(polynomial)) var sparse-term))
