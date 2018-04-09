@@ -583,11 +583,13 @@ type-tower is defined in the variable `*type-tower*'"
 	   ;; exercise 2.88
 	   (negation (poly)
 	     (cons (variable poly)
-		   ;; negation by simply multiply all terms with -1,
-		   ;; borrowing mul-term-by-all-terms from the
-		   ;; mul-poly algorithm
-		   (mul-term-by-all-terms (make-term 0 -1)
-					  (term-list poly))))
+		   (negate-term (term-list poly))))
+	   (negate-term (term)
+	     ;; negation by simply multiply all terms with -1,
+	     ;; borrowing mul-term-by-all-terms from the
+	     ;; mul-poly algorithm
+	     (mul-term-by-all-terms (make-term 0 -1)
+				    term))
 	   (sub-poly (p1 p2)
 	     (if (same-variable? (variable p1) (variable p2))
 		 (make-poly (variable p1)
@@ -600,8 +602,7 @@ type-tower is defined in the variable `*type-tower*'"
 			;; because negation needs to operate on polynoms, we
 			;; make one and then break out the term-list after the negation
 			;; - a bit of a hack
-			(term-list (negation (make-poly 'x t2)))))
-	   ;; <procedures used by add-poly>
+			(negate-term t2)))
 	   (add-terms (L1 L2)
 	     (cond ((empty-termlist? L1) L2)
 		   ((empty-termlist? L2) L1)
