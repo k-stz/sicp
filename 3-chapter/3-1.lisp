@@ -21,18 +21,41 @@
 ;; meaning that (gcd (random int-x1) (random int-x2)) will be false 6/π² percent of the
 ;; time
 
+(defun monte-carlo (trials experiment-fn)
+  "doc"
+  (labels ((iter (trials-remaining trials-passed)
+	     (cond ((= trials-remaining 0)
+		    (/ trials-passed trials))
+		   ((funcall experiment-fn)
+		    (iter (1- trials-remaining) (1+ trials-passed)))
+		   (t
+		    (iter (1- trials-remaining) trials-passed)))))
+    (iter trials 0)))
+
+(defun cesaro-test ()
+  (= (gcd (random 1000000) (random 1000000)) 1))
 
 (defun estimate-pi (n-trials)
-  "Using Monthe Carlo method, by performing an experiment `n-trials' of times to estiamte
-Pi."
-  (let ((no-common-factors 0)
-	(6-pi-squared))
-    (setf 6-pi-squared
-	  (/
-	   (loop for i from 0 upto n-trials
-	      :when (= (gcd (random 1000000) (random 1000000))
-		       1)
-	      :counting no-common-factors)
-	   n-trials))
-    ;; extracting pi
-    (sqrt (/ 6 6-pi-squared))))
+  (sqrt
+   (/ 6
+      (monte-carlo n-trials #'cesaro-test))))
+
+;; (defun estimate-pi (n-trials)
+;;   "Using Monthe Carlo method, by performing an experiment `n-trials' of times to estiamte
+;; Pi."
+;;   (let ((no-common-factors 0)
+;; 	(6-pi-squared))
+;;     (setf 6-pi-squared
+;; 	  (/
+;; 	   (loop for i from 0 upto n-trials
+;; 	      :when (= (gcd (random 1000000) (random 1000000))
+;; 		       1)
+;; 	      :counting no-common-factors)
+;; 	   n-trials))
+;;     ;; extracting pi
+;;     (sqrt (/ 6 6-pi-squared))))
+
+
+;;
+
+
