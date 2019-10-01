@@ -121,3 +121,18 @@
    -2 2 -2 2			   ;; rectangle diagonally opposite points
    n-trials))			   ;; trials
    
+
+;; exercise 3.8
+;; depending on order of evaluation the expression (+ (f 0) (f 1))
+;; shall return:
+;; 0 for left-to-right
+;; 1 for right-to-left
+
+(defparameter *f-global* -1)
+
+(defun f (n)
+  (if (= *f-global* -1)
+      (progn (setf *f-global* n)
+	     0)
+      *f-global*))
+
